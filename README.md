@@ -38,11 +38,26 @@ Containers should be running. You can check by `docker ps -a` or by navigating t
 
 ---
 
-It's possible to checkout a different branch and run docker-compose from there. For example, run following commands to compose a development version of Gateway:
+It's possible to checkout a different branch and run docker-compose from there. Practical example would be including a new submodule to the composition and wanting to test its integration with the rest while the new component isn't included in the main branch of gateway repository but is already included in the development branch. For example, run following commands to compose a development version of Gateway with the new submodule:
 
 ```bash
 git clone --recurse-submodules https://github.com/tp17-2021/gateway.git
 cd gateway
 git checkout development
+docker-compose up -d
+```
+
+---
+
+Submodules' directories behave as normal git repositories, so it's possible to checkout certain branches or even commits in submodules. This is useful when non-main version of submodule is needed. Docker-compose uses submodule's Dockerfile present in a directory at the moment of composing.
+
+Let's say we want to specifically use development branch of voting-service. To do that, use following.
+
+```bash
+git clone --recurse-submodules https://github.com/tp17-2021/gateway.git
+cd gateway
+cd voting-service
+git checkout development
+cd ..
 docker-compose up -d
 ```

@@ -1,0 +1,4 @@
+[submodule "voting-service"]
+    path = voting-service
+    url = https://github.com/tp17-2021/voting-service.git
+

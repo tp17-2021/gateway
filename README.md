@@ -12,6 +12,8 @@ Each submodule references certain commit in remote repository, so ```git submodu
 
 When cloning a repository with submodules, use `--recurse-submodules` to clone submodules too. Otherwise, submodules won't be cloned and the directories will be empty. The same applies to `git pull`.
 
+_However, cloning with `--recurse-submodules` will pull submodules for `main` branch only. Pulling submodules to other branches can be done by `git pull --recurse-submodules` after checkout._
+
 
 ## Requirements
 
@@ -44,6 +46,7 @@ It's possible to checkout a different branch and run docker-compose from there. 
 git clone --recurse-submodules https://github.com/tp17-2021/gateway.git
 cd gateway
 git checkout development
+git pull --recurse-submodules
 docker-compose up -d
 ```
 

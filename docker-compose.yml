@@ -13,16 +13,15 @@ services:
     restart: unless-stopped
     depends_on:
       - vote-db
-    # export useful environment variables to the service
+    # export useful environment variables to the service's container
     environment:
-      - VOTE_DB_PORT=8223
+      - VOTE_DB_PORT=27017
+      - VOTE_DB_HOST=vote-db
   
   synchronization-service:
     build:
-      # The path to the service's repository
       context: ./synchronization-service
       dockerfile: ./Dockerfile
-    # bind the service's exposed port 80 to the host's 8222
     ports:
       - 8224:80
     restart: unless-stopped
@@ -39,7 +38,7 @@ services:
     # use vote-db-data directory as volume to store data
     volumes:
       - ./vote-db-data:/data/db
-    # set user anf group to mongo
+    # set user and group to mongo
     environment:
       - PUID=1000
       - PGID=1000

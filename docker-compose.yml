@@ -17,6 +17,8 @@ services:
     environment:
       - VOTE_DB_PORT=27017
       - VOTE_DB_HOST=vote-db
+      - VOTE_DB_DB_NAME=vote-db
+      - VOTE_DB_COLLECTION=votes
   
   synchronization-service:
     build:

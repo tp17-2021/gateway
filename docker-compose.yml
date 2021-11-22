@@ -16,6 +16,18 @@ services:
     # export useful environment variables to the service
     environment:
       - VOTE_DB_PORT=8223
+  
+  synchronization-service:
+    build:
+      # The path to the service's repository
+      context: ./synchronization-service
+      dockerfile: ./Dockerfile
+    # bind the service's exposed port 80 to the host's 8222
+    ports:
+      - 8224:80
+    restart: unless-stopped
+    depends_on:
+      - vote-db
 
   vote-db:
     # use existing mongo image from dockerhub

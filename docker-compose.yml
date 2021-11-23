@@ -29,6 +29,12 @@ services:
     restart: unless-stopped
     depends_on:
       - vote-db
+    # export useful environment variables to the service's container
+    environment:
+      - VOTE_DB_PORT=27017
+      - VOTE_DB_HOST=vote-db
+      - VOTE_DB_DB_NAME=vote-db
+      - VOTE_DB_COLLECTION=votes
 
   vote-db:
     # use existing mongo image from dockerhub

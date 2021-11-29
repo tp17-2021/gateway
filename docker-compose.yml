@@ -35,6 +35,7 @@ services:
       - VOTE_DB_HOST=vote-db
       - VOTE_DB_DB_NAME=vote-db
       - VOTE_DB_COLLECTION=votes
+      - SERVER_SYNCH_ENDPOINT=https://team17-21.studenti.fiit.stuba.sk/server/synch
 
   vote-db:
     # use existing mongo image from dockerhub

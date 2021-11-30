@@ -7,9 +7,7 @@ services:
       # The path to the service's repository
       context: ./voting-service
       dockerfile: ./Dockerfile
-    # bind the service's exposed port 80 to the host's 8222
-    ports:
-      - 8222:80
+    container_name: voting-service
     restart: unless-stopped
     depends_on:
       - vote-db
@@ -24,8 +22,7 @@ services:
     build:
       context: ./synchronization-service
       dockerfile: ./Dockerfile
-    ports:
-      - 8224:80
+    container_name: synchronization-service
     restart: unless-stopped
     depends_on:
       - vote-db
@@ -37,13 +34,27 @@ services:
       - VOTE_DB_COLLECTION=votes
       - SERVER_SYNCH_ENDPOINT=https://team17-21.studenti.fiit.stuba.sk/server/synch
 
+  web:
+    container_name: web
+    image: nginx:alpine
+    depends_on:
+      - voting-service
+      - synchronization-service
+      - vote-db
+    ports:
+      #Port mapping:"Host OS port:container(Nginx)Port"
+      - "80:80"
+    volumes:
+      #volume mount:"Host OS path:Path in the container"
+      - ./web/conf.d:/etc/nginx/conf.d
+
   vote-db:
     # use existing mongo image from dockerhub
     image: mongo
     container_name: vote-db
+    restart: unless-stopped
     ports:
       - 8223:27017
-    restart: unless-stopped
     # use vote-db-data directory as volume to store data
     volumes:
       - ./vote-db-data:/data/db

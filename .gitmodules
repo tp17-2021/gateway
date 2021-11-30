@@ -1,0 +1,7 @@
+[submodule "voting-service"]
+	path = voting-service
+	url = https://github.com/tp17-2021/gateway-voting-service
+
+[submodule "synchronization-service"]
+	path = synchronization-service
+	url = https://github.com/tp17-2021/gateway-synchronization-service.git

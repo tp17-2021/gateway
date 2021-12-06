@@ -47,6 +47,8 @@ services:
     volumes:
       #volume mount:"Host OS path:Path in the container"
       - ./web/conf.d:/etc/nginx/conf.d
+      - ./statevector/gateway:/usr/share/nginx/statevector/gateway
+      - ./statevector/config:/usr/share/nginx/statevector/config
 
   vote-db:
     # use existing mongo image from dockerhub

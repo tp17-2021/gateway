@@ -33,6 +33,15 @@ services:
       - VOTE_DB_DB_NAME=vote-db
       - VOTE_DB_COLLECTION=votes
 
+  voting-process-manager:
+    build:
+      context: ./voting-process-manager
+      dockerfile: ./Dockerfile
+    container_name: voting-process-manager
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   web:
     container_name: web
     image: nginx:alpine
@@ -42,7 +51,7 @@ services:
       - vote-db
     ports:
       #Port mapping:"Host OS port:container(Nginx)Port"
-      - "80:80"
+      - "8080:80"
     volumes:
       #volume mount:"Host OS path:Path in the container"
       - ./web/conf.d:/etc/nginx/conf.d

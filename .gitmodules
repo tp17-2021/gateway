@@ -6,9 +6,6 @@
 	path = synchronization-service
 	url = https://github.com/tp17-2021/gateway-synchronization-service.git
 
-[submodule "voting-proces-manager"]
-	path = voting-proces-manager
-	url = https://github.com/tp17-2021/gateway-voting-process-manager.git
 [submodule "voting-process-manager"]
 	path = voting-process-manager
 	url = https://github.com/tp17-2021/gateway-voting-process-manager.git

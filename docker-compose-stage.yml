@@ -1,0 +1,70 @@
+version: "3.8"
+
+services:
+  voting-service:
+    build:
+      context: ./voting-service
+      dockerfile: ./Dockerfile
+    container_name: voting-service
+    restart: unless-stopped
+    depends_on:
+      - vote-db
+    environment:
+      - VOTE_DB_PORT=27017
+      - VOTE_DB_HOST=vote-db
+      - VOTE_DB_DB_NAME=vote-db
+      - VOTE_DB_COLLECTION=votes
+      - ROOT_PATH=/gateway/voting-service-api
+  
+  synchronization-service:
+    build:
+      context: ./synchronization-service
+      dockerfile: ./Dockerfile
+    container_name: synchronization-service
+    restart: unless-stopped
+    depends_on:
+      - vote-db
+    environment:
+      - VOTE_DB_PORT=27017
+      - VOTE_DB_HOST=vote-db
+      - VOTE_DB_DB_NAME=vote-db
+      - VOTE_DB_COLLECTION=votes
+      - ROOT_PATH=/gateway/synchronization-service-api
+
+  voting-process-manager:
+    build:
+      context: ./voting-process-manager
+      dockerfile: ./Dockerfile
+    container_name: voting-process-manager
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - ROOT_PATH=/gateway/voting-process-manager-api
+
+  web:
+    container_name: web
+    image: nginx:alpine
+    depends_on:
+      - voting-service
+      - synchronization-service
+      - vote-db
+    ports:
+      - "8101:80"
+    volumes:
+      - ./web/conf.d:/etc/nginx/conf.d
+      - ./statevector/gateway:/usr/share/nginx/statevector/gateway
+      - ./statevector/config:/usr/share/nginx/statevector/config
+
+  vote-db:
+    image: mongo
+    container_name: vote-db
+    restart: unless-stopped
+    # ports:
+      # - 8223:27017
+    volumes:
+      - ./vote-db-data:/data/db
+    environment:
+      - PUID=1000
+      - PGID=1000
+

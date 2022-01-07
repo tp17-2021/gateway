@@ -27,6 +27,7 @@ jobs:
       - name: Checkout submodules
         run: |
           git submodule init
+          git pull --recurse-submodules
           cd voting-service
           git checkout development
           git pull

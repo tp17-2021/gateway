@@ -1,0 +1,31 @@
+name: Some Kind of Tests
+
+on:
+  pull_request:
+    branches: [ master ]
+    types: [ open ]
+
+  push:
+    branches: [ development ]
+
+  workflow_dispatch:
+
+jobs:
+  unti-test-synchronization-service:
+    runs-on: self-hosted
+    
+    steps:
+      - name: Check current user
+        run: whoami
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Where/When am I in context of the GIT?
+        run: git status
+
+      - name: List
+        run: ls -lah
+
+      - name: Tests Docker-Compose
+        run: docker-compose -f docker-compose.test.yml -f docker-compose.test.synchronization-service.yml -p g-utest-sync up --build --exit-code-from synchronization-service --force-recreate --remove-orphans

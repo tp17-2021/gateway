@@ -4,6 +4,7 @@ from fastapi_utils.tasks import repeat_every
 import os
 import requests
 import datetime
+import rsaelectie
 
 import src.database as db
 
@@ -22,15 +23,30 @@ def get_unsychronized_votes() -> list :
 
 def send_unsychronized_votes(votes) -> requests.Response:
 
-    serialized_votes = [vote['vote'] for vote in votes]
+    serialized_votes = []
+    server_key = requests.get('http://web/statevector/gateway/server_key.txt').text
+
+    for vote in votes:
+        new_vote = {
+            'token' : vote['vote']['token'],
+            'election_id' : vote['vote']['election_id'],
+            'party_id' : vote['vote']['party_id'],
+            'office_id' : vote['vote']['office_id'],
+            'candidates_ids': [i['candidate_id'] for i in vote['vote']['candidates']],
+        }
+
+        print(new_vote)
+        new_vote = rsaelectie.encrypt_vote(server_key, new_vote);
+        print(new_vote)
+        serialized_votes.append(new_vote)
 
     payload = {
-        'office_id': requests.get('http://web/statevector/gateway/office_id.txt').text,
-        'data': serialized_votes,
+        'polling_place_id': requests.get('http://web/statevector/gateway/office_id.txt').text,
+        'votes': serialized_votes,
     }
 
     print('Sending', payload)
-    server_synch_endpoint = requests.get('http://web/statevector/gateway/server_address.txt').text + '/api/synch'
+    server_synch_endpoint = requests.get('http://web/statevector/gateway/server_address.txt').text + '/elections/vote'
     print('Sending data to', server_synch_endpoint)
     response = requests.post(server_synch_endpoint, json=payload)
     

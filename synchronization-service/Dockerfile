@@ -1,10 +1,16 @@
-FROM python:3.10-slim as base
+FROM python:3.10-alpine as base
 
 WORKDIR /code
+
+RUN apk add -U g++ gcc git bash
 
 COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+
+COPY ./rsaelectie-install.sh ./rsaelectie-install.sh
+
+RUN ./rsaelectie-install.sh
 
 COPY ./src /code/src
 

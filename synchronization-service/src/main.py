@@ -31,7 +31,6 @@ def send_unsychronized_votes(votes) -> requests.Response:
             'token' : vote['vote']['token'],
             'election_id' : vote['vote']['election_id'],
             'party_id' : vote['vote']['party_id'],
-            'office_id' : vote['vote']['office_id'],
             'candidates_ids': [i['candidate_id'] for i in vote['vote']['candidates']],
         }
 

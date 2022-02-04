@@ -4,7 +4,7 @@ from fastapi_utils.tasks import repeat_every
 import os
 import requests
 import datetime
-import rsaelectie
+from rsaelectie import rsaelectie
 
 import src.database as db
 
@@ -21,11 +21,12 @@ def get_unsychronized_votes() -> list :
     return items
 
 
-def send_unsychronized_votes(votes) -> requests.Response:
+async def send_unsychronized_votes(votes) -> requests.Response:
 
     serialized_votes = []
     server_key = requests.get('http://web/statevector/gateway/server_key.txt').text
 
+    print(votes)
     for vote in votes:
         new_vote = {
             'token' : vote['vote']['token'],
@@ -34,13 +35,12 @@ def send_unsychronized_votes(votes) -> requests.Response:
             'candidates_ids': [i['candidate_id'] for i in vote['vote']['candidates']],
         }
 
-        print(new_vote)
-        new_vote = rsaelectie.encrypt_vote(server_key, new_vote);
-        print(new_vote)
+        new_vote = await rsaelectie.encrypt_vote(server_key, new_vote);
         serialized_votes.append(new_vote)
 
+    print(serialized_votes)
     payload = {
-        'polling_place_id': requests.get('http://web/statevector/gateway/office_id.txt').text,
+        'polling_place_id': int(requests.get('http://web/statevector/gateway/office_id.txt').text),
         'votes': serialized_votes,
     }
 
@@ -70,7 +70,7 @@ async def synchronize_votes() -> None:
         while votes:
             # send unsynchronized votes to server
             try:
-                server_response = send_unsychronized_votes(votes)
+                server_response = await send_unsychronized_votes(votes)
                 server_response.raise_for_status()
             
                 # update synchronized votes on gateway
@@ -93,12 +93,12 @@ async def synchronize_votes() -> None:
         lock.release()
 
 
-@app.on_event("startup")
-@repeat_every(seconds=synchronize_every_seconds)  # 1 minute
-async def start_synchronization() -> None:
-    print('Syncronization cron started')
-    if not lock.locked():
-        await synchronize_votes()
+# @app.on_event("startup")
+# @repeat_every(seconds=synchronize_every_seconds)  # 1 minute
+# async def start_synchronization() -> None:
+#     print('Syncronization cron started')
+#     if not lock.locked():
+#         await synchronize_votes()
 
 
 def get_statistics() -> dict: 
@@ -143,4 +143,55 @@ async def statistics () -> dict:
     return {
         'status': 'success',
         'statistics': get_statistics() 
+    }
+
+
+@app.post('/seed')
+async def seed() -> dict:
+    # insert dummy vote
+    db.collection.insert_many([{
+        'vote': {
+            'token': 'abcd',
+            'election_id': 'election_id',
+            'party_id' : 1, 
+            'candidates' : [
+                {
+                    'candidate_id' : 1,
+                },
+                {
+                    'candidate_id' : 2,
+                }
+            ]
+        },
+        'time_registered': datetime.datetime.now(),
+        'synchronized': False,
+    } for _ in range(10)])
+
+    return {
+        'status': 'success',
+    }
+
+@app.post('/test-encrypt')
+async def test_encrypt() -> dict:
+    votes = get_unsychronized_votes()
+    server_key = requests.get('http://web/statevector/gateway/server_key.txt').text
+    serialized_votes = []
+
+    print(server_key)
+    print(votes)
+    for vote in votes:
+        new_vote = {
+            'token' : vote['vote']['token'],
+            'election_id' : vote['vote']['election_id'],
+            'party_id' : int(vote['vote']['party_id']),
+            'candidates_ids': [i['candidate_id'] for i in vote['vote']['candidates']],
+        }
+
+        new_vote = await rsaelectie.encrypt_vote(server_key, new_vote);
+        serialized_votes.append(new_vote)
+
+    print(serialized_votes)
+    return {
+        'polling_place_id': int(requests.get('http://web/statevector/gateway/office_id.txt').text),
+        'votes': serialized_votes,
     }

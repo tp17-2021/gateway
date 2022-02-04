@@ -10,6 +10,8 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./rsaelectie-install.sh ./rsaelectie-install.sh
 
+RUN chmod a+x rsaelectie-install.sh
+
 RUN ./rsaelectie-install.sh
 
 COPY ./src /code/src

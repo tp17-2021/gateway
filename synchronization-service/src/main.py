@@ -12,6 +12,8 @@ import src.database as db
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
 votes_to_synchronize = 10
 synchronize_every_seconds = 60
+last_synchronization = None
+last_success_synchronization = None
 lock = asyncio.Lock()
 
 
@@ -26,7 +28,6 @@ async def send_unsychronized_votes(votes) -> requests.Response:
     serialized_votes = []
     server_key = requests.get('http://web/statevector/gateway/server_key.txt').text
 
-    print(votes)
     for vote in votes:
         new_vote = {
             'token' : vote['vote']['token'],
@@ -38,13 +39,11 @@ async def send_unsychronized_votes(votes) -> requests.Response:
         new_vote = await rsaelectie.encrypt_vote(server_key, new_vote);
         serialized_votes.append(new_vote)
 
-    print(serialized_votes)
     payload = {
         'polling_place_id': int(requests.get('http://web/statevector/gateway/office_id.txt').text),
         'votes': serialized_votes,
     }
 
-    print('Sending', payload)
     server_synch_endpoint = requests.get('http://web/statevector/gateway/server_address.txt').text + '/elections/vote'
     print('Sending data to', server_synch_endpoint)
     response = requests.post(server_synch_endpoint, json=payload)
@@ -62,24 +61,31 @@ def update_unsychronized_votes(votes) -> int:
 
 async def synchronize_votes() -> None:
     await lock.acquire()
+    global last_synchronization, last_success_synchronization
     try:
         print('Start synchronization')
+        erorrs_count = 0
         # get unsynchronized votes
         votes = get_unsychronized_votes()
         
-        while votes:
+        while votes and erorrs_count < 2:
             # send unsynchronized votes to server
             try:
                 server_response = await send_unsychronized_votes(votes)
+                last_synchronization = datetime.datetime.now();
+                print(server_response.text)
                 server_response.raise_for_status()
+            
             
                 # update synchronized votes on gateway
                 updated_count = update_unsychronized_votes(votes)
-
                 print('Updated', updated_count)
+                last_success_synchronization = datetime.datetime.now();
+                erorrs_count = 0
         
             except requests.exceptions.HTTPError as err:
                 print('Error 2', str(err))
+                erorrs_count += 1
                 # todo log the error
 
             # repeat until no unsynchronized votes
@@ -93,12 +99,12 @@ async def synchronize_votes() -> None:
         lock.release()
 
 
-# @app.on_event("startup")
-# @repeat_every(seconds=synchronize_every_seconds)  # 1 minute
-# async def start_synchronization() -> None:
-#     print('Syncronization cron started')
-#     if not lock.locked():
-#         await synchronize_votes()
+@app.on_event("startup")
+@repeat_every(seconds=synchronize_every_seconds)  # 1 minute
+async def start_synchronization() -> None:
+    print('Syncronization cron started')
+    if not lock.locked():
+        await synchronize_votes()
 
 
 def get_statistics() -> dict: 
@@ -140,8 +146,12 @@ async def synchronize () -> dict:
 async def statistics () -> dict:
     """Get current statistics of sychnonization of local votes"""
     
+    global last_synchronization, last_success_synchronization
+
     return {
         'status': 'success',
+        'last_synchronization': last_synchronization,
+        'last_success_synchronization': last_success_synchronization,
         'statistics': get_statistics() 
     }
 
@@ -151,9 +161,9 @@ async def seed() -> dict:
     # insert dummy vote
     db.collection.insert_many([{
         'vote': {
-            'token': 'abcd',
+            'token': 'abcd_'+str(i),
             'election_id': 'election_id',
-            'party_id' : 1, 
+            'party_id' : 0, 
             'candidates' : [
                 {
                     'candidate_id' : 1,
@@ -165,7 +175,7 @@ async def seed() -> dict:
         },
         'time_registered': datetime.datetime.now(),
         'synchronized': False,
-    } for _ in range(10)])
+    } for i in range(10)])
 
     return {
         'status': 'success',

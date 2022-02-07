@@ -11,12 +11,12 @@ import src.database as db
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
 
 def token_exists(token) -> bool:
-    found_token = db.collection.find({'token': token})
+    found_token = db.collection.count_documents({'token': token})
     return True if (found_token) else False
 
 
 def generate_token() -> str:
-    polling_place_id: int(requests.get('http://web/statevector/gateway/office_id.txt').text)
+    polling_place_id =  str(requests.get('http://web/statevector/gateway/office_id.txt').text)
     token = str(uuid.uuid4())
     token = polling_place_id + '_' + token
     return token

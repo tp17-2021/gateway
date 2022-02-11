@@ -8,12 +8,6 @@ COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-COPY ./rsaelectie-install.sh ./rsaelectie-install.sh
-
-RUN chmod a+x rsaelectie-install.sh
-
-RUN ./rsaelectie-install.sh
-
 COPY ./src /code/src
 
 COPY ./test.py /code/test.py
@@ -21,8 +15,7 @@ COPY ./test.py /code/test.py
 
 FROM base as test
 CMD ["pytest", "test.py", "-rP", "--verbose"]
-# docker-compose -f docker-compose-test.yml build && docker-compose -f docker-compose-test.yml run --rm tests
-# docker-compose -f docker-compose-test.yml stop; docker-compose -f docker-compose-test.yml rm -f; docker-compose -f docker-compose-test.yml build; docker-compose -f docker-compose-test.yml run --rm tests
+# docker-compose -f docker-compose.test.yml -f docker-compose.test.synchronization-service.yml -p g-test up --build --exit-code-from synchronization-service --force-recreate --remove-orphans
 
 FROM base as build
 CMD [ "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80" ]

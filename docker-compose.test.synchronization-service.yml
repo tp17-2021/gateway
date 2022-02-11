@@ -6,3 +6,10 @@ services:
       target: test
     restart: "no"
 
+  web:
+    depends_on:
+      - voting-process-manager
+      - voting-service
+      - vote-db
+
+

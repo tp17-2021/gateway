@@ -57,3 +57,22 @@ def test_it_should_synchronize_with_server(mocker):
     response = client.post("/statistics")
     assert response.status_code == 200
     assert response.json()['statistics']['unsyncronized_count'] == 0
+
+
+def test_it_should_get_server_key():
+    server_key = requests.get('http://web/statevector/gateway/server_key.txt').text
+
+    assert "-----BEGIN PUBLIC KEY-----" in server_key
+
+
+def test_it_should_get_private_key():
+    my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
+
+    assert "-----BEGIN RSA PRIVATE KEY-----" in my_private_key
+
+
+
+def test_it_should_get_office_id():
+    office_is = int(requests.get('http://web/statevector/gateway/office_id.txt').text)
+
+    assert office_is == 0

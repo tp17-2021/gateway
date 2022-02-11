@@ -10,11 +10,13 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./src /code/src
 
-COPY ./test.py /code/test.py
-
 
 FROM base as test
-CMD ["pytest", "test.py", "-rP", "--verbose"]
+
+COPY ./test.py /code/test.py
+COPY ./start_test.sh ./start_test.sh
+RUN chmod 700 ./start_test.sh
+CMD [ "./start_test.sh" ]
 # docker-compose -f docker-compose.test.yml -f docker-compose.test.synchronization-service.yml -p g-test up --build --exit-code-from synchronization-service --force-recreate --remove-orphans
 
 FROM base as build

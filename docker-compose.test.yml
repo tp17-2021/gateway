@@ -57,11 +57,6 @@ services:
     build:
       context: ./
       dockerfile: ./web/Dockerfile
-    depends_on:
-      - voting-process-manager
-      - voting-service
-      - synchronization-service
-      - vote-db
     
   vote-db:
     image: mongo

@@ -39,7 +39,7 @@ POST /tokens/validate
 If token is invalid returns empty response with status `403` else status `200`.
 
 
-### Validate token
+### Delete token
 Delete provided token.
 
 #### Request

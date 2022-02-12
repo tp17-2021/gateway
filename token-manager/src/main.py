@@ -10,8 +10,8 @@ import src.database as db
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
 
-def token_exists(token) -> bool:
-    found_token = db.collection.count_documents({'token': token})
+def token_exists(token, active=True) -> bool:
+    found_token = db.collection.count_documents({'token': token, 'active': active})
     return True if (found_token) else False
 
 
@@ -43,6 +43,7 @@ async def create_token () -> dict:
 
     db.collection.insert_one({
         'token': token,
+        'active': True,
         'created_at': datetime.datetime.now(),
     })
 
@@ -56,11 +57,29 @@ async def create_token () -> dict:
 async def create_token (token: str = Body(..., embed=True)) -> None:
     """Validate token"""
 
-    if not token_exists(token):
+    if not token_exists(token, active=True):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Invalid token'
         )
+
+
+@app.post('/tokens/deactivate')
+async def create_token (token: str = Body(..., embed=True)) -> dict:
+    """Deactive token -> change active status to false"""
+
+    if not token_exists(token, active=True):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Invalid token'
+        )
+
+    result = db.collection.update_many({'token': token} , { '$set' : { 'active' : False } })
+
+    return {
+        'result': result
+    }
+
 
 
 @app.delete('/tokens/delete')

@@ -6,6 +6,7 @@ Token structure is `{polling_place_id}_{uuid}` for example `1_858c0eb7-98a8-475d
 
 ## API description
 
+
 ### Generate token
 Generates new token and returns it.
 
@@ -29,6 +30,22 @@ Validate if provided token is valid.
 #### Request
 ```http
 POST /tokens/validate
+```
+```json
+{
+    "token": "token"
+}
+```
+#### Response
+If token is invalid returns empty response with status `403` else status `200`.
+
+
+### Deactivate token
+Deactivate provided token.
+
+#### Request
+```http
+POST /tokens/deactivate
 ```
 ```json
 {

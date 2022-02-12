@@ -50,7 +50,7 @@ services:
         - TOKEN_DB_PORT=27017
         - TOKEN_DB_HOST=vote-db
         - TOKEN_DB_DB_NAME=vote-db
-        - TOKEN_DB_COLLECTION=token
+        - TOKEN_DB_COLLECTION=tokens
         - ROOT_PATH=/token-manager-api
   
   web:

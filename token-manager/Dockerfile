@@ -10,7 +10,9 @@ COPY ./src /code/src
 
 FROM base as test
 COPY ./test.py /code/test.py
-CMD ["pytest", "test.py", "-rP", "--verbose"]
+COPY ./start_test.sh ./start_test.sh
+RUN chmod 700 ./start_test.sh
+CMD [ "./start_test.sh" ]
 
 FROM base as build
 CMD [ "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80" ]

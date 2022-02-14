@@ -9,6 +9,7 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 COPY ./src /code/src
 
 FROM base as test
+COPY ./test.py /code/test.py
 CMD ["pytest", "test.py", "-rP", "--verbose"]
 
 FROM base as build

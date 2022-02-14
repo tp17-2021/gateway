@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  token-manager:
+    build:
+      target: test
+    restart: "no"
+    depends_on:
+      - web
+
+  web:
+    depends_on:
+      - voting-process-manager
+      - voting-service
+      - vote-db
+
+

@@ -9,6 +9,7 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 COPY ./src /code/src
 
 FROM base as test
+RUN apk add -U bash
 COPY ./test.py /code/test.py
 COPY ./start_test.sh ./start_test.sh
 RUN chmod 700 ./start_test.sh

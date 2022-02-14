@@ -65,7 +65,7 @@ async def create_token (token: str = Body(..., embed=True)) -> None:
 
 
 @app.post('/tokens/deactivate')
-async def create_token (token: str = Body(..., embed=True)) -> dict:
+async def create_token (token: str = Body(..., embed=True)) -> None:
     """Deactive token -> change active status to false"""
 
     if not token_exists(token, active=True):
@@ -74,11 +74,7 @@ async def create_token (token: str = Body(..., embed=True)) -> dict:
             detail='Invalid token'
         )
 
-    result = db.collection.update_many({'token': token} , { '$set' : { 'active' : False } })
-
-    return {
-        'result': result
-    }
+    db.collection.update_one({'token': token} , { '$set' : { 'active' : False } })
 
 
 

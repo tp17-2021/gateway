@@ -8,6 +8,14 @@ All Gateway services can be started from this single repository with docker-comp
 We ditched them.
 
 
+## Services and routing
+
+- Voting service `/voting-service-api/`
+- Synchronization service `/synchronization-service-api/`
+- Voting process manager `/voting-process-manager-api/`
+- Token manager `/token-manager-api/`
+- State vector `/statevector/config/`
+
 ## Requirements
 
 `docker-compose.yml` uses version `"3.8"`, which means that required versions are: `docker >= 19.03.0` and `docker-compose >= 1.25.5`.

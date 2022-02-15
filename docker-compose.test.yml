@@ -40,39 +40,27 @@ services:
       - ROOT_PATH=/voting-process-manager-api
 
   token-manager:
-      build:
-        context: ./token-manager
-        dockerfile: ./Dockerfile
-      restart: unless-stopped
-      depends_on:
-        - vote-db
-      environment:
-        - TOKEN_DB_PORT=27017
-        - TOKEN_DB_HOST=vote-db
-        - TOKEN_DB_DB_NAME=vote-db
-        - TOKEN_DB_COLLECTION=tokens
-        - ROOT_PATH=/token-manager-api
-  
+    build:
+      context: ./token-manager
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - vote-db
+    environment:
+      - TOKEN_DB_PORT=27017
+      - TOKEN_DB_HOST=vote-db
+      - TOKEN_DB_DB_NAME=vote-db
+      - TOKEN_DB_COLLECTION=token
+      - ROOT_PATH=/token-manager-api
+
   web:
     build:
       context: ./
       dockerfile: ./web/Dockerfile
-    depends_on:
-      - voting-process-manager
-      - voting-service
-      - synchronization-service
-      - token-manager
-      - vote-db
-    ports:
-      - "8080:80"
     
   vote-db:
     image: mongo
     restart: unless-stopped
-    ports:
-      - 8223:27017
-    volumes:
-      - ./vote-db-data:/data/db
     environment:
       - PUID=1000
       - PGID=1000

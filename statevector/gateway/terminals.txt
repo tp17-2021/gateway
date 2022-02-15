@@ -1,0 +1,6 @@
+[
+    {
+        "name": "Terminal 1",
+        "address": "host-gateway:81"
+    }
+]

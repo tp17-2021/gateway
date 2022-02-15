@@ -1,5 +1,5 @@
 # first build the static files for FE
-FROM node:12 AS build
+FROM node:16 AS build
 
 WORKDIR /app
 
@@ -12,4 +12,5 @@ RUN npm run build
 
 # copy static files to nginx server and use this image for deployment
 FROM nginx:1.19-alpine
-COPY --from=build /app/public /usr/share/nginx/html
+COPY ./conf.d /etc/nginx/conf.d
+COPY --from=build /app/dist /usr/share/nginx/html

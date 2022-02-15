@@ -77,3 +77,9 @@ services:
       - PUID=1000
       - PGID=1000
 
+  admin-frontend:
+      build:
+        context: ./admin-frontend
+        dockerfile: ./Dockerfile
+      environment:
+        - ROOT_PATH=/admin-frontend

@@ -1,21 +1,14 @@
-<svelte:head>
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
-          integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
-</svelte:head>
-
-<style lang="scss" global>
-  @import "scss/bootstrap";
-</style>
-
 <script>
-    import {Router} from 'svelte-router-spa'
-    import {routes} from "./routes";
-    import {configIsLoading} from "./stores";
+  import { Router } from "@roxi/routify";
+  import { routes } from "../.routify/routes";
+
+  const config = {
+      urlTransform: {
+          // set base url based on environment variable
+          apply: (url) => `${import.meta.env.VITE_BASE_PATH}${url}`, //external URL
+          remove: (url) => url.replace(`${import.meta.env.VITE_BASE_PATH}`, '') //internal URL
+      }
+  };
 </script>
 
-<!--don't render the page without loaded config-->
-{#if !$configIsLoading}
-    <div>
-        <Router {routes}/>
-    </div>
-{/if}
+<Router {routes} {config} />

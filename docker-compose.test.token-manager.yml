@@ -13,5 +13,6 @@ services:
       - voting-process-manager
       - voting-service
       - vote-db
+      - admin-frontend
 
 

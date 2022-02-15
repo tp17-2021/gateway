@@ -61,6 +61,7 @@ services:
       - voting-process-manager
       - voting-service
       - synchronization-service
+      - token-manager
       - vote-db
     ports:
       - "8080:80"

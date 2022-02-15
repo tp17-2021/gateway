@@ -63,6 +63,7 @@ services:
       - synchronization-service
       - token-manager
       - vote-db
+      - admin-frontend
     ports:
       - "8080:80"
     
@@ -81,5 +82,5 @@ services:
       build:
         context: ./admin-frontend
         dockerfile: ./Dockerfile
-      environment:
-        - ROOT_PATH=/admin-frontend
+        args:
+          vite_base_path: /admin-frontend

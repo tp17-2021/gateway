@@ -64,6 +64,7 @@ services:
       - synchronization-service
       - token-manager
       - vote-db
+      - admin-frontend
     ports:
       - "8101:80"
 
@@ -78,4 +79,11 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
+        
+  admin-frontend:
+      build:
+        context: ./admin-frontend
+        dockerfile: ./Dockerfile
+        args:
+          vite_base_path: /gateway/admin-frontend
 

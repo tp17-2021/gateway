@@ -7,5 +7,9 @@ export default defineConfig({
     },
     
     plugins: [svelte()],
-    base: process.env.NODE_ENV === 'production' ? '/admin-frontend/' : '/',
+    base: process.env.VITE_BASE_PATH + '/',
+    build: {
+        // generate sourcemap
+        sourcemap: true
+    }
 });

@@ -1,4 +1,4 @@
-from fastapi import Body, FastAPI, status, HTTPException
+from fastapi import Body, FastAPI, status, HTTPException, Request
 import json
 import os
 import requests
@@ -58,3 +58,14 @@ async def end_voting_process () -> dict:
         'status': 'success'
     }
 
+
+@app.get('/register-vt')
+async def register_vt (request: Request):
+    """Register a voting terminal"""
+
+    ip = request.client.host
+    print(f'Registering voting terminal {ip}')
+
+    return {
+        'status': 'success'
+    }

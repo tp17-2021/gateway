@@ -1,5 +1,6 @@
 <script>
 	// import {config} from "../stores";
+import {url} from "@roxi/routify";
 </script>
 
 <style>
@@ -29,7 +30,7 @@
 
 <header>
 	<div class="header-content">
-		<img src="img/sk.png" alt="" height="50px">
+		<img src="{$url('/img/sk.png')}" alt="" height="50px">
 		<div>Voľby</div>
 	</div>
 </header>

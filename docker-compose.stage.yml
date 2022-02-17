@@ -14,6 +14,7 @@ services:
       - VOTE_DB_DB_NAME=vote-db
       - VOTE_DB_COLLECTION=votes
       - ROOT_PATH=/gateway/voting-service-api
+      - TOKEN_MANAGER_URL=http://token-manager
   
   synchronization-service:
     build:
@@ -52,6 +53,7 @@ services:
       - TOKEN_DB_DB_NAME=vote-db
       - TOKEN_DB_COLLECTION=tokens
       - ROOT_PATH=/token-manager-api
+      - DEV_MODE=1
 
   web:
     build:

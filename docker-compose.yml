@@ -14,6 +14,7 @@ services:
       - VOTE_DB_DB_NAME=vote-db
       - VOTE_DB_COLLECTION=votes
       - ROOT_PATH=/voting-service-api
+      - TOKEN_MANAGER_URL=http://token-manager
   
   synchronization-service:
     build:
@@ -40,19 +41,20 @@ services:
       - ROOT_PATH=/voting-process-manager-api
 
   token-manager:
-      build:
-        context: ./token-manager
-        dockerfile: ./Dockerfile
-      restart: unless-stopped
-      depends_on:
-        - vote-db
-      environment:
-        - TOKEN_DB_PORT=27017
-        - TOKEN_DB_HOST=vote-db
-        - TOKEN_DB_DB_NAME=vote-db
-        - TOKEN_DB_COLLECTION=tokens
-        - ROOT_PATH=/token-manager-api
-  
+    build:
+      context: ./token-manager
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - vote-db
+    environment:
+      - TOKEN_DB_PORT=27017
+      - TOKEN_DB_HOST=vote-db
+      - TOKEN_DB_DB_NAME=vote-db
+      - TOKEN_DB_COLLECTION=tokens
+      - ROOT_PATH=/token-manager-api
+      - DEV_MODE=1
+
   web:
     build:
       context: ./

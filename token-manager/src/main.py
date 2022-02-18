@@ -11,8 +11,8 @@ import src.database as db
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
 
 def token_exists(token, active=True) -> bool:
-    if os.environ['DEV_MODE'] == '1' and token == 'valid':
-        print('Received valid development token')
+    if os.environ['ACCEPT_VALID_TOKEN'] == '1' and token == 'valid':
+        print('Received development token')
         return True
 
     found_token = db.collection.count_documents({'token': token, 'active': active})

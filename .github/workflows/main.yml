@@ -1,4 +1,56 @@
-name: Gateway Stage
+name: Test
+
+on:
+  pull_request:
+    branches: [ master, development ]
+    types: [ open ]
+
+  push:
+    branches: [ development ]
+
+  workflow_dispatch:
+
+jobs:
+  test-synchronization-service:
+    runs-on: self-hosted
+    
+    steps:
+      - name: Check current user
+        run: whoami
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Where/When am I in context of the GIT?
+        run: git status
+
+      - name: List
+        run: ls -lah
+
+      - name: Tests Docker-Compose
+        run: docker-compose -f docker-compose.test.yml -f synchronization-service/docker-compose.test.yml -p gtest-sync up --build --exit-code-from synchronization-service --force-recreate --remove-orphans
+  
+  test-token-manager:
+    runs-on: self-hosted
+    
+    steps:
+      - name: Check current user
+        run: whoami
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Where/When am I in context of the GIT?
+        run: git status
+
+      - name: List
+        run: ls -lah
+
+      - name: Tests Docker-Compose
+        run: docker-compose -f docker-compose.test.yml -f token-manager/docker-compose.test.yml -p gtest-token up --build --exit-code-from token-manager --force-recreate --remove-orphans
+
+
+name: Stage
 
 on:
   pull_request:
@@ -11,6 +63,7 @@ on:
   workflow_dispatch:
 
 jobs:
+  needs: [Test]
   stage:
     runs-on: self-hosted
     

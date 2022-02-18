@@ -53,7 +53,7 @@ services:
       - TOKEN_DB_DB_NAME=vote-db
       - TOKEN_DB_COLLECTION=tokens
       - ROOT_PATH=/token-manager-api
-      - DEV_MODE=1
+      - ACCEPT_VALID_TOKEN=1
 
   web:
     build:

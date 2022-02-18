@@ -1,0 +1,27 @@
+name: Stage
+
+on:
+  workflow_run:
+    workflows: ["Tests"]
+    branches: [ main, development ]
+    types: 
+      - completed
+
+  workflow_dispatch:
+
+jobs:
+  stage:
+    runs-on: self-hosted
+    
+    steps:
+      - name: Check current user
+        run: whoami
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: List
+        run: ls -lah
+
+      - name: Docker-Compose
+        run: docker-compose -f docker-compose.stage.yml -p gateway-deployment up -d --build

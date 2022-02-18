@@ -1,17 +1,17 @@
-name: Test
+name: Tests
 
 on:
   pull_request:
-    branches: [ master, development ]
+    branches: [ main, development ]
     types: [ open ]
 
   push:
-    branches: [ development ]
 
   workflow_dispatch:
 
 jobs:
   test-synchronization-service:
+    name: Test Synchronization Service
     runs-on: self-hosted
     
     steps:
@@ -31,6 +31,7 @@ jobs:
         run: docker-compose -f docker-compose.test.yml -f synchronization-service/docker-compose.test.yml -p gtest-sync up --build --exit-code-from synchronization-service --force-recreate --remove-orphans
   
   test-token-manager:
+    name: Test Token Manager
     runs-on: self-hosted
     
     steps:
@@ -48,34 +49,3 @@ jobs:
 
       - name: Tests Docker-Compose
         run: docker-compose -f docker-compose.test.yml -f token-manager/docker-compose.test.yml -p gtest-token up --build --exit-code-from token-manager --force-recreate --remove-orphans
-
-
-name: Stage
-
-on:
-  pull_request:
-    branches: [ master ]
-    types: [closed]
-
-  push:
-    branches: [ development ]
-
-  workflow_dispatch:
-
-jobs:
-  needs: [Test]
-  stage:
-    runs-on: self-hosted
-    
-    steps:
-      - name: Check current user
-        run: whoami
-
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: List
-        run: ls -lah
-
-      - name: Docker-Compose
-        run: docker-compose -f docker-compose.stage.yml -p gateway-deployment up -d --build

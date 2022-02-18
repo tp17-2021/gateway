@@ -8,6 +8,7 @@ services:
       - VOTE_DB_DB_NAME=vote-db
       - VOTE_DB_COLLECTION=votes
       - ROOT_PATH=/voting-service-api
+      - TOKEN_MANAGER_URL=http://token-manager
   
   synchronization-service:
     environment:
@@ -28,7 +29,21 @@ services:
       - TOKEN_DB_PORT=27017
       - TOKEN_DB_HOST=vote-db
       - TOKEN_DB_DB_NAME=vote-db
-      - TOKEN_DB_COLLECTION=token
+      - TOKEN_DB_COLLECTION=tokens
       - ROOT_PATH=/token-manager-api
       - ACCEPT_VALID_TOKEN=1
 
+  web:
+    ports:
+      - "8080:80"
+    
+  vote-db:
+    ports:
+      - 8223:27017
+    volumes:
+      - ./vote-db-data:/data/db
+
+  admin-frontend:
+      build:
+        args:
+          vite_base_path: /admin-frontend

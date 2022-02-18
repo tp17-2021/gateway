@@ -24,4 +24,4 @@ jobs:
         run: ls -lah
 
       - name: Docker-Compose
-        run: docker-compose --env-file envs/stage.env up -d --build
+        run: docker-compose --env-file stage.env up -d --build

@@ -28,10 +28,10 @@ jobs:
         run: ls -lah
 
       - name: Tests Docker-Compose
-        run: docker-compose --env-file envs/test-synchronization-service.env up --build --exit-code-from synchronization-service --force-recreate --remove-orphans
+        run: docker-compose --env-file synchronization-service/test.env up --build --exit-code-from synchronization-service --force-recreate --remove-orphans
 
       - name: Clean up containers
-        run: docker-compose --env-file envs/test-synchronization-service.env down
+        run: docker-compose --env-file synchronization-service/test.env down
   
   test-token-manager:
     name: Test Token Manager
@@ -51,7 +51,7 @@ jobs:
         run: ls -lah
 
       - name: Tests Docker-Compose
-        run: docker-compose --env-file envs/test-token-manager.env up --build --exit-code-from token-manager --force-recreate --remove-orphans
+        run: docker-compose --env-file token-manager/test.env up --build --exit-code-from token-manager --force-recreate --remove-orphans
 
       - name: Clean up containers
-        run: docker-compose --env-file envs/test-token-manager.env down
+        run: docker-compose --env-file token-manager/test.env down

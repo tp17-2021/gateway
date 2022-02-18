@@ -11,6 +11,10 @@ import src.database as db
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
 
 def token_exists(token, active=True) -> bool:
+    if os.environ['ACCEPT_VALID_TOKEN'] == '1' and token == 'valid':
+        print('Received development token')
+        return True
+
     found_token = db.collection.count_documents({'token': token, 'active': active})
     return True if (found_token) else False
 
@@ -54,7 +58,7 @@ async def create_token () -> dict:
 
 
 @app.post('/tokens/validate')
-async def create_token (token: str = Body(..., embed=True)) -> None:
+async def validate_token (token: str = Body(..., embed=True)) -> None:
     """Validate token"""
 
     if not token_exists(token, active=True):
@@ -65,7 +69,7 @@ async def create_token (token: str = Body(..., embed=True)) -> None:
 
 
 @app.post('/tokens/deactivate')
-async def create_token (token: str = Body(..., embed=True)) -> None:
+async def deactivate_token (token: str = Body(..., embed=True)) -> None:
     """Deactive token -> change active status to false"""
 
     if not token_exists(token, active=True):

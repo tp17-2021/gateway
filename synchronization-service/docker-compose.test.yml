@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  synchronization-service:
+    build:
+      target: test
+    restart: "no"
+

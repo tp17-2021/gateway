@@ -34,11 +34,23 @@ async def vote (
             detail=str(e)
         )
 
-    src.tokens.use_token(token)
+    try:
+        src.tokens.use_token(token)
+
+    except HTTPException as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail='Failed to invalidate token after successful vote.'
+        )
 
 
 @app.post('/api/token-validity')
 async def token_validity (token: str = Body(..., embed=True)):
     """ Checks if the provided token is valid. """
 
-    src.tokens.validate_token(token)
+    response = src.tokens.validate_token(token)
+
+    if response.status_code == status.HTTP_200_OK:
+        return {'status': 'success'}
+    
+    raise HTTPException(response.status_code, response.text)

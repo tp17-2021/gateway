@@ -21,7 +21,7 @@ def notify_voting_terminals(status):
             }
 
             print('Sending', payload)
-            terminal_endpoint = terminal['address'] + '/api/election/config'
+            terminal_endpoint = terminal['address'] + '/api/election/state'
             print('Sending data to', terminal_endpoint)
             response = requests.post(terminal_endpoint, json=payload)
             print('Response', response.status_code, response.text)

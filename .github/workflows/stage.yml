@@ -3,7 +3,9 @@ name: Stage
 on:
   workflow_run:
     workflows: ["Tests"]
-    branches: [ main, "development" ]
+    branches:
+      - development
+      - main
     types: 
       - completed
 

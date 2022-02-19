@@ -17,7 +17,10 @@ COPY ./test.py /code/test.py
 COPY ./start_test.sh ./start_test.sh
 RUN chmod 700 ./start_test.sh
 CMD [ "./start_test.sh" ]
-# docker-compose -f docker-compose.test.yml -f docker-compose.test.synchronization-service.yml -p g-test up --build --exit-code-from synchronization-service --force-recreate --remove-orphans
+
 
 FROM base as build
-CMD [ "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80" ]
+
+COPY ./start_prod.sh ./start_prod.sh
+RUN chmod 700 ./start_prod.sh
+CMD [ "./start_prod.sh" ]

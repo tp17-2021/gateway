@@ -1,0 +1,32 @@
+{
+  "title": "Vote",
+  "type": "object",
+  "properties": {
+    "token": {
+      "title": "Token",
+      "default": "",
+      "type": "string"
+    },
+    "party_id": {
+      "title": "Party Id",
+      "type": "integer"
+    },
+    "election_id": {
+      "title": "Election Id",
+      "type": "string"
+    },
+    "candidates_ids": {
+      "title": "Candidates Ids",
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    }
+  },
+  "required": [
+    "party_id",
+    "election_id",
+    "token"
+  ]
+}

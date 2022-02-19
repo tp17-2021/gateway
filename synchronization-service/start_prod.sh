@@ -8,5 +8,5 @@ done;
 # generate python vote class from json spec
 datamodel-codegen --url http://web/statevector/config/vote.json --output /code/src/schemas/vote.py
 
-# run tests
-pytest test.py -rP --verbose
+# start server
+uvicorn src.main:app --host 0.0.0.0 --port 80

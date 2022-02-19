@@ -5,8 +5,10 @@ import os
 import requests
 import datetime
 from electiersa import electiersa
+import json
 
 import src.database as db
+from src.schemas.vote import Vote
 
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
@@ -31,14 +33,9 @@ async def send_unsychronized_votes(votes) -> requests.Response:
     my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
 
     for vote in votes:
-        new_vote = {
-            'token' : vote['vote']['token'],
-            'election_id' : vote['vote']['election_id'],
-            'party_id' : int(vote['vote']['party_id']),
-            'candidates_ids': vote['vote']['candidates'],
-        }
+        new_vote = Vote(**vote['vote'])
 
-        new_vote = await electiersa.encrypt_vote(new_vote, my_private_key, server_key);
+        new_vote = await electiersa.encrypt_vote(new_vote.__dict__, my_private_key, server_key);
         serialized_votes.append(new_vote)
 
     payload = {

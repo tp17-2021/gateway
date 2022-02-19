@@ -1,7 +1,3 @@
-import nest_asyncio
-nest_asyncio.apply()
-__import__('IPython').embed()
-
 from fastapi import Body, FastAPI, status, HTTPException
 from pydantic import ValidationError
 import os
@@ -9,8 +5,9 @@ import os
 import src.tokens
 import src.votes
 import src.helper
-
 from src.schemas import Vote, VotePartial
+from electiersa import electiersa
+
 
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
@@ -25,12 +22,18 @@ async def hello ():
 
 @app.post('/api/vote')
 async def vote (
-    token: str = Body(..., embed=True),
-    vote: VotePartial = Body(..., embed=True),
+    voting_terminal_id: str = Body(..., embed=True),
+    payload: electiersa.VoteEncrypted = Body(..., embed=True),
 ):
     """ Receives vote with valid token, validates the token,
     sotres the vote and invalidates the token. """
 
+    data = src.helper.decrypt_vote(payload, voting_terminal_id)
+    
+    # check vote against schema
+    token, vote = data['token'], VotePartial(**data['vote'])
+
+    # chcek token
     src.tokens.validate_token(token)
 
     try:

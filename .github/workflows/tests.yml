@@ -55,3 +55,23 @@ jobs:
 
       - name: Clean up containers
         run: docker-compose --env-file token-manager/test.env down
+
+  stage:
+    needs:
+      - test-synchronization-service
+      - test-token-manager
+      
+    runs-on: self-hosted
+    
+    steps:
+      - name: Check current user
+        run: whoami
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: List
+        run: ls -lah
+
+      - name: Docker-Compose
+        run: docker-compose --env-file stage.env up -d --build

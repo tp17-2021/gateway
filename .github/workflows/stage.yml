@@ -1,4 +1,4 @@
-name: Stage
+name: Stage in separate file
 
 on:
   workflow_run:

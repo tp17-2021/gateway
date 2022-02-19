@@ -1,8 +1,12 @@
 from fastapi import Body, FastAPI, status, HTTPException
+from pydantic import ValidationError
 import os
 
 import src.tokens
 import src.votes
+import src.helper
+
+from src.schemas.vote import Vote, PartialVote
 
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
@@ -18,7 +22,7 @@ async def hello ():
 @app.post('/api/vote')
 async def vote (
     token: str = Body(..., embed=True),
-    vote: dict = Body(..., embed=True),
+    vote: PartialVote = Body(..., embed=True),
 ):
     """ Receives vote with valid token, validates the token,
     sotres the vote and invalidates the token. """
@@ -28,7 +32,14 @@ async def vote (
     try:
         vote['token'] = token
         vote['election_id'] = src.helper.get_election_id()
-        await src.votes.register_vote(vote)
+        
+        await src.votes.register_vote(Vote(**vote))
+
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=e.errors()
+        )
 
     except Exception as e:
         raise HTTPException(

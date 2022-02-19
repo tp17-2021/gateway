@@ -3,3 +3,7 @@ pydantic>=1.8.0,<2.0.0
 uvicorn>=0.15.0,<0.16.0
 motor>=2.0.0,<3.0.0
 requests
+
+rsaelectie
+datamodel-code-generator
+httpx

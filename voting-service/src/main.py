@@ -28,7 +28,7 @@ async def vote (
     """ Receives vote with valid token, validates the token,
     sotres the vote and invalidates the token. """
 
-    data = src.helper.decrypt_vote(payload, voting_terminal_id)
+    data = src.helper.decrypt_message(payload, voting_terminal_id)
     
     # check vote against schema
     token, vote = data['token'], VotePartial(**data['vote'])
@@ -68,8 +68,13 @@ async def vote (
 
 
 @app.post('/api/token-validity')
-async def token_validity (token: str = Body(..., embed=True)):
+async def token_validity (
+    voting_terminal_id: str = Body(..., embed=True),
+    payload: electiersa.VoteEncrypted = Body(..., embed=True),
+):
     """ Checks if the provided token is valid. """
+
+    token = src.helper.decrypt_message(payload, voting_terminal_id)
 
     response = src.tokens.validate_token(token)
 

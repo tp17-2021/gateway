@@ -30,12 +30,12 @@ def get_private_key () -> str:
     return key
 
 
-def decrypt_vote (payload: electiersa.VoteEncrypted, vt_id: str) -> dict:
+def decrypt_message (payload: electiersa.VoteEncrypted, vt_id: str) -> dict:
     """ Decrypts the vote and returns the token and the vote. """
 
     vt_public_key = get_vt_public_key(vt_id)
     g_private_key = get_private_key()
-    
+
     data = electiersa.decrypt_vote(payload, g_private_key, vt_public_key)
 
     return data

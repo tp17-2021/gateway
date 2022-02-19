@@ -1,3 +1,7 @@
+import nest_asyncio
+nest_asyncio.apply()
+__import__('IPython').embed()
+
 from fastapi import Body, FastAPI, status, HTTPException
 from pydantic import ValidationError
 import os
@@ -6,7 +10,7 @@ import src.tokens
 import src.votes
 import src.helper
 
-from src.schemas.vote import Vote, PartialVote
+from src.schemas import Vote, VotePartial
 
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
@@ -22,7 +26,7 @@ async def hello ():
 @app.post('/api/vote')
 async def vote (
     token: str = Body(..., embed=True),
-    vote: PartialVote = Body(..., embed=True),
+    vote: VotePartial = Body(..., embed=True),
 ):
     """ Receives vote with valid token, validates the token,
     sotres the vote and invalidates the token. """
@@ -30,10 +34,13 @@ async def vote (
     src.tokens.validate_token(token)
 
     try:
-        vote['token'] = token
-        vote['election_id'] = src.helper.get_election_id()
+        new_vote = Vote(
+            token=token,
+            election_id=src.helper.get_election_id(),
+            **vote.__dict__
+        )
         
-        await src.votes.register_vote(Vote(**vote))
+        await src.votes.register_vote(new_vote)
 
     except ValidationError as e:
         raise HTTPException(

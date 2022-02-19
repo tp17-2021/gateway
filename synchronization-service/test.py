@@ -73,6 +73,6 @@ def test_it_should_get_private_key():
 
 
 def test_it_should_get_office_id():
-    office_is = int(requests.get('http://web/statevector/gateway/office_id.txt').text)
+    office_id = int(requests.get('http://web/statevector/gateway/office_id.txt').text)
 
-    assert office_is == 0
+    assert office_id == 0

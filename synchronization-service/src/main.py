@@ -8,7 +8,7 @@ from electiersa import electiersa
 import json
 
 import src.database as db
-from src.schemas.vote import Vote
+from src.schemas import Vote
 
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])

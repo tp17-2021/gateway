@@ -13,7 +13,7 @@ COPY ./src /code/src
 
 FROM base as test
 
-COPY ./test.py /code/test.py
+COPY ./tests /code/tests
 COPY ./start_test.sh ./start_test.sh
 RUN chmod 700 ./start_test.sh
 CMD [ "./start_test.sh" ]

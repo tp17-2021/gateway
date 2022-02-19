@@ -14,7 +14,7 @@ def get_election_id () -> str:
 def get_vt_public_key (vt_id: str) -> str:
     """ Returns the public key of the voting table with the given id. """
 
-    key = db.keys_collection.find_one({'vt_id': vt_id})['vt_public_key']
+    key = db.keys_collection.find_one({'_id': vt_id})['public_key']
 
     if not key:
         raise Exception('Key for vt: |{}| does not exist.'.format(vt_id))

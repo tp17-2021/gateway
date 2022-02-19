@@ -2,8 +2,14 @@ from fastapi import Body, FastAPI, status, HTTPException, Request
 import json
 import os
 import requests
+import random
+import asyncio
+
+import src.database as db
+import src.helper
 
 
+keys_db_lock = asyncio.Lock()
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
 
 
@@ -60,12 +66,31 @@ async def end_voting_process () -> dict:
 
 
 @app.get('/register-vt')
-async def register_vt (request: Request):
+async def register_vt (
+    request: Request,
+    public_key: str = Body(..., embed=True),
+):
     """Register a voting terminal"""
 
     ip = request.client.host
-    print(f'Registering voting terminal {ip}')
+    office_id = src.helper.get_office_id()
+
+    await keys_db_lock.acquire()
+    try:
+        vt_id = src.helper.get_unique_vt_id(office_id)
+
+        db.keys_collection.insert_one({
+            '_id': vt_id,
+            'public_key': public_key,
+            'ip': ip,
+        })
+
+        my_public_key = src.helper.get_public_key()
+    
+    finally:
+        keys_db_lock.release()
 
     return {
-        'status': 'success'
+        'new_id': vt_id,
+        'gateway_public_key': my_public_key,
     }

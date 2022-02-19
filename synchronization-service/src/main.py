@@ -34,8 +34,8 @@ async def send_unsychronized_votes(votes) -> requests.Response:
         new_vote = {
             'token' : vote['vote']['token'],
             'election_id' : vote['vote']['election_id'],
-            'party_id' : vote['vote']['party_id'],
-            'candidates_ids': [i['candidate_id'] for i in vote['vote']['candidates']],
+            'party_id' : int(vote['vote']['party_id']),
+            'candidates_ids': vote['vote']['candidates'],
         }
 
         new_vote = await electiersa.encrypt_vote(new_vote, my_private_key, server_key);

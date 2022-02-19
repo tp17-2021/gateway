@@ -26,6 +26,8 @@ async def vote (
     src.tokens.validate_token(token)
 
     try:
+        vote['token'] = token
+        vote['election_id'] = src.helper.get_election_id()
         await src.votes.register_vote(vote)
 
     except Exception as e:

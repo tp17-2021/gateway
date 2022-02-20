@@ -75,8 +75,7 @@ async def token_validity (
     """ Checks if the provided token is valid. """
 
     token = await src.helper.decrypt_message(payload, voting_terminal_id)
-
-    response = src.tokens.validate_token(token)
+    response = src.tokens.validate_token(token['token'])
 
     if response.status_code == status.HTTP_200_OK:
         return {'status': 'success'}

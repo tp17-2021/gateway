@@ -10,3 +10,4 @@ datamodel-code-generator
 httpx
 nest-asyncio
 IPython
+pymongo

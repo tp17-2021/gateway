@@ -5,7 +5,6 @@ import os
 import requests
 import datetime
 from electiersa import electiersa
-import json
 
 import src.database as db
 from src.schemas import Vote
@@ -35,8 +34,8 @@ async def send_unsychronized_votes(votes) -> requests.Response:
     for vote in votes:
         new_vote = Vote(**vote['vote'])
 
-        new_vote = await electiersa.encrypt_vote(new_vote.__dict__, my_private_key, server_key);
-        serialized_votes.append(new_vote)
+        encrypted_new_vote = electiersa.encrypt_vote(new_vote.__dict__, my_private_key, server_key);
+        serialized_votes.append(encrypted_new_vote.__dict__)
 
     payload = {
         'polling_place_id': int(requests.get('http://web/statevector/gateway/office_id.txt').text),
@@ -196,7 +195,7 @@ async def test_encrypt() -> dict:
             'candidates_ids': [i['candidate_id'] for i in vote['vote']['candidates']],
         }
 
-        new_vote = await electiersa.encrypt_vote(server_key, new_vote);
+        new_vote = electiersa.encrypt_vote(server_key, new_vote);
         serialized_votes.append(new_vote)
 
     print(serialized_votes)

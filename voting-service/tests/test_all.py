@@ -4,8 +4,6 @@ __import__('IPython').embed()
 
 import requests
 from fastapi.testclient import TestClient
-import datetime
-import time
 import pytest
 import motor
 
@@ -21,14 +19,26 @@ with mock.patch.dict(os.environ, os.environ):
 client = TestClient(app)
 
 
-def connect_to_db():
-    client = motor.motor_asyncio.AsyncIOMotorClient(
-        f"{os.environ['VOTE_DB_HOST']}:{os.environ['VOTE_DB_PORT']}"
-    )
-    db = client[os.environ["VOTE_DB_DB_NAME"]]
-    _ = str(db)
-    print(_)
-    return db
+def connect_to_db(name: str='VOTE'):
+    if name == 'VOTE':
+        client = motor.motor_asyncio.AsyncIOMotorClient(
+            f"{os.environ['VOTE_DB_HOST']}:{os.environ['VOTE_DB_PORT']}"
+        )
+        db = client[os.environ["VOTE_DB_DB_NAME"]][os.environ["VOTE_DB_COLLECTION"]]
+        _ = str(db)
+        print(_)
+        return db
+
+    if name == 'KEYS':
+        client = motor.motor_asyncio.AsyncIOMotorClient(
+            f"{os.environ['KEYS_DB_HOST']}:{os.environ['KEYS_DB_PORT']}"
+        )
+        db = client[os.environ["KEYS_DB_NAME"]][os.environ["KEYS_DB_COLLECTION"]]
+        _ = str(db)
+        print(_)
+        return db
+
+    raise Exception(f'Unknown database name: {name}')
 
 
 def test_it_should_work_base_url():
@@ -38,19 +48,29 @@ def test_it_should_work_base_url():
 
 @pytest.mark.asyncio
 async def test_it_should_accept_valid_vote():
-    response = client.post("/api/vote", json={
+    data = {
         'vote': {
             'party_id': 1,
             'candidate_ids': [1, 2, 3],
         },
         'token': 'valid',
+    }
+
+    g_public_key = requests.get('http://web/temporary_key_location/public_key.txt').text
+    vt_private_key = await connect_to_db('KEYS').find_one({'_id': 'test'})
+    vt_private_key = vt_private_key['private_key_for_testing']
+    voting_terminal_id = 'test'
+    
+    encrypted_data = electiersa.encrypt_vote(data, vt_private_key, g_public_key)
+
+    response = client.post("/api/vote", json={
+        'voting_terminal_id': voting_terminal_id,
+        'payload': encrypted_data.__dict__,
     })
 
     assert response.status_code == 200, f'Valid vote should be accepted: {response.text}'
 
-    db = connect_to_db()
-
-    count = await db.votes.count_documents({
+    count = await connect_to_db().count_documents({
         'vote': {
             'party_id': 1,
             'candidate_ids': [1, 2, 3],

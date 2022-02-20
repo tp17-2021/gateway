@@ -1,3 +1,7 @@
+import nest_asyncio
+nest_asyncio.apply()
+__import__('IPython').embed()
+
 import requests
 from fastapi.testclient import TestClient
 import datetime

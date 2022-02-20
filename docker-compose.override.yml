@@ -11,7 +11,7 @@ services:
       - TOKEN_MANAGER_URL=http://token-
       - KEYS_DB_HOST=vote-db
       - KEYS_DB_PORT=27017
-      - KEYS_DB_DB_NAME=keys-db
+      - KEYS_DB_NAME=keys-db
       - KEYS_DB_COLLECTION=keys
   
   synchronization-service:
@@ -29,7 +29,7 @@ services:
       - ROOT_PATH=/voting-process-manager-api
       - KEYS_DB_HOST=vote-db
       - KEYS_DB_PORT=27017
-      - KEYS_DB_DB_NAME=keys-db
+      - KEYS_DB_NAME=keys-db
       - KEYS_DB_COLLECTION=keys
 
   token-manager:

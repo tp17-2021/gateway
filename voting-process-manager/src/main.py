@@ -9,8 +9,8 @@ import src.database as db
 import src.helper
 
 
-keys_db_lock = asyncio.Lock()
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
+keys_db_lock = asyncio.Lock()
 
 
 def get_terminals():
@@ -65,7 +65,7 @@ async def end_voting_process () -> dict:
     }
 
 
-@app.get('/register-vt')
+@app.post('/register-vt')
 async def register_vt (
     request: Request,
     public_key: str = Body(..., embed=True),
@@ -77,7 +77,7 @@ async def register_vt (
 
     await keys_db_lock.acquire()
     try:
-        vt_id = src.helper.get_unique_vt_id(office_id)
+        vt_id = await src.helper.get_unique_vt_id(office_id)
 
         db.keys_collection.insert_one({
             '_id': vt_id,

@@ -79,7 +79,7 @@ async def register_vt (
     try:
         vt_id = await src.helper.get_unique_vt_id(office_id)
 
-        db.keys_collection.insert_one({
+        await db.keys_collection.insert_one({
             '_id': vt_id,
             'public_key': public_key,
             'ip': ip,

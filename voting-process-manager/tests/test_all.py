@@ -37,6 +37,8 @@ async def test_it_should_accept_new_vt():
     })
 
     assert response.status_code == 200, f'New vt vote should be accepted: {response.text}'
+    assert type(response.json()['new_id']) == str
+    assert type(response.json()['gateway_public_key']) == str
 
     db = connect_to_db()
     count = await db.count_documents({

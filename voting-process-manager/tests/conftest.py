@@ -1,19 +1,17 @@
 import pytest
 import asyncio
 import os
-import motor.motor_asyncio
+import pymongo
 
 
 def pytest_sessionstart(session):
-    print('DELETING DB')
-    
-    client = motor.motor_asyncio.AsyncIOMotorClient(
+    client2 = pymongo.MongoClient(
         f"{os.environ['KEYS_DB_HOST']}:{os.environ['KEYS_DB_PORT']}"
-    )[os.environ["KEYS_DB_NAME"]]
+    )[os.environ["KEYS_DB_NAME"]][os.environ["KEYS_DB_COLLECTION"]]
     
-    client[os.environ['KEYS_DB_COLLECTION']].delete_many({})
-
-    print('DB DELETED')
+    print('DELETING KEYS DB')
+    client2.delete_many({})
+    print('KEYS DB DELETED')
 
 
 @pytest.fixture

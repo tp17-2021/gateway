@@ -1,8 +1,12 @@
 from fastapi import Body, FastAPI, status, HTTPException
+from pydantic import ValidationError
 import os
 
 import src.tokens
 import src.votes
+import src.helper
+from src.schemas import Vote, VotePartial
+from electiersa import electiersa
 
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
@@ -17,18 +21,34 @@ async def hello ():
 
 @app.post('/api/vote')
 async def vote (
-    token: str = Body(..., embed=True),
-    vote: dict = Body(..., embed=True),
+    voting_terminal_id: str = Body(..., embed=True),
+    payload: electiersa.VoteEncrypted = Body(..., embed=True),
 ):
     """ Receives vote with valid token, validates the token,
     sotres the vote and invalidates the token. """
 
+    data = await src.helper.decrypt_message(payload, voting_terminal_id)
+    
+    # check vote against schema
+    token, vote = data['token'], VotePartial(**data['vote'])
+
+    # chcek token
     src.tokens.validate_token(token)
 
     try:
-        vote['token'] = token
-        vote['election_id'] = src.helper.get_election_id()
-        await src.votes.register_vote(vote)
+        new_vote = Vote(
+            token=token,
+            election_id=src.helper.get_election_id(),
+            **vote.__dict__
+        )
+        
+        await src.votes.register_vote(new_vote)
+
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=e.errors()
+        )
 
     except Exception as e:
         raise HTTPException(
@@ -47,10 +67,14 @@ async def vote (
 
 
 @app.post('/api/token-validity')
-async def token_validity (token: str = Body(..., embed=True)):
+async def token_validity (
+    voting_terminal_id: str = Body(..., embed=True),
+    payload: electiersa.VoteEncrypted = Body(..., embed=True),
+):
     """ Checks if the provided token is valid. """
 
-    response = src.tokens.validate_token(token)
+    data = await src.helper.decrypt_message(payload, voting_terminal_id)
+    response = src.tokens.validate_token(data['token'])
 
     if response.status_code == status.HTTP_200_OK:
         return {'status': 'success'}

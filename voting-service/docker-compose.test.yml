@@ -1,18 +1,12 @@
 version: "3.8"
 
 services:
-  synchronization-service:
+  voting-service:
     build:
       target: test
     restart: "no"
 
-  voting-service:
-    build:
-      context: ./dummy
-      dockerfile: ./Dockerfile
-    restart: "no"
-
-  admin-frontend:
+  synchronization-service:
     build:
       context: ./dummy
       dockerfile: ./Dockerfile
@@ -24,7 +18,7 @@ services:
       dockerfile: ./Dockerfile
     restart: "no"
 
-  token-manager:
+  admin-frontend:
     build:
       context: ./dummy
       dockerfile: ./Dockerfile

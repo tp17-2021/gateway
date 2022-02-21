@@ -9,6 +9,10 @@ services:
       - VOTE_DB_COLLECTION=votes
       - ROOT_PATH=/voting-service-api
       - TOKEN_MANAGER_URL=http://token-manager
+      - KEYS_DB_HOST=vote-db
+      - KEYS_DB_PORT=27017
+      - KEYS_DB_NAME=keys-db
+      - KEYS_DB_COLLECTION=keys
   
   synchronization-service:
     environment:
@@ -23,6 +27,10 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       - ROOT_PATH=/voting-process-manager-api
+      - KEYS_DB_HOST=vote-db
+      - KEYS_DB_PORT=27017
+      - KEYS_DB_NAME=keys-db
+      - KEYS_DB_COLLECTION=keys
 
   token-manager:
     environment:

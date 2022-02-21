@@ -5,3 +5,27 @@ services:
     build:
       target: test
     restart: "no"
+
+  synchronization-service:
+    build:
+      context: ./dummy
+      dockerfile: ./Dockerfile
+    restart: "no"
+
+  voting-service:
+    build:
+      context: ./dummy
+      dockerfile: ./Dockerfile
+    restart: "no"
+
+  admin-frontend:
+    build:
+      context: ./dummy
+      dockerfile: ./Dockerfile
+    restart: "no"
+
+  voting-process-manager:
+    build:
+      context: ./dummy
+      dockerfile: ./Dockerfile
+    restart: "no"

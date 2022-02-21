@@ -58,16 +58,16 @@ docker-compose -p gtest-sync down
 Check service's `test.env` file. Then run with (example for synchronization-service):
 
 ```
-docker-compose --env-file synchronization-service/test.env up --build --exit-code-from synchronization-service --force-recreate
+docker-compose --env-file synchronization-service/test.env up --build --exit-code-from synchronization-service --renew-anon-volumes
 ```
 
 Shorter command can be used:
 
 ```
-docker-compose --env-file synchronization-service/test.env up --build --force-recreate
+docker-compose --env-file synchronization-service/test.env up --build --renew-anon-volumes
 ```
 
-- `--force-recreate` tells docker to recreate every container to make sure they are all perfectly clean for testing.
+- `--renew-anon-volumes` tells docker to recreate containers with clean anonymous volumes (their disks) to make sure they are all perfectly clean for testing.
 - `--exit-code-from synchronization-service` specifies container to get exit code (the number) from. This is necessary in GH pippeline but can be ommited when testing locally - then you need to read the pytest's conclusion in logs.
 - `--build` makes sure every container is built to the newest version (which sometimes isn't the case without this flag).
 - `--env-file` specifies which `.env` file to use. For example see [synchronization-service/test.env](synchronization-service/test.env).

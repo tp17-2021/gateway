@@ -1,4 +1,4 @@
-name: Tests
+name: Gateway Tests
 
 on:
   pull_request:
@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Tests Docker-Compose
-        run: docker-compose --env-file synchronization-service/test.env up --build --exit-code-from synchronization-service --force-recreate --remove-orphans
+        run: docker-compose --env-file synchronization-service/test.env up --build --exit-code-from synchronization-service --renew-anon-volumes --remove-orphans
 
       - name: Clean up containers
         run: docker-compose --env-file synchronization-service/test.env down
@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Tests Docker-Compose
-        run: docker-compose --env-file token-manager/test.env up --build --exit-code-from token-manager --force-recreate --remove-orphans
+        run: docker-compose --env-file token-manager/test.env up --build --exit-code-from token-manager --renew-anon-volumes --remove-orphans
 
       - name: Clean up containers
         run: docker-compose --env-file token-manager/test.env down
@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Tests Docker-Compose
-        run: docker-compose --env-file voting-process-manager/test.env up --build --exit-code-from voting-process-manager --force-recreate --remove-orphans
+        run: docker-compose --env-file voting-process-manager/test.env up --build --exit-code-from voting-process-manager --renew-anon-volumes --remove-orphans
 
       - name: Clean up containers
         run: docker-compose --env-file voting-process-manager/test.env down
@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Tests Docker-Compose
-        run: docker-compose --env-file voting-service/test.env up --build --exit-code-from voting-service --force-recreate --remove-orphans
+        run: docker-compose --env-file voting-service/test.env up --build --exit-code-from voting-service --renew-anon-volumes --remove-orphans
 
       - name: Clean up containers
         run: docker-compose --env-file voting-service/test.env down

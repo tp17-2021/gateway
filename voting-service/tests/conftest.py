@@ -16,7 +16,6 @@ def pytest_sessionstart(session):
 
     print('VOTE DB DELETED')
 
-    print('INDERTING VT KEYS')
     
     client2 = pymongo.MongoClient(
         f"{os.environ['KEYS_DB_HOST']}:{os.environ['KEYS_DB_PORT']}"
@@ -27,6 +26,8 @@ def pytest_sessionstart(session):
     print('KEYS DB DELETED')
 
     private_key, public_key = electiersa.get_rsa_key_pair()
+    
+    print('INSERTING VT KEYS')
 
     client2.insert_one({
         '_id': 'test',

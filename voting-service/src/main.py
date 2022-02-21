@@ -9,7 +9,6 @@ from src.schemas import Vote, VotePartial
 from electiersa import electiersa
 
 
-
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
 
 
@@ -74,8 +73,8 @@ async def token_validity (
 ):
     """ Checks if the provided token is valid. """
 
-    token = await src.helper.decrypt_message(payload, voting_terminal_id)
-    response = src.tokens.validate_token(token['token'])
+    data = await src.helper.decrypt_message(payload, voting_terminal_id)
+    response = src.tokens.validate_token(data['token'])
 
     if response.status_code == status.HTTP_200_OK:
         return {'status': 'success'}

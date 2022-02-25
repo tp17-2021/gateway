@@ -7,9 +7,16 @@ USB_INTERFACE_ID = 1
 import random
 import struct
 import sys
-from time import sleep
+from time import sleep, time
+from sqlalchemy import true
 import usb.core
 import usb.util
+import time
+
+import usb.backend.libusb1
+BACKEND = usb.backend.libusb1.get_backend(find_library=lambda x: "/usr/lib/libusb-1.0.so")
+
+ON = False
 
 def pad_bytes_with_zeros(data, length):
         return data + (length - len(data)) * b"\x00"
@@ -40,7 +47,12 @@ class Writer:
     def __init__(self):
         print("Waiting for the writer to be connected")
         while True:
+            # print("="*80)
+            # print(usb.core.find(find_all=true, backend=BACKEND))
+            # print("="*80)
+
             self.dev = usb.core.find(idVendor=0x0471, idProduct=0xa112)
+            # self.dev = usb.core.find(idVendor=0x0444, idProduct=0xa112)
             if self.dev is None: 
                 if VERBOSE:
                     print("Writer not found. Waiting for it to be connected")
@@ -154,6 +166,9 @@ class Writer:
         """
         Turn off the LED on the writer.
         """
+        global ON
+
+        ON = False
         COMMAND_LED_CONTROL = b"\x07\x01"
         LED_OFF = b"\x00"
         self.send("Turning off LED", COMMAND_LED_CONTROL, LED_OFF)
@@ -163,6 +178,9 @@ class Writer:
         """
         Turn on the LED on the writer.
         """
+        global ON
+
+        ON = True
         COMMAND_LED_CONTROL = b"\x07\x01"
         LED_ON = b"\x01"
         self.send("Turning on LED", COMMAND_LED_CONTROL, LED_ON)
@@ -197,7 +215,7 @@ class Writer:
         self.send("antena_sta", COMMAND, DATA)
 
         COMMAND = b"\x08\x01"
-        DATA = b"\x41"  # turn off RF
+        DATA = b"\x41"
         self.send("init_type", COMMAND, DATA)
 
         COMMAND = b"\x0c\x01"
@@ -252,10 +270,11 @@ class Writer:
     def wait_for_tag_read(self):
         """
         Waits for a tag to be read.
-        Returns the tag serial number.
+        Returns 16 bytes read from the tag.
         """
         while True:
             try:
+                time.sleep(0.1)
                 return self.read_from_tag()
                 break
             except:
@@ -268,24 +287,32 @@ class Writer:
         Returns after successfully writen to the tag
         Will not read the tag if the data is really written to the tag, we use status code returned from the writer (status code 0x00 means success)
         """
+
         while True:
             try:
+                time.sleep(0.1)
                 self.write_to_tag(value_to_write)
                 break
-            except:
+            except Exception as e:
                 if VERBOSE:
                     print("No tag nearby")
+                    print(e)
 
     def write_to_tag_and_validate(self, value_to_write):
         """
         Write to the tag and validate the write.
-
         """
-        print("Ready to write", value_to_write)
-        writer.wait_for_tag_write(value_to_write)
-        DATA = writer.wait_for_tag_read()
+
+        # print("Ready to write", value_to_write)
+        self.wait_for_tag_write(value_to_write)
+        DATA = self.wait_for_tag_read()
         if DATA == value_to_write:
-            print("Data successfully written")
+            # print("Data successfully written")
+            self.blink_led(5)
+            time.sleep(3)
+            # return "Data successfully written"
+            return
+
 
 
 def debug_random_16_bytes():
@@ -294,7 +321,6 @@ def debug_random_16_bytes():
     b"\xaa\xaa\xaa\xba\xba\xba\xba\xba\xba\xba\xba\xba\xba\xba\xba\xee"
     """
     return bytes([random.randint(0, 255) for i in range(16)])
-
 
 
 
@@ -307,7 +333,7 @@ if __name__ == "__main__":
     If everything is ok, the program will exit.
     """
     writer = Writer()
-    
+
     value_to_write = debug_random_16_bytes()
     writer.write_to_tag_and_validate(value_to_write)
 

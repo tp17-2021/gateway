@@ -31,6 +31,18 @@ services:
     depends_on:
       - vote-db
 
+  token-writer:
+    build:
+      context: ./token-writer
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - token-manager
+      - vote-db
+    devices:
+    - /dev/usb/bus:/dev/usb/bus
+    privileged: true
+
   web:
     build:
       context: ./

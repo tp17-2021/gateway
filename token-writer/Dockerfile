@@ -18,4 +18,4 @@ RUN chmod 700 ./start_test.sh
 CMD [ "./start_test.sh" ]
 
 FROM base as build
-CMD [ "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80" ]
+CMD ["python3", "src/main.py"]

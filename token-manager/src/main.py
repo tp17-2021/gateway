@@ -1,11 +1,14 @@
-import asyncio
+from pickle import FALSE
+from time import time
 from fastapi import Body, FastAPI, status, HTTPException
 import os
 import requests
 import datetime
 import uuid
+import re
 
 import src.database as db
+import src.writer.writer as writer
 
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
@@ -20,9 +23,8 @@ def token_exists(token, active=True) -> bool:
 
 
 def generate_token() -> str:
-    polling_place_id =  str(requests.get('http://web/statevector/gateway/office_id.txt').text)
     token = str(uuid.uuid4())
-    token = polling_place_id + '_' + token
+    token = re.sub(r"-", "", token)
     return token
 
 
@@ -36,6 +38,20 @@ async def root () -> dict:
     }
 
 
+@app.post('/tokens/state/deactivate')
+async def deactivate_state ():
+    data = '0'
+    response = requests.put('http://web/statevector/gateway/state_write.txt', data=data)
+    return response.text
+
+
+@app.post('/tokens/state/activate')
+async def activate_state ():
+    data = '1'
+    response = requests.put('http://web/statevector/gateway/state_write.txt', data=data)
+    return response.text
+
+
 @app.post('/tokens/create')
 async def create_token () -> dict:
     """Create and return token"""
@@ -45,9 +61,11 @@ async def create_token () -> dict:
     while token_exists(token):
         token = generate_token()
 
+    print(token)
     db.collection.insert_one({
         'token': token,
         'active': True,
+        'written': False,
         'created_at': datetime.datetime.now(),
     })
 
@@ -55,7 +73,6 @@ async def create_token () -> dict:
         'status': 'success',
         'token': token
     }
-
 
 @app.post('/tokens/validate')
 async def validate_token (token: str = Body(..., embed=True)) -> None:

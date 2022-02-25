@@ -18,7 +18,7 @@ export async function getVTStatuses(): Promise<TVTStatus[]> {
 }
 
 export async function startElection() {
-    const response = await axios.post(url("/voting-process-manager-api/start"))
+    const response = await axios.post(url("/../voting-process-manager-api/start"))
         .then( function (response){
             let message = '';
             if(response.status == 200) {
@@ -36,12 +36,12 @@ export async function startElection() {
 
 
 export async function stopElection() {
-    const response = await axios.post(url("/voting-process-manager-api/end"))
+    const response = await axios.post(url("/../voting-process-manager-api/end"))
         .then( function (response){
             let message = '';
             if(response.status == 200) {
-                message += 'Úspešne spustené terminály. (' + response.data.success_terminals_count + ')\n';
-                message += 'Neúspešne spustené terminály. (' + response.data.error_terminals_count + ')';
+                message += 'Úspešne zastavené terminály. (' + response.data.success_terminals_count + ')\n';
+                message += 'Neúspešne zastavené terminály. (' + response.data.error_terminals_count + ')';
                 alert(message);
             } else {
                 alert(response.status)

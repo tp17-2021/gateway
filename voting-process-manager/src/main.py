@@ -18,8 +18,13 @@ def get_terminals():
     return json.loads(json_text)
 
 
-def notify_voting_terminals(status):
+def notify_voting_terminals(status) -> dict:
     terminals = get_terminals()
+    output = {
+        'success' : [],
+        'error' : []
+    }
+
     for terminal in terminals:
         try:
             payload = {
@@ -31,10 +36,13 @@ def notify_voting_terminals(status):
             print('Sending data to', terminal_endpoint)
             response = requests.post(terminal_endpoint, json=payload)
             print('Response', response.status_code, response.text)
+            output['success'].append(terminal['name'])
         except Exception as err:
+            output['error'].append(terminal['name'])
             print('Error', str(err))
             # todo log the error
 
+    return output
 
 @app.get('/')
 async def root () -> dict:
@@ -49,9 +57,13 @@ async def root () -> dict:
 async def start_voting_process () -> dict:
     """Start voting from gateway and notify terminals"""
 
-    notify_voting_terminals('start')
+    notify_status = notify_voting_terminals('start')
     return {
-        'status': 'success'
+        'status': 'success',
+        'success_terminals' : notify_status['success'],
+        'success_terminals_count' : len(notify_status['success']),
+        'error_terminals' : notify_status['error'],
+        'error_terminals_count' : len(notify_status['error']),
     }
 
 
@@ -59,9 +71,13 @@ async def start_voting_process () -> dict:
 async def end_voting_process () -> dict:
     """End voting from gateway and notify terminals"""
 
-    notify_voting_terminals('end')
+    notify_status = notify_voting_terminals('end')
     return {
-        'status': 'success'
+        'status': 'success',
+        'success_terminals' : notify_status['success'],
+        'success_terminals_count' : len(notify_status['success']),
+        'error_terminals' : notify_status['error'],
+        'error_terminals_count' : len(notify_status['error']),
     }
 
 

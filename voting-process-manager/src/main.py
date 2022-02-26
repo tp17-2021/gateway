@@ -1,8 +1,6 @@
-from fastapi import Body, FastAPI, status, HTTPException, Request
-import json
+from fastapi import Body, FastAPI, Request
 import os
 import requests
-import random
 import asyncio
 
 import src.database as db
@@ -13,36 +11,49 @@ app = FastAPI(root_path=os.environ['ROOT_PATH'])
 keys_db_lock = asyncio.Lock()
 
 
-def get_terminals():
-    json_text = requests.get('http://web/statevector/gateway/terminals.txt').text
-    return json.loads(json_text)
+async def notify_voting_terminals(status) -> dict[str, list[str]]:
+    success_arr = []
+    error_arr = []
 
-
-def notify_voting_terminals(status) -> dict:
-    terminals = get_terminals()
-    output = {
-        'success' : [],
-        'error' : []
-    }
+    terminals = await src.helper.get_terminals()
+    print(terminals)
 
     for terminal in terminals:
         try:
             payload = {
                 'status': status
             }
-
             print('Sending', payload)
-            terminal_endpoint = terminal['address'] + '/api/election/state'
+
+            terminal_endpoint = f'http://{terminal["ip"]}/backend/api/election/state'
             print('Sending data to', terminal_endpoint)
+
             response = requests.post(terminal_endpoint, json=payload)
             print('Response', response.status_code, response.text)
-            output['success'].append(terminal['name'])
+
+            response.raise_for_status()
+
+            success_arr.append(terminal['_id'])
+
         except Exception as err:
-            output['error'].append(terminal['name'])
+            error_arr.append(terminal['_id'])
             print('Error', str(err))
             # todo log the error
 
-    return output
+    return {
+        'success' : success_arr,
+        'error' : error_arr,
+    }
+
+
+@app.on_event('startup')
+async def startup():
+    print('Deleting all keys')
+    await db.keys_collection.delete_many({})
+    print('Deleted all keys')
+
+    await src.helper.insert_local_vt_if_env()
+
 
 @app.get('/')
 async def root () -> dict:
@@ -57,7 +68,7 @@ async def root () -> dict:
 async def start_voting_process () -> dict:
     """Start voting from gateway and notify terminals"""
 
-    notify_status = notify_voting_terminals('start')
+    notify_status = await notify_voting_terminals('start')
     return {
         'status': 'success',
         'success_terminals' : notify_status['success'],
@@ -71,7 +82,7 @@ async def start_voting_process () -> dict:
 async def end_voting_process () -> dict:
     """End voting from gateway and notify terminals"""
 
-    notify_status = notify_voting_terminals('end')
+    notify_status = await notify_voting_terminals('end')
     return {
         'status': 'success',
         'success_terminals' : notify_status['success'],

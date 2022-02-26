@@ -31,6 +31,8 @@ services:
       - KEYS_DB_PORT=27017
       - KEYS_DB_NAME=keys-db
       - KEYS_DB_COLLECTION=keys
+      - TEST_INSERT_VT=True
+      - TEST_INSERT_VT_IP=host.docker.internal:81
 
   token-manager:
     environment:

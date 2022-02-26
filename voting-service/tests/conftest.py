@@ -1,7 +1,9 @@
+from requests.api import request
 import pytest
 import asyncio
 import os
 import pymongo
+import requests
 from electiersa import electiersa
 
 
@@ -22,7 +24,7 @@ def pytest_sessionstart(session):
     })
 
     print('VT KEYS INSERTED')
-
+    
 
 @pytest.fixture
 def event_loop():

@@ -25,7 +25,20 @@ async def vote (
     payload: electiersa.VoteEncrypted = Body(..., embed=True),
 ):
     """ Receives vote with valid token, validates the token,
-    sotres the vote and invalidates the token. """
+    sotres the vote and invalidates the token.
+    
+    Returns:
+        200: Vote was successfully stored
+        403: Token is invalid
+        409: The election is not running at the moment
+        422: Invalid request body
+    """
+
+    if not src.helper.check_election_state_running():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail='Election is not running.'
+        )
 
     data = await src.helper.decrypt_message(payload, voting_terminal_id)
     
@@ -33,7 +46,11 @@ async def vote (
     token, vote = data['token'], VotePartial(**data['vote'])
 
     # chcek token
-    src.tokens.validate_token(token)
+    if not src.tokens.validate_token(token):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Token is invalid.'
+        )
 
     try:
         new_vote = Vote(
@@ -43,6 +60,15 @@ async def vote (
         )
         
         await src.votes.register_vote(new_vote)
+        
+        try:
+            src.tokens.use_token(token)
+
+        except HTTPException as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Failed to invalidate token after successful vote.'
+            )
 
     except ValidationError as e:
         raise HTTPException(
@@ -50,19 +76,13 @@ async def vote (
             detail=e.errors()
         )
 
+    except HTTPException as e:
+        raise e
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
-        )
-
-    try:
-        src.tokens.use_token(token)
-
-    except HTTPException as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail='Failed to invalidate token after successful vote.'
         )
 
 
@@ -74,9 +94,11 @@ async def token_validity (
     """ Checks if the provided token is valid. """
 
     data = await src.helper.decrypt_message(payload, voting_terminal_id)
-    response = src.tokens.validate_token(data['token'])
-
-    if response.status_code == status.HTTP_200_OK:
-        return {'status': 'success'}
     
-    raise HTTPException(response.status_code, response.text)
+    if not src.tokens.validate_token(data['token']):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Token is invalid.'
+        )
+
+    return {'status': 'success'}

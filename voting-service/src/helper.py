@@ -11,6 +11,12 @@ def get_election_id () -> str:
     return 'election_id'
 
 
+def check_election_state_running() -> bool:
+    r = requests.get('http://web/statevector/gateway/state_election.txt').text
+
+    return r == '1'
+
+
 async def get_vt_public_key (vt_id: str) -> str:
     """ Returns the public key of the voting table with the given id. """
 

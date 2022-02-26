@@ -1,10 +1,11 @@
 import requests
 
-
 from writer import database as db
 from writer import writer
 
 def main ():
+    db.collection.delete_many({'written': False})
+
     w = writer.Writer()
     w.turn_off_led()
     
@@ -19,11 +20,13 @@ def main ():
             token = response.json()['token']
 
             token_bytes = bytes([b for b in bytearray.fromhex(token)])
-            w.write_to_tag_and_validate(token_bytes)
-        
-            db.collection.update_one({'token': token} , { '$set' : { 'written' : True } })
-
-
+            device_disconnected = w.write_to_tag_and_validate(token_bytes)
+            if not device_disconnected:
+                db.collection.delete_many({'written': False})
+                requests.post('http://token-manager/tokens/writter/deactivate')
+                break
+            else:
+                db.collection.update_one({'token': token} , { '$set' : { 'written' : True } })
 
         else:
             w.turn_off_led()

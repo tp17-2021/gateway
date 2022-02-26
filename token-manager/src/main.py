@@ -38,18 +38,34 @@ async def root () -> dict:
     }
 
 
-@app.post('/tokens/state/deactivate')
-async def deactivate_state ():
-    data = '0'
-    response = requests.put('http://web/statevector/gateway/state_write.txt', data=data)
-    return response.text
+@app.post('/tokens/writter/deactivate')
+async def deactivate_state () -> dict:
+    """
+    Deactivate NFC writter machine. 1 NFC token lefts to be activated, after
+    that NFC wrtter machine will turn off and not be able to write any kind
+    of data to NFC token.
+    """
+
+    requests.put('http://web/statevector/gateway/state_write.txt', data='0')
+
+    return {
+        'status': 'success',
+        'message': 'NFC writter machine was deactivated.'
+    }
 
 
-@app.post('/tokens/state/activate')
-async def activate_state ():
-    data = '1'
-    response = requests.put('http://web/statevector/gateway/state_write.txt', data=data)
-    return response.text
+@app.post('/tokens/writter/activate')
+async def activate_state () -> dict:
+    """
+    Activate NFC writter machine. After turning on, machine's led will turn on
+    and be able to write data to NFC tokens.
+    """
+    requests.put('http://web/statevector/gateway/state_write.txt', data='1')
+
+    return {
+        'status': 'success',
+        'message': 'NFC writter machine was activated.'
+    }
 
 
 @app.post('/tokens/create')

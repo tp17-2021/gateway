@@ -292,8 +292,13 @@ class Writer:
             try:
                 time.sleep(0.1)
                 self.write_to_tag(value_to_write)
-                break
+                return True
             except Exception as e:
+                error_no_19 = "[Errno 19] No such device (it may have been disconnected)"
+                if str(e) == error_no_19:
+                    print(e)
+                    return False
+
                 if VERBOSE:
                     print("No tag nearby")
                     print(e)
@@ -303,15 +308,16 @@ class Writer:
         Write to the tag and validate the write.
         """
 
-        # print("Ready to write", value_to_write)
-        self.wait_for_tag_write(value_to_write)
+        device_connected = self.wait_for_tag_write(value_to_write)
+        print("device_connected: ", device_connected)
+        if not device_connected:
+            return False
+
         DATA = self.wait_for_tag_read()
         if DATA == value_to_write:
-            # print("Data successfully written")
             self.blink_led(5)
             time.sleep(3)
-            # return "Data successfully written"
-            return
+            return True
 
 
 

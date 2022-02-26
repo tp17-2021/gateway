@@ -67,6 +67,8 @@ async def root () -> dict:
 @app.post('/start')
 async def start_voting_process () -> dict:
     """Start voting from gateway and notify terminals"""
+    
+    requests.put('http://web/statevector/gateway/state_election.txt', data='1')
 
     notify_status = await notify_voting_terminals('start')
     return {
@@ -81,6 +83,8 @@ async def start_voting_process () -> dict:
 @app.post('/end')
 async def end_voting_process () -> dict:
     """End voting from gateway and notify terminals"""
+
+    requests.put('http://web/statevector/gateway/state_election.txt', data='0')
 
     notify_status = await notify_voting_terminals('end')
     return {

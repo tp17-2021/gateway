@@ -17,37 +17,21 @@ export async function getVTStatuses(): Promise<TVTStatus[]> {
     return response.data.message;
 }
 
-export async function startElection() {
-    const response = await axios.post(url("/../voting-process-manager-api/start"))
-        .then( function (response){
-            let message = '';
-            if(response.status == 200) {
-                message += 'Úspešne spustené terminály. (' + response.data.success_terminals_count + ')\n';
-                message += 'Neúspešne spustené terminály. (' + response.data.error_terminals_count + ')';
-                alert(message);
-            } else {
-                alert(response.status)
-            }
-        })
-        .catch(function (error) {
-            alert(error)
+export async function getElectionStatus() {
+    return axios.get(url("/../statevector/gateway/state_election.txt"))
+        .then( function (response) {
+            console.log(response.data);
+            return parseInt(response.data);
+        }).catch(function (error) {
+            return undefined;
         });
+}
+
+export async function startElection() {
+    return await axios.post(url("/../voting-process-manager-api/start"))
 }
 
 
 export async function stopElection() {
-    const response = await axios.post(url("/../voting-process-manager-api/end"))
-        .then( function (response){
-            let message = '';
-            if(response.status == 200) {
-                message += 'Úspešne zastavené terminály. (' + response.data.success_terminals_count + ')\n';
-                message += 'Neúspešne zastavené terminály. (' + response.data.error_terminals_count + ')';
-                alert(message);
-            } else {
-                alert(response.status)
-            }
-        })
-        .catch(function (error) {
-            alert(error)
-        });
+    return axios.post(url("/../voting-process-manager-api/end"))
 }

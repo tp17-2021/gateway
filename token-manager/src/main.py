@@ -68,6 +68,30 @@ async def activate_state () -> dict:
     }
 
 
+@app.post('/tokens/writter/delete')
+async def delete_unwritten () -> dict:
+    """Delete unwritten NFC tokens from database"""
+
+    db.collection.delete_many({'written': False})
+
+    return {
+        'status': 'success',
+        'message': 'Unwritten NFC tokens successfully deleted from database.'
+    }
+
+
+@app.post('/tokens/writter/update')
+async def delete_unwritten (token) -> dict:
+    """Update NFC token state from unwritten to written"""
+
+    db.collection.update_one({'token': token} , { '$set' : { 'written' : True } })
+
+    return {
+        'status': 'success',
+        'message': 'Updated NFC tokens successfully.'
+    }
+
+
 @app.post('/tokens/create')
 async def create_token () -> dict:
     """Create and return token"""

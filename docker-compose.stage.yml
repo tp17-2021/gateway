@@ -42,11 +42,10 @@ services:
       - ACCEPT_VALID_TOKEN=1
 
   token-writer:
-    environment:
-      - TOKEN_DB_PORT=27017
-      - TOKEN_DB_HOST=vote-db
-      - TOKEN_DB_DB_NAME=vote-db
-      - TOKEN_DB_COLLECTION=tokens
+    build:
+      context: ./dummy
+      dockerfile: ./Dockerfile
+    restart: "no"
 
   web:
     ports:

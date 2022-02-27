@@ -69,6 +69,7 @@ async def root () -> dict:
         'message': 'Hello from voting process manager.'
     }
 
+
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(users_dictionary, form_data.username, form_data.password)
@@ -84,9 +85,11 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+
 @app.get("/current-user/", response_model=User)
 async def current_user(current_user: User = Depends(get_current_active_user)):
     return current_user
+
 
 @app.post('/start')
 async def start_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
@@ -124,7 +127,6 @@ async def end_voting_process (current_user: User = Depends(get_current_active_us
 async def register_vt (
     request: Request,
     public_key: str = Body(..., embed=True),
-    current_user: User = Depends(get_current_active_user),
 ):
     """Register a voting terminal"""
 

@@ -35,3 +35,12 @@ export async function startElection() {
 export async function stopElection() {
     return axios.post(url("/../voting-process-manager-api/end"))
 }
+
+export async function synchronize() {
+    return axios.post(url("/../synchronization-service-api/synchronize"))
+}
+
+export async function getSynchronizationStatus() {
+    return axios.post(url("/../synchronization-service-api/statistics"))
+}
+

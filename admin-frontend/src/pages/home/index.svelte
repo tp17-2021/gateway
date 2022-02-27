@@ -15,9 +15,10 @@
 <h1>Domov</h1>
 
 <ButtonsContainer>
-    <Button href={$url('/home/status')}>Stav volebných terminálov</Button>
-    <Button href={$url('/home/nfc')}>Obsluha NFC tagov</Button>
     <Button href={$url('/home/elections')}>Voľby</Button>
+    <Button href={$url('/home/nfc')}>Obsluha NFC tagov</Button>
+    <Button href={$url('/home/synchronization')}>Synchronizácia</Button>
+    <Button href={$url('/home/status')}>Stav volebných terminálov</Button>
     <Button href={$url('/home/reports')}>Zápisnica</Button>
     <Button href={$url('/home/contact')}>Kontakt</Button>
 </ButtonsContainer>

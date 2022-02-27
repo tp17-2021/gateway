@@ -1,11 +1,16 @@
-from fastapi import Body, FastAPI, Request
+from datetime import datetime, timedelta
+from typing import Optional
+
+from fastapi import Depends, Body, Request, FastAPI, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
 import os
 import requests
 import asyncio
 
 import src.database as db
 import src.helper
-
+from src.auth import *
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
 keys_db_lock = asyncio.Lock()
@@ -64,8 +69,27 @@ async def root () -> dict:
         'message': 'Hello from voting process manager.'
     }
 
+@app.post("/token", response_model=Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = authenticate_user(users_dictionary, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.get("/current-user/", response_model=User)
+async def current_user(current_user: User = Depends(get_current_active_user)):
+    return current_user
+
 @app.post('/start')
-async def start_voting_process () -> dict:
+async def start_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
     """Start voting from gateway and notify terminals"""
     
     requests.put('http://web/statevector/gateway/state_election.txt', data='1')
@@ -81,7 +105,7 @@ async def start_voting_process () -> dict:
 
 
 @app.post('/end')
-async def end_voting_process () -> dict:
+async def end_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
     """End voting from gateway and notify terminals"""
 
     requests.put('http://web/statevector/gateway/state_election.txt', data='0')
@@ -100,6 +124,7 @@ async def end_voting_process () -> dict:
 async def register_vt (
     request: Request,
     public_key: str = Body(..., embed=True),
+    current_user: User = Depends(get_current_active_user),
 ):
     """Register a voting terminal"""
 

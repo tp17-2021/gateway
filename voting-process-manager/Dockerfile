@@ -2,7 +2,7 @@ FROM python:3.10-alpine3.14 AS base
 
 WORKDIR /code
 
-RUN apk add -U g++ gcc bash
+RUN apk add -U g++ gcc bash libffi-dev
 
 COPY ./requirements.txt ./code/requirements.txt
 

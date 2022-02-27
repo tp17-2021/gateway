@@ -10,3 +10,6 @@ httpx
 nest-asyncio
 IPython
 pymongo
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]

@@ -303,21 +303,24 @@ class Writer:
                     print("No tag nearby")
                     print(e)
 
-    def write_to_tag_and_validate(self, value_to_write):
+    def write_to_tag_and_validate(self, value_to_write) -> bool:
         """
         Write to the tag and validate the write.
         """
 
-        device_connected = self.wait_for_tag_write(value_to_write)
-        print("device_connected: ", device_connected)
-        if not device_connected:
-            return False
+        for _ in range(5):
+            device_connected = self.wait_for_tag_write(value_to_write)
+            print("device_connected: ", device_connected)
+            if not device_connected:
+                return False
 
-        DATA = self.wait_for_tag_read()
-        if DATA == value_to_write:
-            self.blink_led(5)
-            time.sleep(3)
-            return True
+            DATA = self.wait_for_tag_read()
+            if DATA == value_to_write:
+                self.blink_led(5)
+                time.sleep(3)
+                return True
+
+        return False
 
 
 

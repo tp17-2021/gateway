@@ -2,6 +2,7 @@ import requests
 
 from writer import writer
 
+
 def main ():
     requests.post('http://token-manager/tokens/writter/delete')
 
@@ -19,13 +20,19 @@ def main ():
             token = response.json()['token']
 
             token_bytes = bytes([b for b in bytearray.fromhex(token)])
-            device_connected = w.write_to_tag_and_validate(token_bytes)
-            if device_connected:
+            write_successful = w.write_to_tag_and_validate(token_bytes)
+
+            if write_successful:
                 params = {'token': token}
                 requests.post('http://token-manager/tokens/writter/update', params=params)
+
             else:
+                # delete unwritten tokens
                 requests.post('http://token-manager/tokens/writter/delete')
+
+                # stop writing
                 requests.post('http://token-manager/tokens/writter/deactivate')
+
                 break
 
         else:

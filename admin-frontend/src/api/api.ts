@@ -17,6 +17,9 @@ export async function getVTStatuses(): Promise<TVTStatus[]> {
     return response.data.message;
 }
 
+/**
+ * Election status
+ */
 export async function getElectionStatus() {
     return axios.get(url("/../statevector/gateway/state_election.txt"))
         .then( function (response) {
@@ -36,6 +39,31 @@ export async function stopElection() {
     return axios.post(url("/../voting-process-manager-api/end"))
 }
 
+/**
+ * NFC Writer
+ */
+export async function getWriterStatus() {
+    return axios.get(url("/../statevector/gateway/state_write.txt"))
+        .then( function (response) {
+            console.log(response.data);
+            return parseInt(response.data);
+        }).catch(function (error) {
+            return undefined;
+        });
+}
+
+export async function startWriter() {
+    return await axios.post(url("/../token-manager-api/tokens/writter/activate"))
+}
+
+
+export async function stopWriter() {
+    return axios.post(url("/../token-manager-api/tokens/writter/deactivate"))
+}
+
+/**
+ * Synchronization
+ */
 export async function synchronize() {
     return axios.post(url("/../synchronization-service-api/synchronize"))
 }

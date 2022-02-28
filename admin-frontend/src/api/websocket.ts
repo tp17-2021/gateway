@@ -17,7 +17,7 @@ socket.on('writer_status', function (msg, cb) {
 
     if (msg.status == "idle") {
         console.log("+++++++++++++ idle", msg, cb);
-        
+
     } else if (msg.status == "success") {
         console.log("+++++++++++++ success", msg, cb);
     } else {

@@ -1,7 +1,9 @@
 <script>
-    let paths = []
+    import {enToSkPaths} from "../../translations/paths";
     import {page, url} from '@roxi/routify'
 
+    // example of paths array: ['home', 'nfc', 'add']
+    let paths = []
 
     function updatePaths(pathname) {
         paths = pathname.split('/')
@@ -12,6 +14,12 @@
         )
 
         console.log(paths, $page);
+    }
+
+
+    // translate path to slovak if slovak translation exists
+    function getTranslation(path) {
+        return enToSkPaths[path] || path;
     }
 
     $: updatePaths($page.path);
@@ -27,11 +35,11 @@
             <!-- if not last-->
             {#if paths.length !== index  + 1}
                 <li class="govuk-breadcrumbs__list-item">
-                    <a class="govuk-breadcrumbs__link" href={$url("/" + paths.slice(0, index + 1).join("/"))}>{path}</a>
+                    <a class="govuk-breadcrumbs__link" href={$url("/" + paths.slice(0, index + 1).join("/"))}>{getTranslation(path)}</a>
                 </li>
             {:else}
                 <li class="govuk-breadcrumbs__list-item">
-                    {path}
+                    {getTranslation(path)}
                 </li>
             {/if}
         {/each}

@@ -1,6 +1,7 @@
 from pickle import FALSE
 from time import time
 from fastapi import Body, FastAPI, status, HTTPException
+from fastapi_socketio import SocketManager
 import os
 import requests
 import datetime
@@ -12,6 +13,9 @@ import src.writer.writer as writer
 
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
+
+socket_manager = SocketManager(app=app)
+
 
 def token_exists(token, active=True) -> bool:
     if os.environ['ACCEPT_VALID_TOKEN'] == '1' and token == 'valid':
@@ -62,6 +66,12 @@ async def activate_state () -> dict:
     """
     requests.put('http://web/statevector/gateway/state_write.txt', data='1')
 
+    await app.sio.emit(
+        'writer_status', {
+            'status' : 'idle'
+        }
+    )
+
     return {
         'status': 'success',
         'message': 'NFC writter machine was activated.'
@@ -85,6 +95,18 @@ async def delete_unwritten (token) -> dict:
     """Update NFC token state from unwritten to written"""
 
     db.collection.update_one({'token': token} , { '$set' : { 'written' : True } })
+
+    await app.sio.emit(
+        'writer_status', {
+            'status' : 'success'
+        }
+    )
+
+    await app.sio.emit(
+        'writer_status', {
+            'status' : 'idle'
+        }
+    )
 
     return {
         'status': 'success',

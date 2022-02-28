@@ -3,49 +3,49 @@
     import {url} from "@roxi/routify";
     import Button from "../../../lib/components/buttons/Button.svelte";
     import Panel from "../../../lib/components/Panel.svelte";
-    import {onMount} from "svelte";
+    import {onDestroy, onMount} from "svelte";
     import {getWriterStatus, startWriter, stopWriter} from "../../../api/api";
 
     let writerStatus = undefined;
 
+    let interval = undefined;
     onMount(async () => {
-        getWriterStatus().then(function(status) {
-            writerStatus = status;
-        });
+        writerStatus = await getWriterStatus();
+        interval = setInterval(async () => {
+            writerStatus = await getWriterStatus();
+        }, 5000);
     });
 
-    setInterval(function(){
-        getWriterStatus().then(function(status) {
-            writerStatus = status;
-        });
-    }, 5000);
+    onDestroy(() => {
+        clearInterval(interval);
+    });
 
-    function startWriterButton() {
-        startWriter().then( function (response){
-            if(response.status === 200) {
+
+
+    async function startWriterButton() {
+        try {
+            let response = await startWriter()
+            if (response.status === 200) {
                 // go to idle page
+                console.log("// go to idle page")
             }
-        }).catch(function (error) {
+        } catch (error) {
             alert(error)
-        }).finally(function (){
-            getWriterStatus().then(function(status) {
-                writerStatus = status;
-            });
-        });
+        }
+        writerStatus = await getWriterStatus()
     }
 
-    function stopWriterButton() {
-        stopWriter().then( function (response){
-            if(response.status === 200) {
+    async function stopWriterButton() {
+        try {
+            let response = await stopWriter()
+            if (response.status === 200) {
                 // go to idle page
+                console.log("// go to idle page")
             }
-        }).catch(function (error) {
+        } catch (error) {
             alert(error)
-        }).finally(function (){
-            getWriterStatus().then(function(status) {
-                writerStatus = status;
-            });
-        });
+        }
+        writerStatus = await getWriterStatus()
     }
 </script>
 
@@ -62,6 +62,7 @@
 <ButtonsContainer>
     {#if writerStatus === 1}
         <Button on:click={stopWriterButton}>Vypnúť zapisovačku</Button>
+        <Button href={$url('/home/nfc/add')}>Nahrať údaje</Button>
     {:else}
         <Button on:click={startWriterButton}>Zapnúť zapisovačku</Button>
     {/if}

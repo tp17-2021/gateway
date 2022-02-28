@@ -9,6 +9,6 @@
 </script>
 
 <ImageScreen icon={icons.ERROR} title="Nepodarilo sa nahrať údaje
-na NFC Tag">
-    <Button on:click={next}>Ďalší NFC Tag</Button>
+na NFC Tag alebo čítačka nie je dostupná">
+<!--    <Button on:click={next}>Ďalší NFC Tag</Button>-->
 </ImageScreen>

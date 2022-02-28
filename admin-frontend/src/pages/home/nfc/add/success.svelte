@@ -10,5 +10,5 @@
 
 <ImageScreen icon={icons.SUCCESS} title="Údaje boli úspešne nahraté
 na NFC Tag">
-    <Button on:click={next}>Ďalší NFC Tag</Button>
+<!--    <Button on:click={next}>Ďalší NFC Tag</Button>-->
 </ImageScreen>

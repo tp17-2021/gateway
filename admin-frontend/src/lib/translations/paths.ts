@@ -8,4 +8,6 @@ export const enToSkPaths = {
     "status": "Stav volebných terminálov",
     "reports": "Zápisnica",
     "contact": "Kontakt",
+    "success": "Úspech",
+    "error": "Chyba",
 };

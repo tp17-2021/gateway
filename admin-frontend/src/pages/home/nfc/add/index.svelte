@@ -1,8 +1,8 @@
 <script>
     // TODO
-    import Button from "../../../lib/components/buttons/Button.svelte";
-    import ImageScreen, {icons} from "../../../lib/ImageScreen.svelte";
-    import {isLoading} from "../../../lib/components/spinner/spinner";
+    import Button from "../../../../lib/components/buttons/Button.svelte";
+    import ImageScreen, {icons} from "../../../../lib/ImageScreen.svelte";
+    import {isLoading} from "../../../../lib/components/spinner/spinner";
     import {goto} from "@roxi/routify";
 
     function next() {
@@ -24,6 +24,6 @@
 </script>
 
 <ImageScreen icon={icons.INSERT_TOKEN} title="Vložte NFC Tag na čítačku">
-    <Button on:click={next}>[DEBUG] Zapísať na NFC tag</Button>
-    <Button on:click={next2}>[DEBUG] Zapísať na NFC tag "s chybou"</Button>
+<!--    <Button on:click={next}>[DEBUG] Zapísať na NFC tag</Button>-->
+<!--    <Button on:click={next2}>[DEBUG] Zapísať na NFC tag "s chybou"</Button>-->
 </ImageScreen>

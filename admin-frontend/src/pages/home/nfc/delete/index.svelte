@@ -1,7 +1,7 @@
 <script>
-    import Button from "../../../lib/components/buttons/Button.svelte";
-    import ImageScreen, {icons} from "../../../lib/ImageScreen.svelte";
-    import {isLoading} from "../../../lib/components/spinner/spinner";
+    import Button from "../../../../lib/components/buttons/Button.svelte";
+    import ImageScreen, {icons} from "../../../../lib/ImageScreen.svelte";
+    import {isLoading} from "../../../../lib/components/spinner/spinner";
     import {goto} from "@roxi/routify";
 
     // TODO

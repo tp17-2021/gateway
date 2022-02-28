@@ -1,6 +1,6 @@
 import {io} from "socket.io-client";
+import {readable} from "svelte/store";
 
-console.log('ahoj');
 
 const socket = io('/', {
     path: '/../token-manager-api/ws/socket.io',
@@ -12,16 +12,19 @@ socket.on('connect', function (event) {
     // socket.emit('client_connect_event', {data: 'User connected'});
 });
 
-socket.on('writer_status', function (msg, cb) {
-    console.log("--------- writer_status changed", msg, cb);
-
-    if (msg.status == "idle") {
-        console.log("+++++++++++++ idle", msg, cb);
-
-    } else if (msg.status == "success") {
-        console.log("+++++++++++++ success", msg, cb);
-    } else {
-    }
+export const writerStatus = readable("error", set => {
+    socket.on('writer_status', function (msg, cb) {
+        if (msg.status == "idle") {
+            set("idle");
+        } else if (msg.status == "success") {
+            set("success");
+            setTimeout(() => {
+                set("idle");
+            }, 2000);
+        } else {
+            set("error");
+        }
+    });
 });
 
 export {socket};

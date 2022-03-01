@@ -1,27 +1,31 @@
 <script>
-import { onMount } from 'svelte';
+    import {onDestroy, onMount} from 'svelte';
 import ButtonsContainer from "../../../lib/components/buttons/ButtonsContainer.svelte";
 import Button from "../../../lib/components/buttons/Button.svelte";
-import Panel from "../../../lib/components/Panel.svelte";
 
-import {synchronize, getSynchronizationStatus, getElectionStatus} from "../../../api/api";
+import {synchronize, getSynchronizationStatus} from "../../../api/api";
 
 let synchronizationStatus = {
     'statistics' : undefined,
 };
 
-onMount(async () => {
+let interval = undefined;
+
+function sychronizationStatusLoop(){
     getSynchronizationStatus().then(function(response) {
+        console.log(response);
         synchronizationStatus = response.data;
     });
+}
+
+onMount(async () => {
+    sychronizationStatusLoop();
+    interval = setInterval(sychronizationStatusLoop, 5000);
 });
 
-setInterval(function(){
-    getSynchronizationStatus().then(function(response) {
-        synchronizationStatus = response.data;
-        console.log(synchronizationStatus);
-    });
-}, 5000);
+onDestroy(() => {
+    clearInterval(interval);
+});
 
 function synchronizeButton() {
     synchronize().then(function (response) {

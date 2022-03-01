@@ -26,6 +26,10 @@ export async function getVTStatuses(): Promise<TVTStatus[]> {
     return response.data.message;
 }
 
+export async function getGatewayConfig() {
+    return await axios.get(url("/../voting-process-manager-api/election-config"));
+}
+
 /**
  * Election status
  */

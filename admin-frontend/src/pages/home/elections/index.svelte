@@ -9,13 +9,16 @@ import {startElection, stopElection, getElectionStatus} from "../../../api/api";
 let electionStatus = undefined;
 let interval = undefined;
 
+function electionStatusLoop(){
+    getElectionStatus().then(function(status) {
+        console.log(status);
+        electionStatus = status;
+    });
+}
+
 onMount(async () => {
-    interval = setInterval(function(){
-        getElectionStatus().then(function(status) {
-            console.log(status);
-            electionStatus = status;
-        });
-    }, 5000);
+    electionStatusLoop();
+    interval = setInterval(electionStatusLoop, 5000);
 });
 
 onDestroy(() => {

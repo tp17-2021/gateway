@@ -69,6 +69,21 @@ async def root () -> dict:
         'message': 'Hello from voting process manager.'
     }
 
+@app.get('/election-config')
+async def election_config () -> dict:
+    """Returns necessary config fields for gateway from cofig"""
+    
+    response = requests.get(
+        "http://web/statevector/config/config.json",
+    )
+
+    response = response.json()
+
+    return {
+        'status': 'success',
+        'texts': response['texts']
+    }
+
 
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):

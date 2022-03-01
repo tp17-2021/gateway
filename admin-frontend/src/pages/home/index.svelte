@@ -28,9 +28,7 @@
     <Button href={$url('/home/status')}>Stav volebných terminálov</Button>
     <Button href={$url('/home/reports')}>Zápisnica</Button>
     <Button href={$url('/home/contact')}>Kontakt</Button>
-    <div on:click={()=>logout()}>
-        Odhlásiť sa
-    </div>
+    <Button on:click={()=>logout()}>Odhlásiť sa</Button>
 
 </ButtonsContainer>
 

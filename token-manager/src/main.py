@@ -32,6 +32,16 @@ def generate_token() -> str:
     return token
 
 
+@app.sio.on('join')
+async def handle_join(sid, *args, **kwargs):
+    state_write = int(requests.get('http://web/statevector/gateway/state_write.txt').text)
+
+    await app.sio.emit(
+        'writer_status', {
+            'status' : 'idle' if state_write else 'off',
+        }
+    )
+
 @app.get('/')
 async def root () -> dict:
     """Simple hello message"""
@@ -51,6 +61,12 @@ async def deactivate_state () -> dict:
     """
 
     requests.put('http://web/statevector/gateway/state_write.txt', data='0')
+
+    await app.sio.emit(
+        'writer_status', {
+            'status' : 'off'
+        }
+    )
 
     return {
         'status': 'success',

@@ -51,6 +51,12 @@
             } else {
                 error = "Incorrect pin"
                 redPin = true
+
+                setTimeout(() => {
+                    redPin = false
+                    typedPin = ""
+                }, 500)
+
             }
         }
         //

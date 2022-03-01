@@ -64,11 +64,7 @@ async def deactivate_state () -> dict:
 
     await app.sio.emit(
         'writer_status', {
-<<<<<<< HEAD
             'status' : 'off'
-=======
-            'status' : 'error'
->>>>>>> 56eb4b3382ddad27a04d3f34a1160ae30269dc2f
         }
     )
 
@@ -121,6 +117,8 @@ async def delete_unwritten (token) -> dict:
             'status' : 'success'
         }
     )
+
+    await app.sio.sleep(1)
 
     await app.sio.emit(
         'writer_status', {

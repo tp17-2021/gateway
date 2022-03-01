@@ -11,7 +11,7 @@
         paths = pathname.split('/')
 
         paths = paths.filter(path => {
-                return !["", "admin-frontend", "gateway", "index"].includes(path);
+                return !["", "admin-frontend", "gateway", "index", "idle", "error", "success", "off"].includes(path);
             }
         )
 

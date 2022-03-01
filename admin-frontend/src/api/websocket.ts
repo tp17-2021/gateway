@@ -1,5 +1,5 @@
 import {io} from "socket.io-client";
-import {readable} from "svelte/store";
+import {readable, writable} from "svelte/store";
 
 
 const socket = io('/', {
@@ -7,24 +7,29 @@ const socket = io('/', {
     transports: ['polling']
 });
 
-socket.on('connect', function (event) {
-    console.log('user is connected now');
-    // socket.emit('client_connect_event', {data: 'User connected'});
+
+// writerStatus enum type
+export enum WriterStatus {
+    IDLE = 'idle',
+    ERROR = 'error',
+    SUCCESS = 'success',
+    OFF = 'off',
+}
+
+export const writerStatus = writable(WriterStatus.OFF);
+socket.on('writer_status', function (msg, cb) {
+    console.log('writer_status', msg);
+    if (msg.status !== WriterStatus.ERROR) {
+        writerStatus.set(msg.status);
+    } else {
+        writerStatus.set(WriterStatus.ERROR);
+    }
 });
 
-export const writerStatus = readable("error", set => {
-    socket.on('writer_status', function (msg, cb) {
-        if (msg.status == "idle") {
-            set("idle");
-        } else if (msg.status == "success") {
-            set("success");
-            setTimeout(() => {
-                set("idle");
-            }, 2000);
-        } else {
-            set("error");
-        }
-    });
+socket.on('connect', function (event) {
+    console.log('user is connected now');
+    socket.emit('join', {data: 'User connected'});
 });
+
 
 export {socket};

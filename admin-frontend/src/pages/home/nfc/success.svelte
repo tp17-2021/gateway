@@ -1,6 +1,6 @@
 <script>
-    import ImageScreen, {icons} from "../../../../lib/ImageScreen.svelte";
-    import Button from "../../../../lib/components/buttons/Button.svelte";
+    import ImageScreen, {icons} from "../../../lib/ImageScreen.svelte";
+    import Button from "../../../lib/components/buttons/Button.svelte";
     import {goto} from "@roxi/routify";
 
     function next() {

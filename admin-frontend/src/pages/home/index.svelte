@@ -3,6 +3,13 @@
     import ButtonsContainer from "../../lib/components/buttons/ButtonsContainer.svelte";
     import Button from "../../lib/components/buttons/Button.svelte";
     import {url} from "@roxi/routify";
+    import {jwt} from "../../lib/stores";
+
+    function logout() {
+        $jwt = null;
+        console.log("logout", $jwt);
+
+    }
 </script>
 
 <!--    import {url} from "@roxi/routify";-->
@@ -21,5 +28,9 @@
     <Button href={$url('/home/status')}>Stav volebných terminálov</Button>
     <Button href={$url('/home/reports')}>Zápisnica</Button>
     <Button href={$url('/home/contact')}>Kontakt</Button>
+    <div on:click={()=>logout()}>
+        Odhlásiť sa
+    </div>
+
 </ButtonsContainer>
 

@@ -28,6 +28,7 @@
     import Button from "../lib/components/buttons/Button.svelte";
     import {authenticated, pin} from "../lib/stores";
     import {goto} from "@roxi/routify";
+    import {authJWTToken} from "../api/api";
     // import {goto} from "$lib/navigation/goto";
 
     let typedPin = ""
@@ -36,18 +37,37 @@
     $: pinArray = Array.from({...typedPin.split(""), length: pinMaxLength})
     let redPin = false
 
-    function addToPin(value: string) {
+    async function addToPin(value: string) {
         if (typedPin.length < pinMaxLength) {
             typedPin += value
         }
 
-        if (typedPin === $pin) { // TODO: move to config
-            $authenticated = true
-            $goto("./home")
-            console.log("correct pin")
-        } else if (typedPin.length === pinMaxLength) {
-            redPin = true
+        if (typedPin.length === pinMaxLength) {
+            let bearer = await authJWTToken(typedPin)
+            if (bearer) {
+                $authenticated = true
+                console.log("correct pin")
+                $goto("./home")
+            } else {
+                error = "Incorrect pin"
+                redPin = true
+
+                setTimeout(() => {
+                    redPin = false
+                    typedPin = ""
+                }, 500)
+
+            }
         }
+        //
+        //
+        // if (typedPin === $pin) { // TODO: move to config
+        //     $authenticated = true
+        //     $goto("./home")
+        //     console.log("correct pin")
+        // } else if (typedPin.length === pinMaxLength) {
+        //     redPin = true
+        // }
     }
 
     function removeFromPin() {
@@ -70,6 +90,11 @@
             }
         })
     })
+
+    function clearPin() {
+        typedPin = ""
+        redPin = false
+    }
 
 </script>
 
@@ -151,7 +176,7 @@
     <Button on:click={() => addToPin("7")}>7</Button>
     <Button on:click={() => addToPin("8")}>8</Button>
     <Button on:click={() => addToPin("9")}>9</Button>
-    <div></div>
+    <Button on:click={() => clearPin()}>C</Button>
     <Button on:click={() => addToPin("0")}>0</Button>
     <Button on:click={() => removeFromPin()}>&lt;</Button>
 </div>

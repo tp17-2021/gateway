@@ -64,7 +64,11 @@ async def deactivate_state () -> dict:
 
     await app.sio.emit(
         'writer_status', {
+<<<<<<< HEAD
             'status' : 'off'
+=======
+            'status' : 'error'
+>>>>>>> 56eb4b3382ddad27a04d3f34a1160ae30269dc2f
         }
     )
 

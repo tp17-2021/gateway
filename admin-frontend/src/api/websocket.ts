@@ -1,9 +1,10 @@
 import {io} from "socket.io-client";
 import {readable, writable} from "svelte/store";
+import {url} from "./api";
 
 
 const socket = io('/', {
-    path: '/../token-manager-api/ws/socket.io',
+    path: url('/../token-manager-api/ws/socket.io'),
     transports: ['polling']
 });
 

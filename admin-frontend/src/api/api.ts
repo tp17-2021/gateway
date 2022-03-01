@@ -17,7 +17,7 @@ const base = (import.meta.env.VITE_BASE_PATH ?? "");
 
 console.log("base", base);
 
-function url(path: string) {
+export function url(path: string) {
     return `${base}${path}`;
 }
 
@@ -85,7 +85,7 @@ export async function authJWTToken(password: string):Promise<boolean> {
         bodyFormData.append('password', password);
         let jwr_response = await axios({
             method: "post",
-            url: "/../voting-process-manager-api/token",
+            url: url("/../voting-process-manager-api/token"),
             data: bodyFormData,
             headers: { "Content-Type": "multipart/form-data" },
         })

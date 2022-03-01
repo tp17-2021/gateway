@@ -1,5 +1,5 @@
 <script>
-import { onMount } from 'svelte';
+    import {onDestroy, onMount} from 'svelte';
 import ButtonsContainer from "../../../lib/components/buttons/ButtonsContainer.svelte";
 import Button from "../../../lib/components/buttons/Button.svelte";
 import Panel from "../../../lib/components/Panel.svelte";
@@ -7,19 +7,20 @@ import Panel from "../../../lib/components/Panel.svelte";
 import {startElection, stopElection, getElectionStatus} from "../../../api/api";
 
 let electionStatus = undefined;
+let interval = undefined;
 
 onMount(async () => {
-    getElectionStatus().then(function(status) {
-        electionStatus = status;
-    });
+    interval = setInterval(function(){
+        getElectionStatus().then(function(status) {
+            console.log(status);
+            electionStatus = status;
+        });
+    }, 5000);
 });
 
-setInterval(function(){
-     getElectionStatus().then(function(status) {
-         console.log(status);
-         electionStatus = status;
-     });
-}, 5000);
+onDestroy(() => {
+    clearInterval(interval);
+});
 
 function startElectionButton() {
     startElection().then( function (response){

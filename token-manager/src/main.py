@@ -52,6 +52,26 @@ async def root () -> dict:
     }
 
 
+@app.post('/tokens/writter/activate')
+async def activate_state () -> dict:
+    """
+    Activate NFC writter machine. After turning on, machine's led will turn on
+    and be able to write data to NFC tokens.
+    """
+    requests.put('http://web/statevector/gateway/state_write.txt', data='1')
+
+    await app.sio.emit(
+        'writer_status', {
+            'status' : 'idle'
+        }
+    )
+
+    return {
+        'status': 'success',
+        'message': 'NFC writter machine was activated.'
+    }
+
+
 @app.post('/tokens/writter/deactivate')
 async def deactivate_state () -> dict:
     """
@@ -71,26 +91,6 @@ async def deactivate_state () -> dict:
     return {
         'status': 'success',
         'message': 'NFC writter machine was deactivated.'
-    }
-
-
-@app.post('/tokens/writter/activate')
-async def activate_state () -> dict:
-    """
-    Activate NFC writter machine. After turning on, machine's led will turn on
-    and be able to write data to NFC tokens.
-    """
-    requests.put('http://web/statevector/gateway/state_write.txt', data='1')
-
-    await app.sio.emit(
-        'writer_status', {
-            'status' : 'idle'
-        }
-    )
-
-    return {
-        'status': 'success',
-        'message': 'NFC writter machine was activated.'
     }
 
 

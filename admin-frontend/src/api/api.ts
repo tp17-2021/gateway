@@ -1,9 +1,15 @@
 import axios from "axios";
+import {jwt} from "../lib/stores";
 
 export interface TVTStatus {
     name: string;
     status: "active" | "inactive";
 }
+
+
+jwt.subscribe(token => {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+});
 
 
 // TODO: temporary solution, will call real api in the future
@@ -77,3 +83,38 @@ export async function getSynchronizationStatus() {
     return axios.post(url("/../synchronization-service-api/statistics"))
 }
 
+export async function authJWTToken(password: string):Promise<boolean> {
+    let name = "admin";
+
+    try {
+        var bodyFormData = new FormData();
+        bodyFormData.append('body', "");
+        bodyFormData.append('username', name);
+        bodyFormData.append('password', password);
+        let jwr_response = await axios({
+            method: "post",
+            url: "/../voting-process-manager-api/token",
+            data: bodyFormData,
+            headers: { "Content-Type": "multipart/form-data" },
+        })
+
+        console.log("jwr_response", jwr_response);
+
+        // if 200, then token is valid
+        if (jwr_response.status === 200) {
+            jwt.set(jwr_response.data.access_token);
+            return true;
+        }
+        else {
+            jwt.set(null);
+            alert()
+            return false;
+        }
+    }
+    catch (e) {
+        jwt.set(null);
+        alert(e.status +  " - Auth service not available");
+        console.log(e);
+        return false;
+    }
+}

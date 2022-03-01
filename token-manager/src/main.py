@@ -52,6 +52,12 @@ async def deactivate_state () -> dict:
 
     requests.put('http://web/statevector/gateway/state_write.txt', data='0')
 
+    await app.sio.emit(
+        'writer_status', {
+            'status' : 'error'
+        }
+    )
+
     return {
         'status': 'success',
         'message': 'NFC writter machine was deactivated.'

@@ -1,6 +1,8 @@
 <script>
     import {enToSkPaths} from "../../translations/paths";
-    import {page, url} from '@roxi/routify'
+    import {page, url, metatags} from '@roxi/routify'
+
+
 
     // example of paths array: ['home', 'nfc', 'add']
     let paths = []
@@ -12,6 +14,18 @@
                 return !["", "admin-frontend", "gateway", "index"].includes(path);
             }
         )
+
+        // set title to last path in paths array
+        if (paths.length > 0) {
+            let lastPath = paths[paths.length - 1]
+            let title = enToSkPaths[lastPath]
+            if (title) {
+                metatags.title = title + " | Admin gateway"
+            }
+        }
+        else {
+            metatags.title = 'Admin gateway'
+        }
 
         console.log(paths, $page);
     }

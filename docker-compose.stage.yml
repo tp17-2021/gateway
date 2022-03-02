@@ -40,7 +40,7 @@ services:
       - TOKEN_DB_HOST=vote-db
       - TOKEN_DB_DB_NAME=vote-db
       - TOKEN_DB_COLLECTION=tokens
-      - ROOT_PATH=/token-manager-api
+      - ROOT_PATH=/gateway/token-manager-api
       - ACCEPT_VALID_TOKEN=1
 
   token-writer:

@@ -316,8 +316,6 @@ class Writer:
 
             DATA = self.wait_for_tag_read()
             if DATA == value_to_write:
-                self.blink_led(5)
-                time.sleep(3)
                 return True
 
         return False

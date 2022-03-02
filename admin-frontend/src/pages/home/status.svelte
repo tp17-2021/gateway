@@ -2,6 +2,7 @@
     import {onMount} from "svelte";
     import ButtonsContainer from "../../lib/components/buttons/ButtonsContainer.svelte";
     import {getVTStatuses, TVTStatus} from "../../api/api";
+    import Panel from "../../lib/components/Panel.svelte";
 
     let statuses: TVTStatus[] = [];
     onMount(async () => {
@@ -10,30 +11,36 @@
 </script>
 
 <style lang="scss">
-  .status {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
+    .govuk-table {
+        margin-bottom: 1rem;
+        width: 100%;
+        @import 'node_modules/@id-sk/frontend/govuk/components/table/_table';
 
-    .status-active {
-      color: green;
-    }
+        .status-active {
+            color: govuk-colour("green");
+        }
 
-    .status-inactive {
-      color: red;
+        .status-inactive {
+            color: govuk-colour("red");
+        }
     }
-  }
 </style>
 
 <h1>Stav volebných terminálov</h1>
-<ButtonsContainer>
-    {#each statuses as status}
-        <div class="status">
-            <div>{status.name}</div>
-            <div class="status-{status.status}">{status.status}</div>
-        </div>
-    {/each}
-</ButtonsContainer>
+
+<div>
+    {#if statuses.length}
+        <table class="govuk-table">
+            <tbody class="govuk-table__body">
+                {#each statuses as status}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">{status.name}</td>
+                        <td class="govuk-table__cell status-{status.status}">{status.status}</td>
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+    {:else}
+        <Panel type="danger">Nie sú pripojené žiadne terminály.</Panel>
+    {/if}
+</div>

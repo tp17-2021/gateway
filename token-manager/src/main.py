@@ -100,6 +100,20 @@ async def delete_unwritten () -> dict:
 
     db.collection.delete_many({'written': False})
 
+    await app.sio.emit(
+        'writer_status', {
+            'status' : 'error'
+        }
+    )
+
+    await app.sio.sleep(1)
+
+    await app.sio.emit(
+        'writer_status', {
+            'status' : 'idle'
+        }
+    )
+
     return {
         'status': 'success',
         'message': 'Unwritten NFC tokens successfully deleted from database.'

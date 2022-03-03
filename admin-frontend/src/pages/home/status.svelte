@@ -1,12 +1,24 @@
 <script lang="ts">
-    import {onMount} from "svelte";
-    import ButtonsContainer from "../../lib/components/buttons/ButtonsContainer.svelte";
-    import {getVTStatuses, TVTStatus} from "../../api/api";
+    import {onDestroy, onMount} from "svelte";
+    import {getVTStatuses} from "../../api/api";
     import Panel from "../../lib/components/Panel.svelte";
 
-    let statuses: TVTStatus[] = [];
+    let terminalsStatuses = [];
+    let interval = null;
+    function terminalsStatusLoop(){
+        getVTStatuses().then(function(response) {
+            console.log(response);
+            terminalsStatuses = response.data.terminals;
+        });
+    }
+
     onMount(async () => {
-        statuses = await getVTStatuses()
+        terminalsStatusLoop();
+        interval = setInterval(terminalsStatusLoop, 5000);
+    });
+
+    onDestroy(() => {
+        clearInterval(interval);
     });
 </script>
 
@@ -29,13 +41,33 @@
 <h1>Stav volebných terminálov</h1>
 
 <div>
-    {#if statuses.length}
+    {#if terminalsStatuses.length}
         <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">
+                      <span class="th-span">
+                        ID
+                      </span>
+                    </th>
+                    <th scope="col" class="govuk-table__header">
+                        <span class="th-span">
+                            IP adresa
+                        </span>
+                    </th>
+                    <th scope="col" class="govuk-table__header">
+                        <span class="th-span">
+                            Stav
+                        </span>
+                    </th>
+                </tr>
+            </thead>
             <tbody class="govuk-table__body">
-                {#each statuses as status}
+                {#each terminalsStatuses as terminal}
                     <tr class="govuk-table__row">
-                        <td class="govuk-table__cell">{status.name}</td>
-                        <td class="govuk-table__cell status-{status.status}">{status.status}</td>
+                        <td class="govuk-table__cell">{terminal.id}</td>
+                        <td class="govuk-table__cell">{terminal.ip_address}</td>
+                        <td class="govuk-table__cell status-{terminal.status}">{terminal.status}</td>
                     </tr>
                 {/each}
             </tbody>

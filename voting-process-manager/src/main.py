@@ -90,11 +90,18 @@ async def election_config () -> dict:
     """Returns necessary staus information of connected voting terminals"""
     
     terminals = await src.helper.get_terminals()
-    print(terminals)
 
+    terminals_transformed = []
+    for terminal in terminals:
+        terminals_transformed.append({
+            'id' : terminal['_id'],
+            'ip_address' : terminal['ip'],
+            'status' : 'active', ## TODO correct status
+        })
+    
     return {
         'status': 'success',
-        'terminals': terminals
+        'terminals': terminals_transformed
     }
 
 @app.post("/token", response_model=Token)

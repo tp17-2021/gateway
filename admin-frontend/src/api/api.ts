@@ -21,9 +21,8 @@ export function url(path: string) {
     return `${base}${path}`;
 }
 
-export async function getVTStatuses(): Promise<TVTStatus[]> {
-    const response = await axios.get(url("/api/vtstatuses.json"));
-    return response.data.message;
+export async function getVTStatuses() {
+    return await axios.get(url("/../voting-process-manager-api/terminals-status"));
 }
 
 export async function getGatewayConfig() {

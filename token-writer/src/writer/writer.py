@@ -186,16 +186,16 @@ class Writer:
         self.send("Turning on LED", COMMAND_LED_CONTROL, LED_ON)
 
 
-    def blink_led(self, repeat = 1):
+    def blink_led(self, repeat=1, speed=0.1):
         """
         Blink the LED on the writer.
         repeat: number of times to blink
         """
         for i in range(repeat):
             self.turn_off_led()
-            sleep(.1)
+            sleep(speed)
             self.turn_on_led()
-            sleep(.1)
+            sleep(speed)
 
     
     def get_model_string(self):

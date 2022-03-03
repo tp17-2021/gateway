@@ -1,3 +1,4 @@
+import json
 import requests
 import time
 from starlette.routing import request_response
@@ -6,7 +7,10 @@ from writer import writer
 
 
 def main ():
-    requests.post('http://token-manager/tokens/writter/delete')
+    requests.post(
+        'http://token-manager/tokens/writter/delete',
+        json={'event': 'restart'}
+    )
 
     w = writer.Writer()
     w.turn_off_led()
@@ -37,12 +41,11 @@ def main ():
                 w.blink_led(10)
 
             else:
-                # delete unwritten tokens
-                requests.post('http://token-manager/tokens/writter/delete')
-
-                # stop writing
-                requests.post('http://token-manager/tokens/writter/deactivate')
-                time.sleep(2)
+                requests.post(
+                    'http://token-manager/tokens/writter/delete',
+                    json={'event': 'write_error'}
+                )
+                w.blink_led(3, speed=0.3)
                 break
 
         else:

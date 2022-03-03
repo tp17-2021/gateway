@@ -95,18 +95,21 @@ async def deactivate_state () -> dict:
 
 
 @app.post('/tokens/writter/delete')
-async def delete_unwritten () -> dict:
+async def delete_unwritten (
+    event: str=Body(..., example='restart', embed=True)
+) -> dict:
     """Delete unwritten NFC tokens from database"""
-
+        
     db.collection.delete_many({'written': False})
+        
+    if event == 'write_error':
+        await app.sio.emit(
+            'writer_status', {
+                'status' : 'error'
+            }
+        )
 
-    await app.sio.emit(
-        'writer_status', {
-            'status' : 'error'
-        }
-    )
-
-    await app.sio.sleep(1)
+        await app.sio.sleep(1)
 
     await app.sio.emit(
         'writer_status', {
@@ -121,7 +124,7 @@ async def delete_unwritten () -> dict:
 
 
 @app.post('/tokens/writter/update')
-async def delete_unwritten (token) -> dict:
+async def update_written (token) -> dict:
     """Update NFC token state from unwritten to written"""
 
     db.collection.update_one({'token': token} , { '$set' : { 'written' : True } })

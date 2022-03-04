@@ -3,7 +3,7 @@ import os
 import asyncio
 
 
-app = FastAPI(root_path=os.environ['ROOT_PATH'])
+app = FastAPI(root_path=os.environ['ROOT_PATH'] if 'ROOT_PATH' in os.environ else '')
 
 state_election_lock = asyncio.Lock()
 state_election = '0'

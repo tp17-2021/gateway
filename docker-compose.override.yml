@@ -43,6 +43,10 @@ services:
       - ROOT_PATH=/token-manager-api
       - ACCEPT_VALID_TOKEN=1
 
+  statevector:
+    environment:
+      - ROOT_PATH=/statevector
+
   web:
     ports:
       - "8080:80"

@@ -34,7 +34,7 @@ export async function getGatewayConfig() {
  */
 export async function getElectionStatus() {
     try {
-        let response = await axios.get(url("/../statevector/gateway/state_election.txt"))
+        let response = await axios.get(url("/../statevector/state_election"))
         console.log(response.data);
         return parseInt(response.data);
     }

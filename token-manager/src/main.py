@@ -34,7 +34,7 @@ def generate_token() -> str:
 
 @app.sio.on('join')
 async def handle_join(sid, *args, **kwargs):
-    state_write = int(requests.get('http://web/statevector/gateway/state_write.txt').text)
+    state_write = int(requests.get('http://web/statevector/state_write').text)
 
     await app.sio.emit(
         'writer_status', {
@@ -58,7 +58,7 @@ async def activate_state () -> dict:
     Activate NFC writter machine. After turning on, machine's led will turn on
     and be able to write data to NFC tokens.
     """
-    requests.put('http://web/statevector/gateway/state_write.txt', data='1')
+    requests.put('http://web/statevector/state_write', data='1')
 
     await app.sio.emit(
         'writer_status', {
@@ -80,7 +80,7 @@ async def deactivate_state () -> dict:
     of data to NFC token.
     """
 
-    requests.put('http://web/statevector/gateway/state_write.txt', data='0')
+    requests.put('http://web/statevector/state_write', data='0')
 
     await app.sio.emit(
         'writer_status', {

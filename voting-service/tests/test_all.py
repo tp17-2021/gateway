@@ -42,7 +42,7 @@ def connect_to_db(name: str='VOTE'):
 
 
 def set_election_state(state: str):
-    requests.put('http://web/statevector/gateway/state_election.txt', data=state)
+    requests.put('http://web/statevector/state_election', data=state)
     
 
 def test_it_should_work_base_url():

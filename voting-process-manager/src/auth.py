@@ -22,7 +22,7 @@ users_dictionary = {
         "username": "admin",
         "full_name": "admin",
         "hashed_password": pwd_context.hash('0000'),
-        #"hashed_password": pwd_context.hash(requests.get('http://web/statevector/gateway/pin.txt')),
+        #"hashed_password": pwd_context.hash(requests.get('http://web/statevector/pin')),
     }
 }
 

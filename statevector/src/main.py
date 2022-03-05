@@ -6,15 +6,15 @@ import asyncio
 app = FastAPI(root_path=os.environ['ROOT_PATH'] if 'ROOT_PATH' in os.environ else '')
 
 state_election_lock = asyncio.Lock()
-state_election = '0'
+state_election: int = 0
 
 state_write_lock = asyncio.Lock()
-state_write = '0'
+state_write: int = 0
 
-office_id = None
-pin = None
-server_key = None
-server_address = None
+office_id: int = 0
+pin: str = 'not set'
+server_key: str = 'not set'
+server_address: str = 'not set'
 
 
 @app.on_event('startup')
@@ -22,12 +22,12 @@ async def startup():
     global office_id, pin, server_key, server_address
     
     # TODO - read from somwhere
-    office_id = '0'
+    office_id = 0
     pin = '0000'
     server_key = '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs6lvNfr+Eo6Mt+mW95fh\njUbCRygCNok8Y8yIu502lpDiz3bNdR5qRZndlq7k+8XmIv2Qm8yD9BeBJbSyvc7I\nEpRSmY1nElabMoBbU2vsPWBsu7WR31pGDtAnQYCOvofScT98lar5WY5EOIV7ZzPu\nRVtuHy/q2tD5sY2ekWJc1YsoeQ5JDK64qXHZsGaIjblm+gQemucv5TG80+sgzf7c\n2P4NpNgSJ2NT8aF/bDbu3sQk9QuQXTEnkgFxTPWCwhYzRvsyq6dSTnlbyk8xfchq\nrYj5Xnql/wcrnyOhcgeKsOBieH/fETheNm6xC6Ol9Zo0rFdtqgBDsIN6H5aPCfG4\n7QIDAQAB\n-----END PUBLIC KEY-----'
     server_address = 'https://team17-21.studenti.fiit.stuba.sk/server'
     
-    print('Office ID: ' + office_id)
+    print('Office ID:', office_id)
     print('Pin: not printing it')
     print('Server Key: ' + server_key)
     print('Server Address: ' + server_address)
@@ -69,7 +69,7 @@ async def set_state_election (
     global state_election, state_election_lock
 
     await state_election_lock.acquire()
-    state_election = state
+    state_election = int(state)
     state_election_lock.release()
 
     return {'message': 'Election state set to ' + state}
@@ -103,7 +103,7 @@ async def set_state_write (
     global state_write, state_write_lock
 
     await state_write_lock.acquire()
-    state_write = state
+    state_write = int(state)
     state_write_lock.release()
 
     return {'message': 'Write state set to ' + state}

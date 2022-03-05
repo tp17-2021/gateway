@@ -20,4 +20,4 @@ FROM base as build
 RUN apk add -U curl
 COPY ./start_build.sh ./start_build.sh
 RUN chmod 700 ./start_build.sh
-CMD [ "./start_build.sh" ]
+CMD [ "python3", "src/main.py" ]

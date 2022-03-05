@@ -7,7 +7,4 @@ requests>=2.26.0,<2.26.1
 pymongo
 pytest
 pytest-mock
-pyusb
 SQLAlchemy
-libusb
-libusb1

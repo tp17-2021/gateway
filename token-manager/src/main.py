@@ -9,7 +9,6 @@ import uuid
 import re
 
 import src.database as db
-import src.writer.writer as writer
 
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
@@ -206,4 +205,4 @@ async def delete_token (token: str = Body(..., embed=True)) -> None:
             detail='Invalid token'
         )
 
-    db.collection.delete_one({'token': token})    
+    db.collection.delete_one({'token': token})

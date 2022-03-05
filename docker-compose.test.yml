@@ -45,6 +45,11 @@ services:
       - ROOT_PATH=/token-manager-api
       - ACCEPT_VALID_TOKEN=1
 
+  statevector:
+    environment:
+      - ROOT_PATH=/statevector
+
+
   token-writer:
     build:
       context: ./dummy

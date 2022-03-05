@@ -129,7 +129,7 @@ async def current_user(current_user: User = Depends(get_current_active_user)):
 async def start_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
     """Start voting from gateway and notify terminals"""
     
-    requests.put('http://web/statevector/gateway/state_election.txt', data='1')
+    requests.post('http://statevector/state_election', json='1')
 
     notify_status = await notify_voting_terminals('start')
     return {
@@ -145,7 +145,7 @@ async def start_voting_process (current_user: User = Depends(get_current_active_
 async def end_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
     """End voting from gateway and notify terminals"""
 
-    requests.put('http://web/statevector/gateway/state_election.txt', data='0')
+    requests.post('http://statevector/state_election', json='0')
 
     notify_status = await notify_voting_terminals('end')
     return {

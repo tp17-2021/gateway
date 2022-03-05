@@ -29,7 +29,7 @@ def get_unsychronized_votes() -> list :
 
 
 async def send_unsychronized_votes(items) -> requests.Response:
-    server_key = requests.get('http://web/statevector/gateway/server_key.txt').text
+    server_key = requests.get('http://web/statevector/server_key').text
     my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
 
     encrypted_votes = []
@@ -43,14 +43,14 @@ async def send_unsychronized_votes(items) -> requests.Response:
 
         encrypted_votes.append(encrypted_vote.__dict__)
 
-    server_address = requests.get('http://web/statevector/gateway/server_address.txt').text
+    server_address = requests.get('http://web/statevector/server_address').text
     
     server_synch_endpoint = server_address + '/elections/vote'
     
     print('Sending data to', server_synch_endpoint)
     response = requests.post(server_synch_endpoint, json={
         'polling_place_id': int(
-            requests.get('http://web/statevector/gateway/office_id.txt').text
+            requests.get('http://web/statevector/office_id').text
         ),
         'votes': encrypted_votes,
     })
@@ -197,7 +197,7 @@ async def test_encrypt() -> dict:
     
     items = get_unsychronized_votes()
     
-    server_key = requests.get('http://web/statevector/gateway/server_key.txt').text
+    server_key = requests.get('http://web/statevector/server_key').text
     my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
     
     print('Server key', server_key)
@@ -216,6 +216,6 @@ async def test_encrypt() -> dict:
 
     print(encrypted_votes)
     return {
-        'polling_place_id': int(requests.get('http://web/statevector/gateway/office_id.txt').text),
+        'polling_place_id': int(requests.get('http://web/statevector/office_id').text),
         'votes': encrypted_votes,
     }

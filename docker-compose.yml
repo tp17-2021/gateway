@@ -42,6 +42,12 @@ services:
     - /dev/usb/bus:/dev/usb/bus
     privileged: true
 
+  statevector:
+    build:
+      context: ./statevector
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+
   web:
     build:
       context: ./
@@ -53,6 +59,7 @@ services:
       - token-manager
       - vote-db
       - admin-frontend
+      - statevector
     
   vote-db:
     image: mongo:4.4.13-rc0-focal

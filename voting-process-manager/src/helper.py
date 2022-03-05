@@ -8,7 +8,7 @@ import src.database as db
 
 
 def get_office_id():
-    return requests.get('http://web/statevector/gateway/office_id.txt').text
+    return requests.get('http://web/statevector/office_id').text
 
 
 async def get_terminals() -> list[dict[str, str]]:

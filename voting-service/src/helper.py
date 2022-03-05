@@ -12,7 +12,7 @@ def get_election_id () -> str:
 
 
 def check_election_state_running() -> bool:
-    r = requests.get('http://web/statevector/gateway/state_election.txt').text
+    r = requests.get('http://web/statevector/state_election').text
 
     return r == '1'
 

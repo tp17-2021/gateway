@@ -60,7 +60,7 @@ def test_it_should_synchronize_with_server(mocker):
 
 
 def test_it_should_get_server_key():
-    server_key = requests.get('http://web/statevector/gateway/server_key.txt').text
+    server_key = requests.get('http://web/statevector/server_key').text
 
     assert "-----BEGIN PUBLIC KEY-----" in server_key
 
@@ -73,6 +73,6 @@ def test_it_should_get_private_key():
 
 
 def test_it_should_get_office_id():
-    office_id = int(requests.get('http://web/statevector/gateway/office_id.txt').text)
+    office_id = int(requests.get('http://web/statevector/office_id').text)
 
     assert office_id == 0

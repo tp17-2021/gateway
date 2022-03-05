@@ -49,6 +49,10 @@ services:
       dockerfile: ./Dockerfile
     restart: "no"
 
+  statevector:
+    environment:
+      - ROOT_PATH=/gateway/statevector
+
   web:
     ports:
       - "8101:80"

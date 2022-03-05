@@ -6,7 +6,7 @@ RUN apk add -U g++ gcc bash libffi-dev
 
 COPY ./requirements.txt ./code/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r ./code/requirements.txt
+RUN pip install --upgrade -r ./code/requirements.txt
 
 COPY ./src /code/src
 

@@ -1,12 +1,14 @@
-FROM python:3.10-alpine3.14 as base
+FROM python:3.10 as base
 
 WORKDIR /code
 
-RUN apk add	-U bash libusb-dev
+# RUN apk add -U bash libusb-dev
+RUN apt-get update
+RUN apt-get install -y libusb-dev netcat
 
 COPY ./requirements.txt /code/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install --upgrade -r /code/requirements.txt
 
 COPY ./src /code/src
 
@@ -17,7 +19,4 @@ RUN chmod 700 ./start_test.sh
 CMD [ "./start_test.sh" ]
 
 FROM base as build
-RUN apk add -U curl
-COPY ./start_build.sh ./start_build.sh
-RUN chmod 700 ./start_build.sh
-CMD [ "./start_build.sh" ]
+CMD [ "python3", "src/main.py" ]

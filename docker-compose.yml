@@ -55,7 +55,7 @@ services:
       - admin-frontend
     
   vote-db:
-    image: mongo
+    image: mongo:4.4.13-rc0-focal
     restart: unless-stopped
     environment:
       - PUID=1000

@@ -26,18 +26,7 @@ onDestroy(() => {
 });
 
 function startElectionButton() {
-    startElection().then( function (response){
-        let message = '';
-        if(response.status === 200) {
-            message += 'Úspešne spustené terminály. (' + response.data.success_terminals_count + ')\n';
-            message += 'Neúspešne spustené terminály. (' + response.data.error_terminals_count + ')';
-            alert(message);
-        } else {
-            alert(response.status)
-        }
-    }).catch(function (error) {
-        alert(error)
-    }).finally(function (){
+    startElection().finally(function (){
         getElectionStatus().then(function(status) {
             electionStatus = status;
         });
@@ -45,18 +34,7 @@ function startElectionButton() {
 }
 
 function stopElectionButton() {
-    stopElection().then( function (response){
-        let message = '';
-        if(response.status === 200) {
-            message += 'Úspešne zastavené terminály. (' + response.data.success_terminals_count + ')\n';
-            message += 'Neúspešne zastavené terminály. (' + response.data.error_terminals_count + ')';
-            alert(message);
-        } else {
-            alert(response.status)
-        }
-    }).catch(function (error) {
-        alert(error)
-    }).finally(function (){
+    stopElection().finally(function (){
         getElectionStatus().then(function(status) {
             electionStatus = status;
         });

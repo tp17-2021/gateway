@@ -17,6 +17,22 @@ app = FastAPI(root_path=os.environ['ROOT_PATH'])
 keys_db_lock = asyncio.Lock()
 socket_manager = SocketManager(app=app)
 
+@app.sio.on('join')
+async def ws_handle_join(sid, *args, **kwargs):
+    print("WS VT connected", sid, args)
+
+@app.sio.on('leave')
+async def ws_handle_leave(sid, *args, **kwargs):
+    print("WS VT disconnected", sid, args)
+
+@app.sio.on('vt_stauts')
+async def ws_handle_vt_stauts(sid, *args, **kwargs):
+    data = args[0]
+    terminal_id = data['vt_id']
+    terminal_staus = data['staus']
+    print('WS vt_status', sid, args)
+
+
 async def notify_voting_terminals(status) -> dict[str, list[str]]:
     success_arr = []
     error_arr = []
@@ -30,28 +46,6 @@ async def notify_voting_terminals(status) -> dict[str, list[str]]:
             "state": status
         }
     )
-
-    for terminal in terminals:
-        try:
-            payload = {
-                'status': status
-            }
-            print('Sending', payload)
-
-            terminal_endpoint = f'http://{terminal["ip"]}/backend/api/election/state'
-            print('Sending data to', terminal_endpoint)
-
-            response = requests.post(terminal_endpoint, json=payload)
-            print('Response', response.status_code, response.text)
-
-            response.raise_for_status()
-
-            success_arr.append(terminal['_id'])
-
-        except Exception as err:
-            error_arr.append(terminal['_id'])
-            print('Error', str(err))
-            # todo log the error
 
     return {
         'success' : success_arr,
@@ -137,7 +131,7 @@ async def current_user(current_user: User = Depends(get_current_active_user)):
 async def start_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
     """Start voting from gateway and notify terminals"""
     
-    requests.post('http://statevector/state_election', json='1')
+    requests.put('http://web/statevector/gateway/state_election.txt', data='1')
 
     notify_status = await notify_voting_terminals('start')
     return {
@@ -153,7 +147,7 @@ async def start_voting_process (current_user: User = Depends(get_current_active_
 async def end_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
     """End voting from gateway and notify terminals"""
 
-    requests.post('http://statevector/state_election', json='0')
+    requests.put('http://web/statevector/gateway/state_election.txt', data='0')
 
     notify_status = await notify_voting_terminals('end')
     return {

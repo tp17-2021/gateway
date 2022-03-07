@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import Depends, Body, Request, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi_socketio import SocketManager
 
 import os
 import requests
@@ -14,7 +15,7 @@ from src.auth import *
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
 keys_db_lock = asyncio.Lock()
-
+socket_manager = SocketManager(app=app)
 
 async def notify_voting_terminals(status) -> dict[str, list[str]]:
     success_arr = []
@@ -22,6 +23,13 @@ async def notify_voting_terminals(status) -> dict[str, list[str]]:
 
     terminals = await src.helper.get_terminals()
     print(terminals)
+
+    print("Emiting state", status)
+    await app.sio.emit(
+        'actual_state', {
+            "state": status
+        }
+    )
 
     for terminal in terminals:
         try:

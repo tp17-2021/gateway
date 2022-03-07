@@ -17,21 +17,31 @@ app = FastAPI(root_path=os.environ['ROOT_PATH'])
 keys_db_lock = asyncio.Lock()
 socket_manager = SocketManager(app=app)
 
-@app.sio.on('join')
+@app.sio.on('connect')
 async def ws_handle_join(sid, *args, **kwargs):
-    print("WS VT connected", sid, args)
+    print("WS VT connected", sid)
 
-@app.sio.on('leave')
+@app.sio.on('disconnect')
 async def ws_handle_leave(sid, *args, **kwargs):
-    print("WS VT disconnected", sid, args)
+    print("WS VT disconnected", sid)
+    update_terminal_status(sid, 'disconnected')
 
 @app.sio.on('vt_stauts')
 async def ws_handle_vt_stauts(sid, *args, **kwargs):
     data = args[0]
+    print(data)
     terminal_id = data['vt_id']
-    terminal_staus = data['staus']
-    print('WS vt_status', sid, args)
+    terminal_status = data['status']
+    set_terminal_sid(terminal_id, sid)
+    update_terminal_status(sid, terminal_status)
+    print('WS vt_status', sid)
 
+
+def update_terminal_status(terminal_sid, terminal_status):
+    db.keys_collection.update_one({'terminal_sid': terminal_sid} , { '$set' : { 'status' : terminal_status } })
+
+def set_terminal_sid(terminal_id, terminal_sid):
+    db.keys_collection.update_one({'_id': terminal_id} , { '$set' : { 'terminal_sid' : terminal_sid } })
 
 async def notify_voting_terminals(status) -> dict[str, list[str]]:
     success_arr = []
@@ -98,7 +108,7 @@ async def election_config () -> dict:
         terminals_transformed.append({
             'id' : terminal['_id'],
             'ip_address' : terminal['ip'],
-            'status' : 'active', ## TODO correct status
+            'status' : terminal['status'] if 'status' in terminal else None
         })
     
     return {
@@ -131,7 +141,7 @@ async def current_user(current_user: User = Depends(get_current_active_user)):
 async def start_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
     """Start voting from gateway and notify terminals"""
     
-    requests.put('http://web/statevector/gateway/state_election.txt', data='1')
+    requests.post('http://statevector/state_election', json='1')
 
     notify_status = await notify_voting_terminals('start')
     return {
@@ -147,7 +157,7 @@ async def start_voting_process (current_user: User = Depends(get_current_active_
 async def end_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
     """End voting from gateway and notify terminals"""
 
-    requests.put('http://web/statevector/gateway/state_election.txt', data='0')
+    requests.post('http://statevector/state_election', json='0')
 
     notify_status = await notify_voting_terminals('end')
     return {

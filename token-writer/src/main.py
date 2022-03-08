@@ -16,7 +16,7 @@ def main ():
     w.turn_off_led()
     
     while True:
-        state_write = int(requests.get('http://web/statevector/gateway/state_write.txt').text)
+        state_write = int(requests.get('http://web/statevector/state_write').text)
 
         if state_write:
             if not writer.ON:

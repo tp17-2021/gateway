@@ -29,8 +29,11 @@ def get_unsychronized_votes() -> list :
 
 
 async def send_unsychronized_votes(items) -> requests.Response:
-    server_key = requests.get('http://web/statevector/server_key').text
+    server_key = requests.get('http://web/statevector/server_key').text.replace('"', '').replace('\\n', '\n')
     my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
+
+    print('server_key', server_key)
+    print('private_key', my_private_key)
 
     encrypted_votes = []
     for item in items:
@@ -43,14 +46,14 @@ async def send_unsychronized_votes(items) -> requests.Response:
 
         encrypted_votes.append(encrypted_vote.__dict__)
 
-    server_address = requests.get('http://web/statevector/server_address').text
+    server_address = requests.get('http://web/statevector/server_address').text.replace('"', '')
     
     server_synch_endpoint = server_address + '/elections/vote'
     
     print('Sending data to', server_synch_endpoint)
     response = requests.post(server_synch_endpoint, json={
         'polling_place_id': int(
-            requests.get('http://web/statevector/office_id').text
+            requests.get('http://web/statevector/office_id').text.replace('"', '')
         ),
         'votes': encrypted_votes,
     })
@@ -197,7 +200,7 @@ async def test_encrypt() -> dict:
     
     items = get_unsychronized_votes()
     
-    server_key = requests.get('http://web/statevector/server_key').text
+    server_key = requests.get('http://web/statevector/server_key').text.replace('"', '').replace('\\n', '\n')
     my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
     
     print('Server key', server_key)
@@ -216,6 +219,6 @@ async def test_encrypt() -> dict:
 
     print(encrypted_votes)
     return {
-        'polling_place_id': int(requests.get('http://web/statevector/office_id').text),
+        'polling_place_id': int(requests.get('http://web/statevector/office_id').text.replace('"', '')),
         'votes': encrypted_votes,
     }

@@ -57,7 +57,7 @@ async def activate_state () -> dict:
     Activate NFC writter machine. After turning on, machine's led will turn on
     and be able to write data to NFC tokens.
     """
-    requests.post('https://statevector/state_write', json='1')
+    requests.post('http://statevector/state_write', json='1')
 
     await app.sio.emit(
         'writer_status', {
@@ -79,7 +79,7 @@ async def deactivate_state () -> dict:
     of data to NFC token.
     """
 
-    requests.post('http://statevector/state_election', json='0')
+    requests.post('http://statevector/state_write', json='0')
 
     await app.sio.emit(
         'writer_status', {

@@ -20,6 +20,34 @@
     onDestroy(() => {
         clearInterval(interval);
     });
+
+    function getTerminalStatusClass(status) {
+        if(status === null || status === 'disconected') {
+            return 'error';
+        }
+        return 'success';
+    }
+
+    function getTerminalStatusLabel(status) {
+        if(status === 'elections_not_started') 
+            return 'Voľby nespustené';
+        if(status === 'waiting_for_scan')
+            return 'Čakám na tag';
+        if(status === 'token_valid')
+            return 'Platný token';
+        if(status === 'token_not_valid')
+            return 'Neplatný token';
+        if(status === 'vote_success')
+            return 'Úspešný hlas';
+        if(status === 'vote_error')
+            return 'Neúspešný hlas';
+        if(status === 'disconected')
+            return 'Odpojené';
+        if(status === null)
+            return 'Neznámy';
+        return status;
+    }
+
 </script>
 
 <style lang="scss">
@@ -28,11 +56,11 @@
         width: 100%;
         @import 'node_modules/@id-sk/frontend/govuk/components/table/_table';
 
-        .status-active {
+        .status-success {
             color: govuk-colour("green");
         }
 
-        .status-inactive {
+        .status-error {
             color: govuk-colour("red");
         }
     }
@@ -67,7 +95,7 @@
                     <tr class="govuk-table__row">
                         <td class="govuk-table__cell">{terminal.id}</td>
                         <td class="govuk-table__cell">{terminal.ip_address}</td>
-                        <td class="govuk-table__cell status-{terminal.status}">{terminal.status}</td>
+                        <td class="govuk-table__cell status-{getTerminalStatusClass(terminal.status)}">{getTerminalStatusLabel(terminal.status)}</td>
                     </tr>
                 {/each}
             </tbody>

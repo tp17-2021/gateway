@@ -7,7 +7,6 @@
     let interval = null;
     function terminalsStatusLoop(){
         getVTStatuses().then(function(response) {
-            console.log(response);
             terminalsStatuses = response.data.terminals;
         });
     }

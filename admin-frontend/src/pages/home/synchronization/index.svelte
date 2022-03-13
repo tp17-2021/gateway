@@ -6,14 +6,13 @@ import Button from "../../../lib/components/buttons/Button.svelte";
 import {synchronize, getSynchronizationStatus} from "../../../api/api";
 
 let synchronizationStatus = {
-    'statistics' : undefined,
+    'statistics' : {}
 };
 
 let interval = undefined;
 
 function sychronizationStatusLoop(){
     getSynchronizationStatus().then(function(response) {
-        console.log(response);
         synchronizationStatus = response.data;
     });
 }
@@ -29,7 +28,6 @@ onDestroy(() => {
 
 function synchronizeButton() {
     synchronize().then(function (response) {
-        console.log(response);
         getSynchronizationStatus().then(function(response) {
             synchronizationStatus = response.data;
         });

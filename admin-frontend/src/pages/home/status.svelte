@@ -22,7 +22,7 @@
     });
 
     function getTerminalStatusClass(status) {
-        if(status === null || status === 'disconected') {
+        if(status === null || status === 'disconnected') {
             return 'error';
         }
         return 'success';
@@ -41,7 +41,7 @@
             return 'Úspešný hlas';
         if(status === 'vote_error')
             return 'Neúspešný hlas';
-        if(status === 'disconected')
+        if(status === 'disconnected')
             return 'Odpojené';
         if(status === null)
             return 'Neznámy';

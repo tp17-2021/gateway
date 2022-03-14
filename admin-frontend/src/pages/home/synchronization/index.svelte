@@ -1,9 +1,11 @@
 <script>
-    import {onDestroy, onMount} from 'svelte';
+import {onDestroy, onMount} from 'svelte';
 import ButtonsContainer from "../../../lib/components/buttons/ButtonsContainer.svelte";
 import Button from "../../../lib/components/buttons/Button.svelte";
-
 import {synchronize, getSynchronizationStatus} from "../../../api/api";
+import * as dayjs from 'dayjs';
+import 'dayjs/locale/sk';
+dayjs.locale('sk')
 
 let synchronizationStatus = {
     'statistics' : {}
@@ -64,11 +66,23 @@ function synchronizeButton() {
             </tr>
             <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__header">Posledná synchronizácia</th>
-                <td class="govuk-table__cell govuk-table__cell--numeric">{(synchronizationStatus?.last_synchronization === null) ? "-" : synchronizationStatus.last_synchronization}</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">
+                    {#if synchronizationStatus.last_synchronization === null || synchronizationStatus.last_synchronization === undefined}
+                        -
+                    {:else}
+                        {dayjs(synchronizationStatus.last_synchronization).format('DD.MM.YYYY HH:mm')}
+                    {/if}
+                </td>
             </tr>
             <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__header">Posledná úspešná synchronizácia</th>
-                <td class="govuk-table__cell govuk-table__cell--numeric">{(synchronizationStatus?.last_success_synchronization === null) ? "-" : synchronizationStatus.last_success_synchronization}</td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">
+                    {#if synchronizationStatus.last_success_synchronization === null || synchronizationStatus.last_success_synchronization === undefined}
+                        -
+                    {:else}
+                        {dayjs(synchronizationStatus.last_success_synchronization).format('DD.MM.YYYY HH:mm')}
+                    {/if}
+                </td>
             </tr>
         </tbody>
     </table>

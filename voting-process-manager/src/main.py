@@ -8,6 +8,7 @@ from fastapi_socketio import SocketManager
 import os
 import requests
 import asyncio
+import datetime
 
 import src.database as db
 import src.helper
@@ -38,7 +39,7 @@ async def ws_handle_vt_stauts(sid, *args, **kwargs):
 
 
 def update_terminal_status(terminal_sid, terminal_status):
-    db.keys_collection.update_one({'terminal_sid': terminal_sid} , { '$set' : { 'status' : terminal_status } })
+    db.keys_collection.update_one({'terminal_sid': terminal_sid} , { '$set' : { 'status' : terminal_status, 'updated_at' : datetime.datetime.now() } })
 
 def set_terminal_sid(terminal_id, terminal_sid):
     db.keys_collection.update_one({'_id': terminal_id} , { '$set' : { 'terminal_sid' : terminal_sid } })
@@ -108,6 +109,7 @@ async def election_config () -> dict:
         terminals_transformed.append({
             'id' : terminal['_id'],
             'ip_address' : terminal['ip'],
+            'updated_at' : terminal['updated_at'] if 'updated_at' in terminal else None,
             'status' : terminal['status'] if 'status' in terminal else None
         })
     

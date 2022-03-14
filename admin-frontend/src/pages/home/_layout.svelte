@@ -7,7 +7,7 @@
     function verifyToken(jwt) {
         console.log("jwt changed to: ", jwt);
         if (!jwt) {
-            $goto("/");
+            //$goto("/");
         }
     }
 

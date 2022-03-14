@@ -2,6 +2,13 @@
     import {onDestroy, onMount} from "svelte";
     import {getVTStatuses} from "../../api/api";
     import Panel from "../../lib/components/Panel.svelte";
+    import dayjs from 'dayjs';
+    import 'dayjs/locale/sk';
+    dayjs.locale('sk')
+
+    //https://day.js.org/docs/en/display/from-now
+    //import * as relativeTime from "dayjs/plugin/relativeTime";
+    //dayjs.extend(relativeTime)
 
     let terminalsStatuses = [];
     let interval = null;
@@ -28,7 +35,7 @@
     }
 
     function getTerminalStatusLabel(status) {
-        if(status === 'elections_not_started') 
+        if(status === 'elections_not_started')
             return 'Voľby nespustené';
         if(status === 'waiting_for_scan')
             return 'Čakám na tag';
@@ -79,7 +86,7 @@
                     </th>
                     <th scope="col" class="govuk-table__header">
                         <span class="th-span">
-                            IP adresa
+                            Posledná aktualizácia
                         </span>
                     </th>
                     <th scope="col" class="govuk-table__header">
@@ -93,7 +100,13 @@
                 {#each terminalsStatuses as terminal}
                     <tr class="govuk-table__row">
                         <td class="govuk-table__cell">{terminal.id}</td>
-                        <td class="govuk-table__cell">{terminal.ip_address}</td>
+                        <td class="govuk-table__cell">
+                            {#if terminal?.updated_at}
+                                {dayjs(terminal.updated_at).format('DD.MM.YYYY HH:mm')}
+                            {:else}
+                                -
+                            {/if}
+                         </td>
                         <td class="govuk-table__cell status-{getTerminalStatusClass(terminal.status)}">{getTerminalStatusLabel(terminal.status)}</td>
                     </tr>
                 {/each}

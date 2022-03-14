@@ -1,9 +1,10 @@
-import requests
 from fastapi.testclient import TestClient
 from src.main import app
-import src.database as db
+from unittest import mock
+import os
 
-client = TestClient(app)
+with mock.patch.dict(os.environ, os.environ):
+    client = TestClient(app)
 
 
 # pytest testing.py --verbose

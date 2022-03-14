@@ -2,49 +2,83 @@ name: Gateway Tests
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ main, development ]
     types: [ open ]
 
   push:
-    branches: [ development ]
 
   workflow_dispatch:
 
 jobs:
   test-synchronization-service:
+    name: Test Synchronization Service
     runs-on: self-hosted
     
     steps:
-      - name: Check current user
-        run: whoami
-
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Where/When am I in context of the GIT?
-        run: git status
-
-      - name: List
-        run: ls -lah
-
       - name: Tests Docker-Compose
-        run: docker-compose -f docker-compose.test.yml -f docker-compose.test.synchronization-service.yml -p g-utest-sync up --build --exit-code-from synchronization-service --force-recreate --remove-orphans
+        run: docker-compose --env-file synchronization-service/test.env up --build --exit-code-from synchronization-service --renew-anon-volumes --remove-orphans
+
+      - name: Clean up containers
+        run: docker-compose --env-file synchronization-service/test.env down
   
   test-token-manager:
+    name: Test Token Manager
     runs-on: self-hosted
     
     steps:
-      - name: Check current user
-        run: whoami
-
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Where/When am I in context of the GIT?
-        run: git status
+      - name: Tests Docker-Compose
+        run: docker-compose --env-file token-manager/test.env up --build --exit-code-from token-manager --renew-anon-volumes --remove-orphans
 
-      - name: List
-        run: ls -lah
+      - name: Clean up containers
+        run: docker-compose --env-file token-manager/test.env down
+
+  test-voting-process-manager:
+    name: Test Voting Process Manager
+    runs-on: self-hosted
+    
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
 
       - name: Tests Docker-Compose
-        run: docker-compose -f docker-compose.test.yml -f docker-compose.test.token-manager.yml -p g-utest-token-manager up --build --exit-code-from token-manager --force-recreate --remove-orphans
+        run: docker-compose --env-file voting-process-manager/test.env up --build --exit-code-from voting-process-manager --renew-anon-volumes --remove-orphans
+
+      - name: Clean up containers
+        run: docker-compose --env-file voting-process-manager/test.env down
+
+  test-voting-service:
+    name: Test Voting Service
+    runs-on: self-hosted
+    
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Tests Docker-Compose
+        run: docker-compose --env-file voting-service/test.env up --build --exit-code-from voting-service --renew-anon-volumes --remove-orphans
+
+      - name: Clean up containers
+        run: docker-compose --env-file voting-service/test.env down
+
+  stage:
+    needs:
+      - test-synchronization-service
+      - test-token-manager
+      - test-voting-service
+      - test-voting-process-manager
+
+    name: Stage on team server  
+    runs-on: self-hosted
+    
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Docker-Compose
+        run: docker-compose --env-file stage.env up -d --build

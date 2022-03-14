@@ -5,4 +5,8 @@ while ! nc -z web 80; do
     sleep 3;
 done;
 
+# generate python vote class from json spec
+datamodel-codegen --url http://web/statevector/config/datamodels.yaml --output /code/src/schemas.py
+
+# run tests
 pytest test.py -rP --verbose

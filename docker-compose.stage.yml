@@ -2,26 +2,19 @@ version: "3.8"
 
 services:
   voting-service:
-    build:
-      context: ./voting-service
-      dockerfile: ./Dockerfile
-    restart: unless-stopped
-    depends_on:
-      - vote-db
     environment:
       - VOTE_DB_PORT=27017
       - VOTE_DB_HOST=vote-db
       - VOTE_DB_DB_NAME=vote-db
       - VOTE_DB_COLLECTION=votes
       - ROOT_PATH=/gateway/voting-service-api
-  
+      - TOKEN_MANAGER_URL=http://token-manager
+      - KEYS_DB_HOST=vote-db
+      - KEYS_DB_PORT=27017
+      - KEYS_DB_NAME=keys-db
+      - KEYS_DB_COLLECTION=keys
+
   synchronization-service:
-    build:
-      context: ./synchronization-service
-      dockerfile: ./Dockerfile
-    restart: unless-stopped
-    depends_on:
-      - vote-db
     environment:
       - VOTE_DB_PORT=27017
       - VOTE_DB_HOST=vote-db
@@ -30,52 +23,48 @@ services:
       - ROOT_PATH=/gateway/synchronization-service-api
 
   voting-process-manager:
-    build:
-      context: ./voting-process-manager
-      dockerfile: ./Dockerfile
-    restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
       - ROOT_PATH=/gateway/voting-process-manager-api
+      - KEYS_DB_HOST=vote-db
+      - KEYS_DB_PORT=27017
+      - KEYS_DB_NAME=keys-db
+      - KEYS_DB_COLLECTION=keys
+      - TEST_INSERT_VT=True
+      - TEST_INSERT_VT_IP=host.docker.internal:8100
 
   token-manager:
-    build:
-      context: ./token-manager
-      dockerfile: ./Dockerfile
-    restart: unless-stopped
-    depends_on:
-      - vote-db
     environment:
       - TOKEN_DB_PORT=27017
       - TOKEN_DB_HOST=vote-db
       - TOKEN_DB_DB_NAME=vote-db
       - TOKEN_DB_COLLECTION=tokens
-      - ROOT_PATH=/token-manager-api
+      - ROOT_PATH=/gateway/token-manager-api
+      - ACCEPT_VALID_TOKEN=1
+
+  token-writer:
+    build:
+      context: ./dummy
+      dockerfile: ./Dockerfile
+    restart: "no"
+
+  statevector:
+    environment:
+      - ROOT_PATH=/gateway/statevector
 
   web:
-    build:
-      context: ./
-      dockerfile: ./web/Dockerfile
-    image: nginx:alpine
-    depends_on:
-      - voting-process-manager
-      - voting-service
-      - synchronization-service
-      - token-manager
-      - vote-db
     ports:
       - "8101:80"
 
   vote-db:
-    image: mongo
-    container_name: vote-db
-    restart: unless-stopped
-    # ports:
-      # - 8223:27017
+    ports:
+      - 8223:27017
     volumes:
       - /mnt/disk_2/docker_db_volumes/gateway-vote-db-data:/data/db
-    environment:
-      - PUID=1000
-      - PGID=1000
+        
+  admin-frontend:
+      build:
+        args:
+          vite_base_path: /gateway/admin-frontend
 

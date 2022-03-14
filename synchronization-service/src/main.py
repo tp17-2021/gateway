@@ -1,4 +1,5 @@
 import asyncio
+from random import random
 from fastapi import Body, FastAPI, status, HTTPException
 from fastapi_utils.tasks import repeat_every
 import os
@@ -7,6 +8,7 @@ import datetime
 from electiersa import electiersa
 
 import src.database as db
+from src.schemas import Vote
 
 
 app = FastAPI(root_path=os.environ['ROOT_PATH'])
@@ -18,46 +20,55 @@ lock = asyncio.Lock()
 
 
 def get_unsychronized_votes() -> list :
-    query = db.collection.find( { 'synchronized' : False } ).sort( [('time_registered', 1 )] ).limit(votes_to_synchronize)
+    query = db.collection.find({'synchronized' : False})\
+        .sort([('time_registered', 1 )] )\
+        .limit(votes_to_synchronize)
+
     items = list(query)
     return items
 
 
-async def send_unsychronized_votes(votes) -> requests.Response:
-
-    serialized_votes = []
-    server_key = requests.get('http://web/statevector/gateway/server_key.txt').text
-
+async def send_unsychronized_votes(items) -> requests.Response:
+    server_key = requests.get('http://web/statevector/server_key').text.replace('"', '').replace('\\n', '\n')
     my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
 
-    for vote in votes:
-        new_vote = {
-            'token' : vote['vote']['token'],
-            'election_id' : vote['vote']['election_id'],
-            'party_id' : vote['vote']['party_id'],
-            'candidates_ids': [i['candidate_id'] for i in vote['vote']['candidates']],
-        }
+    print('server_key', server_key)
+    print('private_key', my_private_key)
 
-        new_vote = await electiersa.encrypt_vote(new_vote, my_private_key, server_key);
-        serialized_votes.append(new_vote)
+    encrypted_votes = []
+    for item in items:
+        new_vote = Vote(**item['vote'])
 
-    payload = {
-        'polling_place_id': int(requests.get('http://web/statevector/gateway/office_id.txt').text),
-        'votes': serialized_votes,
-    }
+        encrypted_vote = electiersa.encrypt_vote(
+            new_vote.__dict__,
+            my_private_key, server_key
+        )
 
-    server_synch_endpoint = requests.get('http://web/statevector/gateway/server_address.txt').text + '/elections/vote'
+        encrypted_votes.append(encrypted_vote.__dict__)
+
+    server_address = requests.get('http://web/statevector/server_address').text.replace('"', '')
+    
+    server_synch_endpoint = server_address + '/elections/vote'
+    
     print('Sending data to', server_synch_endpoint)
-    response = requests.post(server_synch_endpoint, json=payload)
+    response = requests.post(server_synch_endpoint, json={
+        'polling_place_id': int(
+            requests.get('http://web/statevector/office_id').text.replace('"', '')
+        ),
+        'votes': encrypted_votes,
+    })
     
     return response
 
 
 def update_unsychronized_votes(votes) -> int:
     
-    ids = [x['_id'] for x in votes]
+    ids = [vote['_id'] for vote in votes]
 
-    result = db.collection.update_many({'_id': {'$in': ids}}, { '$set' : { 'synchronized' : True } })
+    result = db.collection.update_many(
+        {'_id': {'$in': ids}},
+        {'$set': {'synchronized' : True}}
+    )
     return result.modified_count
 
 
@@ -68,21 +79,21 @@ async def synchronize_votes() -> None:
         print('Start synchronization')
         erorrs_count = 0
         # get unsynchronized votes
-        votes = get_unsychronized_votes()
+        items = get_unsychronized_votes()
         
-        while votes and erorrs_count < 2:
+        while items and erorrs_count < 2:
             # send unsynchronized votes to server
             try:
-                server_response = await send_unsychronized_votes(votes)
-                last_synchronization = datetime.datetime.now();
+                server_response = await send_unsychronized_votes(items)
+                last_synchronization = datetime.datetime.now()
                 print(server_response.text)
                 server_response.raise_for_status()
             
             
                 # update synchronized votes on gateway
-                updated_count = update_unsychronized_votes(votes)
+                updated_count = update_unsychronized_votes(items)
                 print('Updated', updated_count)
-                last_success_synchronization = datetime.datetime.now();
+                last_success_synchronization = datetime.datetime.now()
                 erorrs_count = 0
         
             except requests.exceptions.HTTPError as err:
@@ -92,7 +103,7 @@ async def synchronize_votes() -> None:
 
             # repeat until no unsynchronized votes
             print('Gettings remaining votes', datetime.datetime.now())
-            votes = get_unsychronized_votes()
+            items = get_unsychronized_votes()
 
     except Exception as err:
         print('Error 1', str(err))
@@ -158,52 +169,56 @@ async def statistics () -> dict:
     }
 
 
+
+# Some testing endpoints follow
+
 @app.post('/seed')
 async def seed() -> dict:
-    # insert dummy vote
+    """ Insert 10 unsynced dummy votes into VOTE_DB """
+    
     db.collection.insert_many([{
-        'vote': {
-            'token': 'abcd_'+str(i),
+        'vote': Vote(**{
+            'token': f'abcd_{datetime.datetime.now().timestamp()}_{random.randint(0, 100)}',
             'election_id': 'election_id',
             'party_id' : 0, 
-            'candidates' : [
-                {
-                    'candidate_id' : 1,
-                },
-                {
-                    'candidate_id' : 2,
-                }
+            'candidate_ids' : [
+                1, 2, 3
             ]
-        },
+        }).__dict__,
         'time_registered': datetime.datetime.now(),
         'synchronized': False,
-    } for i in range(10)])
+    } for _ in range(10)])
 
     return {
         'status': 'success',
     }
 
-@app.post('/test-encrypt')
+
+@app.get('/test-encrypt')
 async def test_encrypt() -> dict:
-    votes = get_unsychronized_votes()
-    server_key = requests.get('http://web/statevector/gateway/server_key.txt').text
-    serialized_votes = []
+    """ Get a batch of encrypted votes """
+    
+    items = get_unsychronized_votes()
+    
+    server_key = requests.get('http://web/statevector/server_key').text.replace('"', '').replace('\\n', '\n')
+    my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
+    
+    print('Server key', server_key)
+    print('My private key', my_private_key)
 
-    print(server_key)
-    print(votes)
-    for vote in votes:
-        new_vote = {
-            'token' : vote['vote']['token'],
-            'election_id' : vote['vote']['election_id'],
-            'party_id' : int(vote['vote']['party_id']),
-            'candidates_ids': [i['candidate_id'] for i in vote['vote']['candidates']],
-        }
+    encrypted_votes = []
+    for item in items:
+        new_vote = Vote(**item['vote'])
 
-        new_vote = await electiersa.encrypt_vote(server_key, new_vote);
-        serialized_votes.append(new_vote)
+        encrypted_vote = electiersa.encrypt_vote(
+            new_vote.__dict__,
+            my_private_key, server_key
+        )
 
-    print(serialized_votes)
+        encrypted_votes.append(encrypted_vote.__dict__)
+
+    print(encrypted_votes)
     return {
-        'polling_place_id': int(requests.get('http://web/statevector/gateway/office_id.txt').text),
-        'votes': serialized_votes,
+        'polling_place_id': int(requests.get('http://web/statevector/office_id').text.replace('"', '')),
+        'votes': encrypted_votes,
     }

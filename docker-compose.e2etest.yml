@@ -1,0 +1,117 @@
+version: "3.8"
+
+services:
+  voting-service:
+    build:
+      context: ./voting-service
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - vote-db
+    environment:
+      - VOTE_DB_PORT=27017
+      - VOTE_DB_HOST=vote-db
+      - VOTE_DB_DB_NAME=vote-db
+      - VOTE_DB_COLLECTION=votes
+      - ROOT_PATH=/voting-service-api
+      - TOKEN_MANAGER_URL=http://token-manager
+      - KEYS_DB_HOST=vote-db
+      - KEYS_DB_PORT=27017
+      - KEYS_DB_NAME=keys-db
+      - KEYS_DB_COLLECTION=keys
+  
+  synchronization-service:
+    build:
+      context: ./synchronization-service
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - vote-db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - VOTE_DB_PORT=27017
+      - VOTE_DB_HOST=vote-db
+      - VOTE_DB_DB_NAME=vote-db
+      - VOTE_DB_COLLECTION=votes
+      - ROOT_PATH=/synchronization-service-api
+
+  voting-process-manager:
+    build:
+      context: ./voting-process-manager
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    environment:
+      - ROOT_PATH=/voting-process-manager-api
+      - KEYS_DB_HOST=vote-db
+      - KEYS_DB_PORT=27017
+      - KEYS_DB_NAME=keys-db
+      - KEYS_DB_COLLECTION=keys
+
+  token-manager:
+    build:
+      context: ./token-manager
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - vote-db
+    environment:
+      - TOKEN_DB_PORT=27017
+      - TOKEN_DB_HOST=vote-db
+      - TOKEN_DB_DB_NAME=vote-db
+      - TOKEN_DB_COLLECTION=tokens
+      - ROOT_PATH=/token-manager-api
+      - ACCEPT_VALID_TOKEN=0
+
+# useless for this purpose
+  # token-writer:
+  #   build:
+  #     context: ./token-writer
+  #     dockerfile: ./Dockerfile
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - token-manager
+  #   devices:
+  #   - /dev/usb/bus:/dev/usb/bus
+  #   privileged: true
+
+  statevector:
+    build:
+      context: ./statevector
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    environment:
+      - ROOT_PATH=/statevector
+      - SET_SERVER_ADDRESS=http://host.docker.internal:8222
+
+  web:
+    build:
+      context: ./
+      dockerfile: ./web/Dockerfile
+    depends_on:
+      - voting-process-manager
+      - voting-service
+      - synchronization-service
+      - token-manager
+      - vote-db
+      - admin-frontend
+      - statevector
+    ports:
+      - "8080:80"
+    
+  vote-db:
+    image: mongo:4.4.13-rc0-focal
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - 8223:27017
+
+  admin-frontend:
+      build:
+        context: ./admin-frontend
+        dockerfile: ./Dockerfile
+        args:
+          vite_base_path: /admin-frontend
+

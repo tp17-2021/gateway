@@ -1,0 +1,27 @@
+name: Stage in separate file
+
+on:
+  workflow_run:
+    workflows: ["Tests"]
+    types: 
+      - completed
+
+  workflow_dispatch:
+
+jobs:
+  stage:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: self-hosted
+    
+    steps:
+      - name: Check current user
+        run: whoami
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: List
+        run: ls -lah
+
+      - name: Docker-Compose
+        run: docker-compose --env-file stage.env up -d --build --renew-anon-volumes

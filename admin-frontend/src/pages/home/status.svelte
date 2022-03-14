@@ -7,8 +7,8 @@
     dayjs.locale('sk')
 
     //https://day.js.org/docs/en/display/from-now
-    //import * as relativeTime from "dayjs/plugin/relativeTime";
-    //dayjs.extend(relativeTime)
+    import relativeTime from "dayjs/plugin/relativeTime";
+    dayjs.extend(relativeTime)
 
     let terminalsStatuses = [];
     let interval = null;
@@ -102,7 +102,7 @@
                         <td class="govuk-table__cell">{terminal.id}</td>
                         <td class="govuk-table__cell">
                             {#if terminal?.updated_at}
-                                {dayjs(terminal.updated_at).format('DD.MM.YYYY HH:mm')}
+                                {dayjs(terminal.updated_at).fromNow()}
                             {:else}
                                 -
                             {/if}

@@ -52,6 +52,7 @@ services:
     build:
       context: ./
       dockerfile: ./web/Dockerfile
+    restart: unless-stopped
     depends_on:
       - voting-process-manager
       - voting-service
@@ -69,6 +70,7 @@ services:
       - PGID=1000
 
   admin-frontend:
-      build:
-        context: ./admin-frontend
-        dockerfile: ./Dockerfile
+    build:
+      context: ./admin-frontend
+      dockerfile: ./Dockerfile
+    restart: unless-stopped

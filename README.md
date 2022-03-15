@@ -3,6 +3,9 @@
 Whole Gateway can be started from this single repository with docker-compose.
 
 
+> ## NOTE!
+> Mongo DB volume name has been changed. Please, change the volume folder name from `vote-db-data` to `gateway-db-data`.
+
 ## Services and routing
 
 | Service | Path |

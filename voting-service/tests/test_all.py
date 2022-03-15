@@ -24,7 +24,7 @@ def connect_to_db(name: str='VOTE'):
         client = motor.motor_asyncio.AsyncIOMotorClient(
             f"{os.environ['VOTE_DB_HOST']}:{os.environ['VOTE_DB_PORT']}"
         )
-        db = client[os.environ["VOTE_DB_DB_NAME"]][os.environ["VOTE_DB_COLLECTION"]]
+        db = client[os.environ["VOTE_DB_NAME"]][os.environ["VOTE_DB_COLLECTION"]]
         _ = str(db)
         print(_)
         return db

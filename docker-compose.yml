@@ -7,15 +7,15 @@ services:
       dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
-      - vote-db
-  
+      - gateway-db
+
   synchronization-service:
     build:
       context: ./synchronization-service
       dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
-      - vote-db
+      - gateway-db
 
   voting-process-manager:
     build:
@@ -29,7 +29,7 @@ services:
       dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
-      - vote-db
+      - gateway-db
 
   token-writer:
     build:
@@ -58,11 +58,11 @@ services:
       - voting-service
       - synchronization-service
       - token-manager
-      - vote-db
+      - gateway-db
       - admin-frontend
       - statevector
-    
-  vote-db:
+
+  gateway-db:
     image: mongo:4.4.13-rc0-focal
     restart: unless-stopped
     environment:

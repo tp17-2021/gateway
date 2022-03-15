@@ -7,7 +7,7 @@ vote_client = motor.motor_asyncio.AsyncIOMotorClient(
 )
 
 vote_collection = vote_client\
-    [os.environ['VOTE_DB_DB_NAME']]\
+    [os.environ['VOTE_DB_NAME']]\
     [os.environ['VOTE_DB_COLLECTION']]
 
 

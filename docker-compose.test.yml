@@ -5,12 +5,12 @@ services:
     restart: "no"
     environment:
       - VOTE_DB_PORT=27017
-      - VOTE_DB_HOST=vote-db
-      - VOTE_DB_DB_NAME=vote-db
+      - VOTE_DB_HOST=gateway-db
+      - VOTE_DB_NAME=gateway-db
       - VOTE_DB_COLLECTION=votes
       - TOKEN_MANAGER_URL=http://token-manager
       - ROOT_PATH=/voting-service-api
-      - KEYS_DB_HOST=vote-db
+      - KEYS_DB_HOST=gateway-db
       - KEYS_DB_PORT=27017
       - KEYS_DB_NAME=keys-db
       - KEYS_DB_COLLECTION=keys
@@ -19,8 +19,8 @@ services:
     restart: "no"
     environment:
       - VOTE_DB_PORT=27017
-      - VOTE_DB_HOST=vote-db
-      - VOTE_DB_DB_NAME=vote-db
+      - VOTE_DB_HOST=gateway-db
+      - VOTE_DB_NAME=gateway-db
       - VOTE_DB_COLLECTION=votes
       - ROOT_PATH=/synchronization-service-api
 
@@ -30,7 +30,7 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       - ROOT_PATH=/voting-process-manager-api
-      - KEYS_DB_HOST=vote-db
+      - KEYS_DB_HOST=gateway-db
       - KEYS_DB_PORT=27017
       - KEYS_DB_NAME=keys-db
       - KEYS_DB_COLLECTION=keys
@@ -39,8 +39,8 @@ services:
     restart: "no"
     environment:
       - TOKEN_DB_PORT=27017
-      - TOKEN_DB_HOST=vote-db
-      - TOKEN_DB_DB_NAME=vote-db
+      - TOKEN_DB_HOST=gateway-db
+      - TOKEN_DB_NAME=gateway-db
       - TOKEN_DB_COLLECTION=token
       - ROOT_PATH=/token-manager-api
       - ACCEPT_VALID_TOKEN=1

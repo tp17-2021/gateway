@@ -7,5 +7,5 @@ client = pymongo.MongoClient(
 )
 
 collection = client\
-    [os.environ['TOKEN_DB_DB_NAME']]\
+    [os.environ['TOKEN_DB_NAME']]\
     [os.environ['TOKEN_DB_COLLECTION']]

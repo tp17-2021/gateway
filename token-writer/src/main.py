@@ -1,17 +1,15 @@
 import asyncio
+import os
 import requests
 import time
 
 from writer import writer
 
-BASE_PATH = 'http://localhost:8080/token-manager-api'
-
-
 async def delete_unwritten_tokens():
     while True:
         try:
             requests.post(
-                BASE_PATH + '/tokens/writter/delete',
+                f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/writter/delete',
                 json={'event': 'restart'}
             )
             break
@@ -22,7 +20,7 @@ async def delete_unwritten_tokens():
 async def loop(writer):
     while True:
         state_write = int(requests.get(
-            'http://localhost:8080/statevector/state_write').text)
+            f'http://{os.environ["STATEVECTOR_PATH"]}/state_write').text)
         if state_write:
             writer.start_writing()
 
@@ -62,11 +60,11 @@ async def main():
 
         got_token = bdata.hex()
         requests.post(
-            BASE_PATH + '/tokens/deactivate',
+            f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/deactivate',
             json={'token': got_token}
         )
 
-        response = requests.post(BASE_PATH + '/tokens/create')
+        response = requests.post(f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/create')
         token = response.json()['token']
 
         token_bytes = bytes([b for b in bytearray.fromhex(token)])
@@ -75,13 +73,13 @@ async def main():
             last_written_value = token_bytes
             last_write_time = time.time()
             params = {'token': token}
-            requests.post(BASE_PATH + '/tokens/writter/update', params=params)
+            requests.post(f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/writter/update', params=params)
 
             await w.blink_led(10)
 
         else:
             requests.post(
-                BASE_PATH + '/tokens/writter/delete',
+                f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/writter/delete',
                 json={'event': 'write_error'}
             )
             continue

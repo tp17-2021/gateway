@@ -64,16 +64,19 @@ services:
       - ACCEPT_VALID_TOKEN=0
 
 # useless for this purpose
-  # token-writer:
-  #   build:
-  #     context: ./token-writer
-  #     dockerfile: ./Dockerfile
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - token-manager
-  #   devices:
-  #   - /dev/usb/bus:/dev/usb/bus
-  #   privileged: true
+#   token-writer:
+#     build:
+#       context: ./token-writer
+#       dockerfile: ./Dockerfile
+#     restart: unless-stopped
+#     depends_on:
+#       - token-manager
+#     devices:
+#     - /dev/usb/bus:/dev/usb/bus
+#     privileged: true
+#     environment:
+#       - TOKEN_MANAGER_PATH=token-manager
+#       - STATEVECTOR_PATH=web/statevector
 
   statevector:
     build:
@@ -98,7 +101,7 @@ services:
       - statevector
     ports:
       - "8080:80"
-    
+
   gateway-db:
     image: mongo:4.4.13-rc0-focal
     restart: unless-stopped

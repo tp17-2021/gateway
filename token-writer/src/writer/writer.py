@@ -1,28 +1,31 @@
 # Settings:
+from cmath import log
+import usb.backend.libusb1
+import time
+import usb.util
+import usb.core
+import sys
+import struct
+import random
+import asyncio
 VERBOSE = False  # verbose prints about what is going on
 
 # other constants, do not change
 USB_INTERFACE_ID = 1
 
-import random
-import struct
-import sys
-from time import sleep, time
-from sqlalchemy import true
-import usb.core
-import usb.util
-import time
+# from sqlalchemy import true
 
-import usb.backend.libusb1
-BACKEND = usb.backend.libusb1.get_backend(find_library=lambda x: "/usr/lib/libusb-1.0.so")
+BACKEND = usb.backend.libusb1.get_backend(
+    find_library=lambda x: "/usr/lib/libusb-1.0.so")
 
-ON = False
+LED_IS_ON = False
+
 
 def pad_bytes_with_zeros(data, length):
         return data + (length - len(data)) * b"\x00"
 
 
-def createSetReportBytes(command, data = b''):
+def create_set_report_bytes(command, data=b''):
     """
     command always is 2 bytes long
     data optional (can be empty)
@@ -36,15 +39,34 @@ def createSetReportBytes(command, data = b''):
     for byte in CHECKSUM_ARR:
         CHECKSUM = bytes([CHECKSUM[0] ^ byte])
 
-    LEN = struct.pack("<H", len(device_id + command + data + CHECKSUM))  # 2 bytes, indicating the number of bytes from DeviceID to Checksum the left byte is used, and the right byte is also 0x00
-    ALL = pad_bytes_with_zeros(preamble + LEN + device_id + command + data + CHECKSUM, 64)
+    # 2 bytes, indicating the number of bytes from DeviceID to Checksum the left byte is used, and the right byte is also 0x00
+    LEN = struct.pack("<H", len(device_id + command + data + CHECKSUM))
+    ALL = pad_bytes_with_zeros(
+        preamble + LEN + device_id + command + data + CHECKSUM, 64)
 
     return ALL
-    
 
 
 class Writer:
     def __init__(self):
+        self.can_write = True
+        self.dev = None
+
+    def stop_writing(self):
+        """
+        Disallow writing to the writer.
+        """
+        self.can_write = False
+
+
+    def start_writing(self):
+        """
+        Allow writing to the writer.
+        """
+        self.can_write = True
+
+
+    async def connect_to_writer(self):
         print("Waiting for the writer to be connected")
         while True:
             # print("="*80)
@@ -53,30 +75,41 @@ class Writer:
 
             self.dev = usb.core.find(idVendor=0x0471, idProduct=0xa112)
             # self.dev = usb.core.find(idVendor=0x0444, idProduct=0xa112)
-            if self.dev is None: 
+            if self.dev is None:
                 if VERBOSE:
                     print("Writer not found. Waiting for it to be connected")
-                sleep(1)
+                await asyncio.sleep(0.5)
             else:
-                print("Successfully connected to the writer") 
-                self.detach_kernel_driver(USB_INTERFACE_ID)
+                print("Successfully connected to the writer")
+                # print(self.dev)
+                await self.detach_kernel_driver(USB_INTERFACE_ID)
+                await self.blink_led(10, 0.05)
                 break
-                
-        
 
-    def detach_kernel_driver(self, usb_interface):
+    async def sync_led_status(self) -> None:
+        """
+        Set led to the value of LED_IS_ON
+        """
+        await self.set_led_status(LED_IS_ON)
+
+
+    async def detach_kernel_driver(self, usb_interface):
         """
         # fixes resource busy
         # https://stackoverflow.com/questions/67453535/i-keep-getting-usb-core-usberror-errno-16-resource-busy-when-trying-to-read
         """
-        
-        if self.dev.is_kernel_driver_active(USB_INTERFACE_ID):
-            try:
+        try:
+            if self.dev.is_kernel_driver_active(USB_INTERFACE_ID):
                 self.dev.detach_kernel_driver(USB_INTERFACE_ID)
                 if VERBOSE:
                     print("Kernel driver detached to fix Resource busy error")
-            except usb.core.USBError as e:
-                sys.exit("Could not detatch kernel driver from interface({0}): {1}".format(USB_INTERFACE_ID, str(e)))
+
+        except usb.core.USBError as e:
+            print("Could not detatch kernel driver from interface({0}): {1}".format(
+                USB_INTERFACE_ID, str(e)))
+            await asyncio.sleep(0.5)
+            return   # detaching kernel driver is not needed to be repeated anymore, because writer was disconected
+
 
     def set_report(self, description_type_and_index, usb_interface, data):
         """
@@ -112,7 +145,6 @@ class Writer:
             print("All:", request_bytes)
             print("")
 
-
     def parse_get_report_response(self, response):
         """
         Parse get_report for debugging purposes.
@@ -121,7 +153,7 @@ class Writer:
         response_bytes = bytes(response)
 
         LEN = struct.unpack("<H", response_bytes[2:4])[0]
-        
+
         status = response_bytes[8:9]
         DATA = response_bytes[9:9 + LEN - 5]
 
@@ -140,185 +172,209 @@ class Writer:
             print("")
 
         if status != b'\x00':
-            raise ValueError('Status is not 0x00, is tag placed on the writer? Please try again - sometimes it fails')
+            raise ValueError(
+                'Status is not 0x00, is tag placed on the writer? Please try again - sometimes it fails')
 
         return DATA
 
 
-    # sends data and gets response
-    def send(self, human_title, command, data = b''):
+    async def send(self, human_title, command, data=b''):
         """
         Wrapper to send data to the writer and get the response in a single function call
         """
         if len(command) != 2:  # validation
-            raise ValueError("Command must be 2 bytes long")
+                raise ValueError("Command must be 2 bytes long")
 
-        if VERBOSE:
-            print("##########", human_title, "##########")
-        set_report_bytes = createSetReportBytes(command, data)
-        self.parse_set_report_response(set_report_bytes)
-        response_len = self.set_report(0x301, 0x01, set_report_bytes)
-        byte_array = self.get_report(0x301, 0x01, response_len)
-        data = self.parse_get_report_response(byte_array)
-        return data
+        while True:
+            if self.dev is None:
+                await self.connect_to_writer()
+                await asyncio.sleep(0.5)
+                continue
 
-    def turn_off_led(self):
+            try:  # try to communicate with the writer, if it is still connected
+                if VERBOSE:
+                    print("##########", human_title, "##########")
+
+                set_report_bytes = create_set_report_bytes(command, data)
+                self.parse_set_report_response(set_report_bytes)
+                response_len = self.set_report(0x301, 0x01, set_report_bytes)
+                byte_array = self.get_report(0x301, 0x01, response_len)
+                data = self.parse_get_report_response(byte_array)
+                return data
+
+            except usb.core.USBError:
+                print("Writer was disconnected")
+                await asyncio.sleep(0.5)  # fix RecursionError
+                await self.connect_to_writer()
+
+
+    async def set_led_status(self, is_on: bool):
         """
-        Turn off the LED on the writer.
+        Turn led on or off.
         """
-        global ON
+        global LED_IS_ON
 
-        ON = False
-        COMMAND_LED_CONTROL = b"\x07\x01"
-        LED_OFF = b"\x00"
-        self.send("Turning off LED", COMMAND_LED_CONTROL, LED_OFF)
+        if is_on:
+            COMMAND_LED_CONTROL = b"\x07\x01"
+            LED_ON = b"\x01"
+            await self.send("Turning on LED", COMMAND_LED_CONTROL, LED_ON)
+            LED_IS_ON = True
 
-
-    def turn_on_led(self):
-        """
-        Turn on the LED on the writer.
-        """
-        global ON
-
-        ON = True
-        COMMAND_LED_CONTROL = b"\x07\x01"
-        LED_ON = b"\x01"
-        self.send("Turning on LED", COMMAND_LED_CONTROL, LED_ON)
+        else:
+            COMMAND_LED_CONTROL = b"\x07\x01"
+            LED_OFF = b"\x00"
+            await self.send("Turning off LED", COMMAND_LED_CONTROL, LED_OFF)
+            LED_IS_ON = False
 
 
-    def blink_led(self, repeat=1, speed=0.1):
+
+
+
+    async def blink_led(self, repeat=1, speed=0.2):
         """
         Blink the LED on the writer.
         repeat: number of times to blink
         """
+        global LED_IS_ON
+        was_led_on = LED_IS_ON
         for i in range(repeat):
-            self.turn_off_led()
-            sleep(speed)
-            self.turn_on_led()
-            sleep(speed)
+            await self.set_led_status(False)
+            await asyncio.sleep(speed / 2)
+            await self.set_led_status(True)
+            await asyncio.sleep(speed / 2)
 
-    
-    def get_model_string(self):
+        LED_IS_ON = was_led_on
+
+    async def get_model_string(self):
         """
         Get the connected model string from the writer.
         """
         COMMAND_GET_MODEL_STRING = b"\x04\x01"
-        return self.send("Getting model string", COMMAND_GET_MODEL_STRING)
+        return await self.send("Getting model string", COMMAND_GET_MODEL_STRING)
 
-    def select_card_for_read_or_write(self):
+    async def select_card_for_read_or_write(self):
         """
         Select the card nearby for read or write.
         Success if self.send() at all steps won't raise an error.
         """
         COMMAND = b"\x0c\x01"
         DATA = b"\x00"  # turn off RF
-        self.send("antena_sta", COMMAND, DATA)
+        await self.send("antena_sta", COMMAND, DATA)
 
         COMMAND = b"\x08\x01"
         DATA = b"\x41"
-        self.send("init_type", COMMAND, DATA)
+        await self.send("init_type", COMMAND, DATA)
 
         COMMAND = b"\x0c\x01"
         DATA = b"\x01"  # turn on RF
-        self.send("antena_sta", COMMAND, DATA)
+        await self.send("antena_sta", COMMAND, DATA)
 
         COMMAND = b"\x01\x02"
         DATA = b"\x52"
-        self.send("request", COMMAND, DATA)
+        await self.send("request", COMMAND, DATA)
 
         COMMAND = b"\x02\x02"
         DATA = b"\x04"
-        CARD_SERIAL = self.send("anticol", COMMAND, DATA)[:-1]
+        CARD_SERIAL = (await self.send("anticol", COMMAND, DATA))[:-1]
 
         COMMAND = b"\x03\x02"
-        self.send("select", COMMAND, CARD_SERIAL)
-            
-    def read_from_tag(self):
+        await self.send("select", COMMAND, CARD_SERIAL)
+
+    async def _read_from_tag(self):
         """
         Read the tag.
         WARNING: sometimes the tag is not read correcty. Use self.read_tag_with_retry() to repeat read operation until success.
         """
 
-        self.select_card_for_read_or_write()
+        await self.select_card_for_read_or_write()
 
         COMMAND = b"\x07\x02"
         KEY_VALIDATE_MODE = b"\x60"  # use KeyA
         BLOCK_ADDRESS = b"\x04"
         PASSWORD = b"\xff\xff\xff\xff\xff\xff"
-        self.send("authentification2", COMMAND, KEY_VALIDATE_MODE + BLOCK_ADDRESS + PASSWORD)
+        await self.send("authentification2", COMMAND,
+                  KEY_VALIDATE_MODE + BLOCK_ADDRESS + PASSWORD)
 
         COMMAND = b"\x08\x02"
-        DATA = self.send("read", COMMAND, BLOCK_ADDRESS)[:-1]
-        
+        DATA = (await self.send("read", COMMAND, BLOCK_ADDRESS))[:-1]
+
         return DATA
 
-    def write_to_tag(self, value_to_write):
+    async def _write_to_tag(self, value_to_write) -> None:
         if len(value_to_write) != 16:  # validation
             raise ValueError("Value to write must be 16 bytes long")
 
-        self.select_card_for_read_or_write()
+        await self.select_card_for_read_or_write()
 
         COMMAND = b"\x07\x02"
         KEY_VALIDATE_MODE = b"\x60"  # use KeyA
         BLOCK_ADDRESS = b"\x04"
         PASSWORD = b"\xff\xff\xff\xff\xff\xff"
-        self.send("authentification2", COMMAND, KEY_VALIDATE_MODE + BLOCK_ADDRESS + PASSWORD)
+        await self.send("authentification2", COMMAND,
+                  KEY_VALIDATE_MODE + BLOCK_ADDRESS + PASSWORD)
 
         COMMAND = b"\x09\x02"
-        DATA = self.send("write", COMMAND, BLOCK_ADDRESS + value_to_write)[:-1]
+        DATA = (await self.send("write", COMMAND, BLOCK_ADDRESS + value_to_write))[:-1]
 
-    def wait_for_tag_read(self):
+
+    async def wait_for_tag_read(self):
         """
         Waits for a tag to be read.
         Returns 16 bytes read from the tag.
         """
-        while True:
+
+        await self.set_led_status(True)
+
+        while self.can_write:
             try:
-                time.sleep(0.1)
-                return self.read_from_tag()
-                break
-            except:
-                if VERBOSE:
-                    print("No tag nearby")
+                return await self._read_from_tag()
+            except ValueError as e:
+                await asyncio.sleep(.1)
+                continue
 
-    def wait_for_tag_write(self, value_to_write):
-        """
-        Waits for a tag to be written to.
-        Returns after successfully writen to the tag
-        Will not read the tag if the data is really written to the tag, we use status code returned from the writer (status code 0x00 means success)
-        """
 
-        while True:
-            try:
-                time.sleep(0.1)
-                self.write_to_tag(value_to_write)
-                return True
-            except Exception as e:
-                error_no_19 = "[Errno 19] No such device (it may have been disconnected)"
-                if str(e) == error_no_19:
-                    print(e)
-                    return False
+    # async def _wait_for_tag_write(self, value_to_write):
+        # """
+        # Waits for a tag to be written to.
+        # Returns after successfully writen to the tag
+        # Will not read the tag if the data is really written to the tag, we use status code returned from the writer (status code 0x00 means success)
+        # """
 
-                if VERBOSE:
-                    print("No tag nearby")
-                    print(e)
+        # await self._write_to_tag(value_to_write)
 
-    def write_to_tag_and_validate(self, value_to_write) -> bool:
+
+    async def write_to_tag_and_validate(self, value_to_write) -> bool:
         """
         Write to the tag and validate the write.
+        Returns True if the write was successful, False otherwise.
+        Doesn't allow to write the same value to the tag twice.
         """
 
-        for _ in range(5):
-            device_connected = self.wait_for_tag_write(value_to_write)
-            print("device_connected: ", device_connected)
-            if not device_connected:
+        await self.set_led_status(True)
+
+
+
+        for _ in range(10):
+            if not self.can_write:
+                await self.set_led_status(False)
                 return False
 
-            DATA = self.wait_for_tag_read()
-            if DATA == value_to_write:
-                return True
+            try:
+                await self._write_to_tag(value_to_write)
+                DATA = await self._read_from_tag()
+                if DATA == value_to_write:
+                    print("Write success:", DATA)
+                    await self.set_led_status(False)
+                    return True
 
+            except ValueError as e:
+                await asyncio.sleep(0.5)
+                pass
+
+        await self.set_led_status(False)
         return False
+
+
 
 
 
@@ -330,8 +386,7 @@ def debug_random_16_bytes():
     return bytes([random.randint(0, 255) for i in range(16)])
 
 
-
-if __name__ == "__main__":
+async def example_usage():
     """
     Example usage:
     connects tp the writer
@@ -341,14 +396,26 @@ if __name__ == "__main__":
     """
     writer = Writer()
 
-    value_to_write = debug_random_16_bytes()
-    writer.write_to_tag_and_validate(value_to_write)
+    while True:
+        value_to_write = debug_random_16_bytes()
+        print("value_to_write: ", value_to_write)
+        while True:
+            was_successful = await writer.write_to_tag_and_validate(value_to_write)
+            if was_successful:
+                break
+
+    await asyncio.sleep(1.5)
+
 
     # Other available commands:
     # print(writer.get_model_string())  # returns the model string
     # writer.blink_led(10)  # blinks the LED 10 times
-    # writer.turn_on_led()  
-    # writer.turn_off_led()
+    # writer.set_led_status(False)  # turn_off_led
+    # writer.set_led_status(True)  # turn_on_led
+
+
+if __name__ == "__main__":
+    asyncio.run(example_usage())
 
 
 

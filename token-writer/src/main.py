@@ -73,9 +73,8 @@ async def main():
             last_written_value = token_bytes
             last_write_time = time.time()
             params = {'token': token}
+            asyncio.ensure_future(w.blink_led(10))
             requests.post(f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/writter/update', params=params)
-
-            await w.blink_led(10)
 
         else:
             requests.post(

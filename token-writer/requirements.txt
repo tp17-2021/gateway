@@ -10,3 +10,4 @@ pyusb
 SQLAlchemy
 libusb
 libusb1
+asyncio

@@ -61,3 +61,8 @@ services:
       build:
         args:
           vite_base_path: /admin-frontend
+
+  token-writer:
+    environment:
+      - TOKEN_MANAGER_PATH=token-manager
+      - STATEVECTOR_PATH=web/statevector

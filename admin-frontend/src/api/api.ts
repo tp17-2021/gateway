@@ -1,5 +1,5 @@
 import axios from "axios";
-import {jwt} from "../lib/stores";
+import {jwt, gatewayConfig, gatewayConfigLoaded} from "../lib/stores";
 
 export interface TVTStatus {
     name: string;
@@ -28,6 +28,11 @@ export async function getVTStatuses() {
 export async function getGatewayConfig() {
     return await axios.get(url("/../voting-process-manager-api/election-config"));
 }
+
+getGatewayConfig().then(response => {
+    gatewayConfig.set(response.data);
+    gatewayConfigLoaded.set(true);
+});
 
 /**
  * Election status

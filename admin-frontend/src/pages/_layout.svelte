@@ -2,6 +2,7 @@
 import Header from "../lib/components/header/Header.svelte";
 import BreadCrumb from "../lib/components/header/BreadCrumb.svelte";
 import Spinner from "../lib/components/spinner/Spinner.svelte";
+import { gatewayConfigLoaded } from "../lib/stores";
 </script>
 
 <style>
@@ -17,10 +18,13 @@ import Spinner from "../lib/components/spinner/Spinner.svelte";
     }
 </style>
 
-
-<Header/>
-<main>
-    <BreadCrumb />
-    <Spinner />
-    <slot/>
-</main>
+{#if $gatewayConfigLoaded}
+    <Header/>
+    <main>
+        <BreadCrumb />
+        <Spinner />
+        <slot/>
+    </main>
+{:else}
+    <p>Loading</p>
+{/if}

@@ -8725,6 +8725,16 @@
         "election_date": {
             "sk": "30.11.2021",
             "en": "30.11.2021"
+        },
+        "contact" : {
+            "title" : {
+                "sk" : "Volebná centrála Bratislava",
+                "en" : "Volebná centrála Bratislava"
+            },
+            "contact_person" : "Jožko Mrkvička",
+            "address" : "Volebná 1, 853 01 Bratislava",
+            "phone" : "+421 910 123 456",
+            "email" : "support@volby.sk"
         }
     }
 }

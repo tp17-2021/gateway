@@ -1,26 +1,15 @@
 <script>
-	// import {config} from "../stores";
+	import {gatewayConfig} from "../../stores";
 	import { url } from "@roxi/routify";
-	import { onMount } from "svelte";
-	import { getGatewayConfig } from "../../../api/api";
-
-	let gatewayConfig = undefined;
-
-	onMount(async () => {
-		getGatewayConfig().then(function (config) {
-			console.log(config);
-			gatewayConfig = config.data;
-		});
-	});
 </script>
 
 <header>
 	<div class="header-content">
 		<img src={$url("/img/sk.png")} alt="" height="50px" />
 		<div>
-			{gatewayConfig?.texts?.elections_name_short === undefined
+			{$gatewayConfig?.texts?.elections_name_short === undefined
 				? "Voľby"
-				: gatewayConfig?.texts?.elections_name_short?.sk}
+				: $gatewayConfig?.texts?.elections_name_short?.sk}
 		</div>
 	</div>
 </header>

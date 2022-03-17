@@ -55,18 +55,21 @@ class Writer:
 
     async def connect_to_writer(self) -> None:
         print("Waiting for the writer to be connected")
-        while True:
+        for _ in range(5):
             self.dev = usb.core.find(idVendor=0x0471, idProduct=0xa112)
             if self.dev is None:
                 if self.verbose:
                     print("Writer not found. Waiting for it to be connected")
                 await asyncio.sleep(0.5)
+
             else:
                 print("Successfully connected to the writer")
                 # print(self.dev)
                 await self.detach_kernel_driver(self.usb_interface_id)
                 await self.blink_led(10, 0.05)
-                break
+                return
+
+        raise Exception("Writer not found")
 
     async def detach_kernel_driver(self, usb_interface: int) -> None:
         """
@@ -188,7 +191,9 @@ class Writer:
             if self.dev is None:
                 await self.connect_to_writer()
                 await asyncio.sleep(0.5)
-                continue
+
+            if self.dev is None:
+                raise Exception('Could not connect to the writer')
 
             try:  # try to communicate with the writer, if it is still connected
                 if self.verbose:
@@ -203,10 +208,9 @@ class Writer:
                 data = self.parse_get_report_response(byte_array)
                 return data
 
-            except usb.core.USBError:
+            except usb.core.USBError as e:
                 print("Writer was disconnected")
-                await asyncio.sleep(0.5)  # fix RecursionError
-                await self.connect_to_writer()
+                raise e
 
     async def set_led_status(self, is_on: bool) -> None:
         """
@@ -225,7 +229,7 @@ class Writer:
             await self.send("Turning off LED", COMMAND_LED_CONTROL, LED_OFF)
             self.led_is_on = False
 
-    async def blink_led(self, repeat: int = 1, speed: int = 0.2) -> None:
+    async def blink_led(self, repeat: int = 1, speed: float = 0.2) -> None:
         """
         Blink the LED on the writer.
         repeat: number of times to blink

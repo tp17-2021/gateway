@@ -19,15 +19,20 @@ async def delete_unwritten_tokens():
 
 async def loop(writer):
     while True:
-        state_write = int(requests.get(
-            f'http://{os.environ["STATEVECTOR_PATH"]}/state_write').text)
-        if state_write:
-            writer.start_writing()
+        try:
+            state_write = int(requests.get(
+                f'http://{os.environ["STATEVECTOR_PATH"]}/state_write').text)
+            if state_write:
+                writer.start_writing()
 
-        else:
-            writer.stop_writing()
+            else:
+                writer.stop_writing()
 
-        await asyncio.sleep(1)
+        except ValueError:
+            print('Probablu can not connect to statevector')
+
+        finally:
+            await asyncio.sleep(1)
 
 
 async def main():

@@ -38,8 +38,9 @@ services:
     restart: unless-stopped
     depends_on:
       - token-manager
+      - web
     devices:
-    - /dev/usb/bus:/dev/usb/bus
+    - /dev/bus/usb:/dev/bus/usb
     privileged: true
 
   statevector:

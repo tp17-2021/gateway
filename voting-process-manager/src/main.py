@@ -82,6 +82,7 @@ async def root () -> dict:
         'message': 'Hello from voting process manager.'
     }
 
+
 @app.get('/election-config')
 async def election_config () -> dict:
     """Returns necessary config fields for gateway from config"""

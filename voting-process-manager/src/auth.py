@@ -17,8 +17,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 10
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 password = '0000'
-#response = requests.get('http://web/statevector/pin')
-#print("password ", response.text)
+password = requests.get('http://web/statevector/pin').text.replace('"', '')
 
 
 users_dictionary = {

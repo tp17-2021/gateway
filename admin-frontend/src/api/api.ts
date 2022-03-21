@@ -1,5 +1,6 @@
 import axios from "axios";
-import {jwt, gatewayConfig, gatewayConfigLoaded} from "../lib/stores";
+import {jwt, gatewayConfig, gatewayConfigLoaded, redirectToAfterLogin} from "../lib/stores";
+import { get } from "svelte/store";
 
 export interface TVTStatus {
     name: string;
@@ -7,19 +8,27 @@ export interface TVTStatus {
 }
 
 
-jwt.subscribe(token => {
+
+jwt.subscribe((token: any) => {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
 });
 
 
-// TODO: temporary solution, will call real api in the future
-const base = (import.meta.env.VITE_BASE_PATH ?? "");
-
-console.log("base", base);
+export let base = (import.meta.env.VITE_BASE_PATH ?? "");
 
 export function url(path: string) {
+    // TODO: temporary solution, will call real api in the future
+
+    // let base = "";
+    // console.log("base", base);
     return `${base}${path}`;
 }
+
+
+
+
+
 
 export async function getVTStatuses() {
     return await axios.get(url("/../voting-process-manager-api/terminals-status"));
@@ -83,7 +92,7 @@ export async function getSynchronizationStatus() {
     return axios.post(url("/../synchronization-service-api/statistics"))
 }
 
-export async function authJWTToken(password: string):Promise<boolean> {
+export async function authJWTToken(password: string): Promise<boolean> {
     let name = "admin";
 
     try {
@@ -103,6 +112,11 @@ export async function authJWTToken(password: string):Promise<boolean> {
         // if 200, then token is valid
         if (jwr_response.status === 200) {
             jwt.set(jwr_response.data.access_token);
+
+            // TESTING - INVALIDATE TOKEN after 5 seconds after login
+            // setTimeout(() => {
+            //     jwt.set("INVALIDATED.TEST.erjgshdmfhjaesdfjhgesdjikxjfkc");
+            // }, 5000);
             return true;
         }
         else {

@@ -26,7 +26,7 @@
 
     import {onMount} from "svelte";
     import Button from "../lib/components/buttons/Button.svelte";
-    import {authenticated, pin} from "../lib/stores";
+    import {authenticated, jwt, pin, redirectToAfterLogin} from "../lib/stores";
     import {goto} from "@roxi/routify";
     import {authJWTToken} from "../api/api";
     // import {goto} from "$lib/navigation/goto";
@@ -47,7 +47,7 @@
             if (bearer) {
                 $authenticated = true
                 console.log("correct pin")
-                $goto("./home")
+                // $goto("/home") - used jwtChanged() instead
             } else {
                 error = "Incorrect pin"
                 redPin = true
@@ -69,6 +69,14 @@
         //     redPin = true
         // }
     }
+
+    function jwtChanged(newJwt: string) {
+        if (newJwt) {
+            $goto($redirectToAfterLogin)
+        }
+    }
+
+    $: jwtChanged($jwt)
 
     function removeFromPin() {
         if (typedPin.length > 0) {

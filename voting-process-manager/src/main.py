@@ -100,9 +100,9 @@ async def election_config () -> dict:
 
 
 @app.get('/terminals-status')
-async def election_config () -> dict:
+async def terminals_status (current_user: User = Depends(get_current_active_user)) -> dict:
     """Returns necessary staus information of connected voting terminals"""
-    
+
     terminals = await src.helper.get_terminals()
 
     terminals_transformed = []
@@ -113,7 +113,7 @@ async def election_config () -> dict:
             'updated_at' : terminal['updated_at'] if 'updated_at' in terminal else None,
             'status' : terminal['status'] if 'status' in terminal else None
         })
-    
+
     return {
         'status': 'success',
         'terminals': terminals_transformed

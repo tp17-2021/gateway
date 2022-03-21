@@ -39,7 +39,7 @@ async def ws_handle_vt_stauts(sid, *args, **kwargs):
 
 
 def update_terminal_status(terminal_sid, terminal_status):
-    db.keys_collection.update_one({'terminal_sid': terminal_sid} , { '$set' : { 'status' : terminal_status, 'updated_at' : datetime.datetime.now() } })
+    db.keys_collection.update_one({'terminal_sid': terminal_sid} , { '$set' : { 'status' : terminal_status, 'updated_at' : datetime.now() } })
 
 def set_terminal_sid(terminal_id, terminal_sid):
     db.keys_collection.update_one({'_id': terminal_id} , { '$set' : { 'terminal_sid' : terminal_sid } })

@@ -1,6 +1,7 @@
 import axios from "axios";
 import {jwt, gatewayConfig, gatewayConfigLoaded, redirectToAfterLogin} from "../lib/stores";
 import { get } from "svelte/store";
+import { isDevelopmentMode } from "../lib/helpers";
 
 export interface TVTStatus {
     name: string;
@@ -93,6 +94,13 @@ export async function getSynchronizationStatus() {
 }
 
 export async function authJWTToken(password: string): Promise<boolean> {
+    if (isDevelopmentMode) {
+        // generate random string (example of generated mockToken: 1fggoqtjlqz643fkyhd4ao)
+        let mockToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        jwt.set(mockToken);
+        console.warn("Development mode: using mock token " + mockToken + " instead of requesting voting-process-manager-api for a real token");
+        return true
+    }
     let name = "admin";
 
     try {

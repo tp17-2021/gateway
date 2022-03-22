@@ -1,0 +1,27 @@
+{
+  "status": "success",
+  "texts": {
+    "elections_name_short": {
+      "sk": "Voľby do NRSR",
+      "en": "Parliamentary elections"
+    },
+    "elections_name_long": {
+      "sk": "Voľby do národnej rady Slovenskej republiky",
+      "en": "Parliamentary elections of Slovak Republic"
+    },
+    "election_date": {
+      "sk": "30.11.2021",
+      "en": "30.11.2021"
+    },
+    "contact": {
+      "title": {
+        "sk": "Volebná centrála Bratislava",
+        "en": "Volebná centrála Bratislava"
+      },
+      "contact_person": "Jožko Mrkvička",
+      "address": "Volebná 1, 853 01 Bratislava",
+      "phone": "+421 910 123 456",
+      "email": "support@volby.sk"
+    }
+  }
+}

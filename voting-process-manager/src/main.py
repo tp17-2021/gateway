@@ -1,8 +1,10 @@
 from asyncio import events
 from datetime import datetime, timedelta
 import sys
+import subprocess
 from typing import Optional
 from urllib import response
+from click import command
 
 from fastapi import Depends, Body, Request, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -299,6 +301,7 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
 
     with open("src/output.md", "w", encoding="utf-8") as file:
         file.write(text)
-        
-    os.system("pandoc -t html --pdf-engine=weasyprint --css output.css output.md -o output.pdf")
+
+    command = "pandoc -t html --pdf-engine=weasyprint --css src/output.css src/output.md -o src/output.pdf"
+    subprocess.run(command, shell=True, check=True)
 

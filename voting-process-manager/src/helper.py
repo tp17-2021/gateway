@@ -211,6 +211,6 @@ async def fill_table_candidates(parties, candidates, polling_place):
 
         c = replace_header_candidates(data)
         table_candidates += f"{c}\n"
-        return table_candidates # delete this line when done
+        # return table_candidates # delete this line when done
 
     return table_candidates

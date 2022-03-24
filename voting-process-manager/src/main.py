@@ -16,6 +16,7 @@ import time
 import requests
 import asyncio
 import datetime
+import base64
 
 from src import schemas
 import src.database as db
@@ -305,3 +306,6 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
     command = "pandoc -t html --pdf-engine=weasyprint --css src/output.css src/output.md -o src/output.pdf"
     subprocess.run(command, shell=True, check=True)
 
+    with open("src/output.pdf", "rb") as pdf_file:
+        encoded_string = base64.b64encode(pdf_file.read())
+        return encoded_string

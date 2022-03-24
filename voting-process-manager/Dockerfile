@@ -10,6 +10,7 @@ RUN pip install --upgrade -r ./code/requirements.txt
 
 COPY ./src /code/src
 
+COPY ./config.json ./code/config.json
 
 FROM base as test
 

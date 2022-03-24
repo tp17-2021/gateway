@@ -1,15 +1,19 @@
 from datetime import datetime, timedelta
 from typing import Optional
+from urllib import response
 
 from fastapi import Depends, Body, Request, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi_socketio import SocketManager
 
 import os
+import re
+import time
 import requests
 import asyncio
 import datetime
 
+from src import schemas
 import src.database as db
 import src.helper
 from src.auth import *
@@ -201,3 +205,43 @@ async def register_vt (
         'new_id': vt_id,
         'gateway_public_key': my_public_key,
     }
+
+
+@app.post('/commission-paper')
+async def generate_commission_paper(request: schemas.CommissionPaper):    
+    parties, candidates, polling_place = src.helper.get_config()
+
+    # for party in parties:
+        # print(party)
+
+    registered_voters_count = str(polling_place["registered_voters_count"])
+    participated_voters_count = str(await db.keys_client['gateway-db']['votes'].count_documents({}))
+    participated_voters_percentage = format(round(int(participated_voters_count) / int(registered_voters_count), 2), ".2f")
+
+    table_polling_place = src.helper.fill_table_polling_place(polling_place)
+    table_parties = await src.helper.fill_table_parties(parties, polling_place)
+    table_candidates = await src.helper.fill_table_candidates(parties, candidates, polling_place)
+
+    participated_members = str(len(request.participated_members)+1)
+    table_president = src.helper.fill_table_president(request.president)
+    table_members = src.helper.fill_table_members(request.participated_members)
+
+    date_and_time = time.strftime("%d.%m.%Y %H:%M:%S")
+    date = time.strftime("%d.%m.%Y")
+
+    with open("src/template.md", "r", encoding="utf-8") as file:
+        text = file.read()
+        text = re.sub(r"REGISTERED_VOTERS_COUNT", registered_voters_count, text)
+        text = re.sub(r"PARTICIPATED_VOTERS_COUNT", participated_voters_count, text)
+        text = re.sub(r"PARTICIPATED_VOTERS_PERCENTAGE", participated_voters_percentage, text)
+        text = re.sub(r"TABLE_POLLING_PLACE", table_polling_place, text)
+        text = re.sub(r"TABLE_PARTIES", table_parties, text)
+        text = re.sub(r"TABLE_CANDIDATES", table_candidates, text)
+        text = re.sub(r"PARTICIPATED_MEMBERS_COUNT", participated_members, text)
+        text = re.sub(r"TABLE_PRESIDENT", table_president, text)
+        text = re.sub(r"TABLE_MEMBERS", table_members, text)
+        text = re.sub(r"DATE_AND_TIME", date_and_time, text)
+        text = re.sub(r"DATE", date, text)
+
+    with open("src/output.md", "w", encoding="utf-8") as file:
+        file.write(text)

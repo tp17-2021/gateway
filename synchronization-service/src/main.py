@@ -199,6 +199,10 @@ async def seed() -> dict:
             'synchronized': False,
         })
 
+        # deactivate token after insert vote
+        resp = requests.post('http://token-manager/tokens/deactivate', json={'token': token})
+        print(resp.text)
+
     return {
         'status': 'success',
     }

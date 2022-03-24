@@ -22,6 +22,8 @@ services:
       context: ./voting-process-manager
       dockerfile: ./Dockerfile
     restart: unless-stopped
+    depends_on:
+      - statevector
 
   token-manager:
     build:

@@ -11,7 +11,7 @@ services:
       - TOKEN_MANAGER_URL=http://token-manager
       - KEYS_DB_HOST=gateway-db
       - KEYS_DB_PORT=27017
-      - KEYS_DB_NAME=keys-db
+      - KEYS_DB_NAME=gateway-db
       - KEYS_DB_COLLECTION=keys
 
   synchronization-service:
@@ -29,8 +29,10 @@ services:
       - ROOT_PATH=/gateway/voting-process-manager-api
       - KEYS_DB_HOST=gateway-db
       - KEYS_DB_PORT=27017
-      - KEYS_DB_NAME=keys-db
+      - KEYS_DB_NAME=gateway-db
       - KEYS_DB_COLLECTION=keys
+      - EVENTS_DB_NAME=gateway-db
+      - EVENTS_DB_COLLECTION=events
       - TEST_INSERT_VT=True
       - TEST_INSERT_VT_IP=host.docker.internal:8100
 

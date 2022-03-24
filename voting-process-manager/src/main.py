@@ -1,3 +1,4 @@
+from asyncio import events
 from datetime import datetime, timedelta
 from typing import Optional
 from urllib import response
@@ -90,7 +91,7 @@ async def root () -> dict:
 @app.get('/election-config')
 async def election_config () -> dict:
     """Returns necessary config fields for gateway from config"""
-    
+
     response = requests.get(
         "http://web/statevector/config/config.json",
     )
@@ -147,10 +148,17 @@ async def current_user(current_user: User = Depends(get_current_active_user)):
 @app.post('/start')
 async def start_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
     """Start voting from gateway and notify terminals"""
-    
+
     requests.post('http://statevector/state_election', json='1')
 
     notify_status = await notify_voting_terminals('start')
+
+    # insert election started event
+    await db.events_collection.insert_one({
+        'action': 'elections_started',
+        'created_at': datetime.now()
+    })
+
     return {
         'status': 'success',
         'success_terminals' : notify_status['success'],
@@ -165,6 +173,12 @@ async def end_voting_process (current_user: User = Depends(get_current_active_us
     """End voting from gateway and notify terminals"""
 
     requests.post('http://statevector/state_election', json='0')
+
+    # insert election ended event
+    await db.events_collection.insert_one({
+        'action': 'elections_stopped',
+        'created_at': datetime.now()
+    })
 
     notify_status = await notify_voting_terminals('end')
     return {
@@ -197,7 +211,7 @@ async def register_vt (
         })
 
         my_public_key = src.helper.get_public_key()
-    
+
     finally:
         keys_db_lock.release()
 
@@ -206,9 +220,48 @@ async def register_vt (
         'gateway_public_key': my_public_key,
     }
 
+@app.post('/gateway-events')
+async def gateway_events (current_user: User = Depends(get_current_active_user)) -> dict:
+    """Get gateway events"""
 
+    query = db.events_collection.find({}, {'_id': 0}).sort('created_at', -1)
+    events = [i async for i in query]
+
+    return {
+        'status': 'success',
+        'events' : events,
+    }
+
+@app.post('/gateway-events/first-start')
+async def get_first_start (current_user: User = Depends(get_current_active_user)) -> dict:
+    """Get first start"""
+
+    query = db.events_collection.find({'action': 'elections_started'}, {'_id': 0}).sort('created_at', 1).limit(1)
+    start = [i async for i in query]
+    start = start[0] if len(start) > 0 else None
+
+    return {
+        'status': 'success',
+        'first_start' : start,
+    }
+
+@app.post('/gateway-events/last-end')
+async def get_last_end (current_user: User = Depends(get_current_active_user)) -> dict:
+    """Get last end"""
+
+    query = db.events_collection.find({'action': 'elections_stopped'}, {'_id': 0}).sort('created_at', 1).limit(1)
+    end = [i async for i in query]
+    end = end[0] if len(end) > 0 else None
+
+    return {
+        'status': 'success',
+        'last_end' : end,
+    }
+
+
+### Election report
 @app.post('/commission-paper')
-async def generate_commission_paper(request: schemas.CommissionPaper):    
+async def generate_commission_paper(request: schemas.CommissionPaper):
     parties, candidates, polling_place = src.helper.get_config()
 
     # for party in parties:
@@ -245,3 +298,4 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
 
     with open("src/output.md", "w", encoding="utf-8") as file:
         file.write(text)
+

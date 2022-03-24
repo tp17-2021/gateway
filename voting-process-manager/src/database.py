@@ -9,3 +9,7 @@ keys_client = motor.motor_asyncio.AsyncIOMotorClient(
 keys_collection = keys_client\
     [os.environ['KEYS_DB_NAME']]\
     [os.environ['KEYS_DB_COLLECTION']]
+
+events_collection = keys_client\
+    [os.environ['EVENTS_DB_NAME']]\
+    [os.environ['EVENTS_DB_COLLECTION']]

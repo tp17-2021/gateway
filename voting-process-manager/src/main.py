@@ -1,5 +1,6 @@
 from asyncio import events
 from datetime import datetime, timedelta
+import sys
 from typing import Optional
 from urllib import response
 
@@ -298,4 +299,6 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
 
     with open("src/output.md", "w", encoding="utf-8") as file:
         file.write(text)
+        
+    os.system("pandoc -t html --pdf-engine=weasyprint --css output.css output.md -o output.pdf")
 

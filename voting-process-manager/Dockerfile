@@ -1,12 +1,18 @@
-FROM python:3.10-alpine3.14 AS base
+FROM ubuntu:22.04 AS base
 
 WORKDIR /code
 
-RUN apk add -U g++ gcc bash libffi-dev
+RUN apt update
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Bratislava
+RUN apt install -yq g++ gcc bash libffi-dev pip pandoc weasyprint
 
 COPY ./requirements.txt ./code/requirements.txt
 
-RUN pip install --upgrade -r ./code/requirements.txt
+RUN pip3 install --upgrade pip
+
+RUN pip3 install --upgrade -r ./code/requirements.txt
 
 COPY ./src /code/src
 

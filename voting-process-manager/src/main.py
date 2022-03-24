@@ -221,11 +221,11 @@ async def register_vt (
         'gateway_public_key': my_public_key,
     }
 
-@app.post('/gateway-events')
+@app.get('/gateway-elections-events')
 async def gateway_events (current_user: User = Depends(get_current_active_user)) -> dict:
     """Get gateway events"""
 
-    query = db.events_collection.find({}, {'_id': 0}).sort('created_at', -1)
+    query = db.events_collection.find({'action': {'$in': ['elections_started', 'elections_stopped']}}, {'_id': 0}).sort('created_at', -1)
     events = [i async for i in query]
 
     return {
@@ -233,7 +233,7 @@ async def gateway_events (current_user: User = Depends(get_current_active_user))
         'events' : events,
     }
 
-@app.post('/gateway-events/first-start')
+@app.get('/gateway-elections-events/first-start')
 async def get_first_start (current_user: User = Depends(get_current_active_user)) -> dict:
     """Get first start"""
 
@@ -246,7 +246,7 @@ async def get_first_start (current_user: User = Depends(get_current_active_user)
         'first_start' : start,
     }
 
-@app.post('/gateway-events/last-end')
+@app.get('/gateway-elections-events/last-end')
 async def get_last_end (current_user: User = Depends(get_current_active_user)) -> dict:
     """Get last end"""
 

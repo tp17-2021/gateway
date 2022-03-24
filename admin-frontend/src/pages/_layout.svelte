@@ -44,5 +44,5 @@ axios.interceptors.response.use((response) => response, (error) => {
         <slot/>
     </main>
 {:else}
-    <p>Loading</p>
+    <p style="text-align: center;">Načítavam</p>
 {/if}

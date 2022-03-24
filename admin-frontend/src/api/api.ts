@@ -29,7 +29,9 @@ export function url(path: string) {
 
 
 
-
+export async function getElectionEvents() {
+    return await axios.get(url("/../voting-process-manager-api/gateway-elections-events"));
+}
 
 export async function getVTStatuses() {
     return await axios.get(url("/../voting-process-manager-api/terminals-status"));

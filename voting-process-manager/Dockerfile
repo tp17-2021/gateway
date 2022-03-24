@@ -6,7 +6,7 @@ RUN apt update
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Bratislava
-RUN apt install -yq g++ gcc bash libffi-dev pip pandoc weasyprint
+RUN apt install -yq g++ gcc bash libffi-dev pip pandoc weasyprint netcat
 
 COPY ./requirements.txt ./code/requirements.txt
 

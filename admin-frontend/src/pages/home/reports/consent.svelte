@@ -52,6 +52,12 @@
     }
 </script>
 
+<style lang="scss">
+    h2 {
+        text-align: center;
+    }
+</style>
+
 <h1>Odsúhlasenie zápisnice</h1>
 
 {#if currentObject}

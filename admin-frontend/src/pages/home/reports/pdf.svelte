@@ -43,7 +43,7 @@
 
 {#if pdfDataBase64}
     <div>
-        <iframe width='100%' height='100%' src='{pdfDataBase64}'></iframe>
+        <iframe width='100%' height='100%' src='{pdfDataBase64}#toolbar=0&navpanes=0&scrollbar=0'></iframe>
     </div>
 {:else}
     <Warning>

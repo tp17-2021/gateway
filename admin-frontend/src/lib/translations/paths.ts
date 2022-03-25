@@ -10,4 +10,7 @@ export const enToSkPaths = {
     "contact": "Kontakt",
     "success": "Úspech",
     "error": "Chyba",
+    "consent": "Odsúhlasenie zápisnice",
+    "summary": "Finalizácia zápisnice",
+    "pdf": "Potvrdenie zápisnice",
 };

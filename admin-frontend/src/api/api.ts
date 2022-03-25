@@ -1,7 +1,7 @@
 import axios from "axios";
-import {jwt, gatewayConfig, gatewayConfigLoaded, redirectToAfterLogin} from "../lib/stores";
-import { get } from "svelte/store";
-import { isDevelopmentMode } from "../lib/helpers";
+import {gatewayConfig, gatewayConfigLoaded, jwt, report} from "../lib/stores";
+import {get} from "svelte/store";
+import {isDevelopmentMode} from "../lib/helpers";
 
 export interface TVTStatus {
     name: string;
@@ -82,6 +82,29 @@ export async function startWriter() {
 
 export async function stopWriter() {
     return axios.post(url("/../token-manager-api/tokens/writter/deactivate"))
+}
+
+/**
+ * Returns blob, use it in iframe src
+ */
+export async function generateReportPdf() {
+    let data = await axios.post(url("/../voting-process-manager-api/commission-paper"), {
+        ...get(report)
+    })
+
+    // modified https://stackoverflow.com/questions/40674532/how-to-display-base64-encoded-pdf
+    let base64 = (data.data)
+    const blob = base64ToBlob( base64, 'application/pdf' );
+    return URL.createObjectURL(blob)
+    function base64ToBlob( base64, type = "application/octet-stream" ) {
+        const binStr = atob( base64 );
+        const len = binStr.length;
+        const arr = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            arr[ i ] = binStr.charCodeAt( i );
+        }
+        return new Blob( [ arr ], { type: type } );
+    }
 }
 
 /**

@@ -10,3 +10,12 @@ export const redirectToAfterLogin = writable("/home");
 redirectToAfterLogin.subscribe(url => {
     console.log("$redirectToAfterLogin", url)
 })
+
+export const report = writable({
+    polling_place_id: 0,
+    president: {
+        name: "",
+        agree: false,
+    },
+    participated_members: [],
+})

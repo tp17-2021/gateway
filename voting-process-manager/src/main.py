@@ -266,10 +266,11 @@ async def get_last_end (current_user: User = Depends(get_current_active_user)) -
 ### Election report
 @app.post('/commission-paper')
 async def generate_commission_paper(request: schemas.CommissionPaper):
+    """
+    Generate commission paper in pdf format encoded in base64 
+    """
+    
     parties, candidates, polling_place = src.helper.get_config()
-
-    # for party in parties:
-        # print(party)
 
     registered_voters_count = str(polling_place["registered_voters_count"])
     participated_voters_count = str(await db.keys_client['gateway-db']['votes'].count_documents({}))
@@ -282,6 +283,7 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
     participated_members = str(len(request.participated_members)+1)
     table_president = src.helper.fill_table_president(request.president)
     table_members = src.helper.fill_table_members(request.participated_members)
+    table_events = await src.helper.fill_table_events()
 
     date_and_time = time.strftime("%d.%m.%Y %H:%M:%S")
     date = time.strftime("%d.%m.%Y")
@@ -297,6 +299,7 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
         text = re.sub(r"PARTICIPATED_MEMBERS_COUNT", participated_members, text)
         text = re.sub(r"TABLE_PRESIDENT", table_president, text)
         text = re.sub(r"TABLE_MEMBERS", table_members, text)
+        text = re.sub(r"TABLE_EVENTS", table_events, text)
         text = re.sub(r"DATE_AND_TIME", date_and_time, text)
         text = re.sub(r"DATE", date, text)
 
@@ -309,3 +312,4 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
     with open("src/output.pdf", "rb") as pdf_file:
         encoded_string = base64.b64encode(pdf_file.read())
         return encoded_string
+

@@ -214,3 +214,23 @@ async def fill_table_candidates(parties, candidates, polling_place):
         # return table_candidates # delete this line when done
 
     return table_candidates
+
+
+async def get_events():
+    query = db.events_collection.find({'action': {'$in': ['elections_started', 'elections_stopped']}}, {'_id': 0}).sort('created_at', -1)
+    events = [i async for i in query]
+    return events
+
+
+async def fill_table_events():
+    events = await get_events()
+
+    table_rows = []
+    for event in events:
+        tr = f'<tr><td>{"spustenie volieb" if event["action"] == "elections_started" else "ukončenie volieb"}</td><td>{event["created_at"]}</td></tr>'
+        table_rows.append(tr)
+
+    with open("src/table_events.html", "r", encoding="utf-8") as file:
+        table = file.read()
+        table = re.sub(r"table_rows", "".join(table_rows), table)
+        return table

@@ -55,6 +55,12 @@ TABLE_MEMBERS
 
 ## VI.
 
+Zoznam akcií týkajúcich sa spustenia alebo ukočenia volieb v miestnej volebnej miestnosti:
+
+TABLE_EVENTS
+
+## VII.
+
 <table class="borderless">
   <tr>
     <td style="text-align:left">Dátum a čas vyhotovenia zápisnice</td>

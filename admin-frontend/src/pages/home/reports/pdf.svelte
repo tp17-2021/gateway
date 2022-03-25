@@ -30,7 +30,7 @@
     });
 
     let pdfDataBase64 = null;
-    let secondsRemaining = 25;
+    let secondsRemaining = 45;
 </script>
 
 <style>

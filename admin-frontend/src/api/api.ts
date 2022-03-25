@@ -9,7 +9,6 @@ export interface TVTStatus {
 }
 
 
-
 jwt.subscribe((token: any) => {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
@@ -25,8 +24,6 @@ export function url(path: string) {
     // console.log("base", base);
     return `${base}${path}`;
 }
-
-
 
 
 export async function getElectionEvents() {
@@ -54,8 +51,7 @@ export async function getElectionStatus() {
         let response = await axios.get(url("/../statevector/state_election"))
         console.log(response.data);
         return parseInt(response.data);
-    }
-    catch (e) {
+    } catch (e) {
         console.log(e);
         return undefined;
     }
@@ -88,22 +84,26 @@ export async function stopWriter() {
  * Returns blob, use it in iframe src
  */
 export async function generateReportPdf() {
+    // TEST raise error
+    // throw new Error("test error");
+
     let data = await axios.post(url("/../voting-process-manager-api/commission-paper"), {
         ...get(report)
     })
 
     // modified https://stackoverflow.com/questions/40674532/how-to-display-base64-encoded-pdf
     let base64 = (data.data)
-    const blob = base64ToBlob( base64, 'application/pdf' );
+    const blob = base64ToBlob(base64, 'application/pdf');
     return URL.createObjectURL(blob)
-    function base64ToBlob( base64, type = "application/octet-stream" ) {
-        const binStr = atob( base64 );
+
+    function base64ToBlob(base64, type = "application/octet-stream") {
+        const binStr = atob(base64);
         const len = binStr.length;
         const arr = new Uint8Array(len);
         for (let i = 0; i < len; i++) {
-            arr[ i ] = binStr.charCodeAt( i );
+            arr[i] = binStr.charCodeAt(i);
         }
-        return new Blob( [ arr ], { type: type } );
+        return new Blob([arr], {type: type});
     }
 }
 
@@ -137,7 +137,7 @@ export async function authJWTToken(password: string): Promise<boolean> {
             method: "post",
             url: url("/../voting-process-manager-api/token"),
             data: bodyFormData,
-            headers: { "Content-Type": "multipart/form-data" },
+            headers: {"Content-Type": "multipart/form-data"},
         })
 
         console.log("jwr_response", jwr_response);
@@ -151,19 +151,16 @@ export async function authJWTToken(password: string): Promise<boolean> {
             //     jwt.set("INVALIDATED.TEST.erjgshdmfhjaesdfjhgesdjikxjfkc");
             // }, 5000);
             return true;
-        }
-        else {
+        } else {
             jwt.set(null);
             alert()
             return false;
         }
-    }
-    catch (e) {
+    } catch (e) {
         // if 401, then token is invalid (unauthorized)
         if (e.response.status === 401) {
             jwt.set(null);
-        }
-        else {
+        } else {
             alert("failed with error status " + e.status);
             console.log(e);
         }

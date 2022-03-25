@@ -15,6 +15,8 @@
         $goto("/home/reports/pdf");
     }
 
+    let error = false
+
     onMount(async () => {
         console.log("onMount");
 
@@ -25,7 +27,14 @@
                 clearInterval(timer);
             }
         }, 1000);
-        pdfDataBase64 = await generateReportPdf();
+
+        try {
+            pdfDataBase64 = await generateReportPdf();
+        } catch (e) {
+            console.error(e);
+            error = true;
+        }
+
         console.log("pdf", pdfDataBase64);
     });
 
@@ -46,13 +55,25 @@
         <iframe width='100%' height='100%' src='{pdfDataBase64}#toolbar=0&navpanes=0&scrollbar=0'></iframe>
     </div>
 {:else}
-    <Warning>
-        <p>Generujem PDF...</p>
-        <p>Odhadovaný čas: {secondsRemaining} sekúnd</p>
-    </Warning>
+    {#if error}
+        <Warning>
+            <h1>Chyba</h1>
+            <p>
+                Nastala chyba pri generovaní reportu. Stlačte tlačidlo "Späť" a skúste to znova.
+            </p>
+        </Warning>
+    {:else}
+        <Warning>
+            <p>Generujem PDF...</p>
+            <p>Odhadovaný čas: {secondsRemaining} sekúnd</p>
+        </Warning>
+    {/if}
+
 {/if}
 
 <ButtonsContainer>
-    <Button on:click={next} type="primary">Odoslať na server</Button>
+    {#if pdfDataBase64}
+        <Button on:click={next} type="primary">Odoslať na server</Button>
+    {/if}
     <Button on:click={back}>Späť</Button>
 </ButtonsContainer>

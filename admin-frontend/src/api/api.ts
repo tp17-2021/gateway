@@ -38,10 +38,18 @@ export async function getGatewayConfig() {
     return await axios.get(url("/../voting-process-manager-api/election-config"));
 }
 
-getGatewayConfig().then(response => {
-    gatewayConfig.set(response.data);
-    gatewayConfigLoaded.set(true);
-});
+async function setStoreFromConfig(){
+    try {
+        let response = await getGatewayConfig()
+        gatewayConfig.set(response.data);
+        gatewayConfigLoaded.set(true);
+    } catch (e) {
+        console.error("setStoreFromConfig error, retrying in 5 seconds", e);
+        setTimeout(setStoreFromConfig, 5000);
+    }
+}
+
+setStoreFromConfig().then()
 
 /**
  * Election status

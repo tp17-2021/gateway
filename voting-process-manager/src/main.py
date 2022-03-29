@@ -3,12 +3,15 @@ from datetime import datetime, timedelta
 import sys
 import subprocess
 from typing import Optional
+from unittest import result
 from urllib import response
 from click import command
 
 from fastapi import Depends, Body, Request, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi_socketio import SocketManager
+from starlette.responses import JSONResponse
+
 
 import os
 import re
@@ -329,7 +332,6 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
 
         db.keys_client['gateway-db']['commission_papers'].drop({})
         db.keys_client['gateway-db']['commission_papers'].insert_one({
-            "polling_place_id": int(src.helper.get_office_id()),
             "data": data
         })
 
@@ -356,32 +358,42 @@ async def send_commission_paper():
     Send commission paper to server
     """
 
-    query = db.keys_client['gateway-db']['commission_papers'].find({}, {"_id": 0}).limit(1)
-    commission_paper = [i async for i in query][0]
-    commission_paper["data"] = commission_paper["data"].decode("utf-8")
+    query = db.keys_client['gateway-db']['commission_papers'].find({}, {"_id": 0, "data": 1}).limit(1)
+    result = [document async for document in query][0]
 
-    # todo
-    # commission_paper["polling_place_id"] = 0
-    # ---
+    polling_place_id = int(src.helper.get_office_id())
+    commission_paper = {
+        "data": result["data"].decode("utf-8")
+    }
+    print(len(result["data"].decode("utf-8")))
 
     server_key = requests.get('http://web/statevector/server_key').text.replace('"', '').replace('\\n', '\n')
-    # my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text[:-1]
     my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
 
     encrypted_commission_paper = electiersa.encrypt_vote(commission_paper, my_private_key, server_key)
-    # return encrypted_commission_paper
 
     headers = {
         "accept": "application/json",
-        "Content-Type": "application/json",
     }
 
     payload = {
-        "encrypted_vote": encrypted_commission_paper.__dict__,
-        "private_key_pem": my_private_key,
-        "g_public_key_pem": server_key
+        "polling_place_id": polling_place_id,
+        "encrypted_commission_paper": encrypted_commission_paper.__dict__,
     }
 
-    response = requests.post("http://localhost:8222/database/commission-paper", headers=headers, json=payload)
-    print(response)
-    print(response.text)
+    # fiit server
+    response = requests.post("https://team17-21.studenti.fiit.stuba.sk/server/database/commission-paper", headers=headers, json=payload)
+    
+    # local server
+    # response = requests.post("http://host.docker.internal:8222/database/commission-paper", headers=headers, json=payload)
+    
+    if response.status_code == 200:
+        return {
+            'status': 'success',
+            'message': 'Commission paper was successfully sent to server'
+        }
+    else:
+        return {
+            'status': 'failure',
+            'message': response.text
+        }

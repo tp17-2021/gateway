@@ -361,11 +361,11 @@ async def send_commission_paper():
     query = db.keys_client['gateway-db']['commission_papers'].find({}, {"_id": 0, "data": 1}).limit(1)
     result = [document async for document in query][0]
 
+    date_and_time = time.strftime("%d.%m.%Y %H:%M:%S")
     polling_place_id = int(src.helper.get_office_id())
     commission_paper = {
         "data": result["data"].decode("utf-8")
     }
-    print(len(result["data"].decode("utf-8")))
 
     server_key = requests.get('http://web/statevector/server_key').text.replace('"', '').replace('\\n', '\n')
     my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
@@ -377,6 +377,7 @@ async def send_commission_paper():
     }
 
     payload = {
+        "date_and_time": date_and_time,
         "polling_place_id": polling_place_id,
         "encrypted_commission_paper": encrypted_commission_paper.__dict__,
     }

@@ -26,7 +26,7 @@
 
     import {onMount} from "svelte";
     import Button from "../lib/components/buttons/Button.svelte";
-    import {authenticated, jwt, pin, redirectToAfterLogin} from "../lib/stores";
+    import {authenticated, jwt, pin} from "../lib/stores";
     import {goto} from "@roxi/routify";
     import {authJWTToken} from "../api/api";
     // import {goto} from "$lib/navigation/goto";
@@ -72,7 +72,7 @@
 
     function jwtChanged(newJwt: string) {
         if (newJwt) {
-            $goto($redirectToAfterLogin)
+            $goto("/home")
         }
     }
 

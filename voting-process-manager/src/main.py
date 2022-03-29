@@ -153,6 +153,12 @@ async def current_user(current_user: User = Depends(get_current_active_user)):
 async def start_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
     """Start voting from gateway and notify terminals"""
 
+    if(src.helper.check_election_state_running()):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Election is already running",
+        )
+
     requests.post('http://statevector/state_election', json='1')
 
     notify_status = await notify_voting_terminals('start')
@@ -175,6 +181,12 @@ async def start_voting_process (current_user: User = Depends(get_current_active_
 @app.post('/end')
 async def end_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
     """End voting from gateway and notify terminals"""
+
+    if(not src.helper.check_election_state_running()):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Election is already stopped",
+        )
 
     requests.post('http://statevector/state_election', json='0')
 

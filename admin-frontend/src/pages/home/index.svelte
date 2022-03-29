@@ -29,6 +29,5 @@
     <Button href={$url('/home/reports')}>Zápisnica</Button>
     <Button href={$url('/home/contact')}>Kontakt</Button>
     <Button on:click={()=>logout()}>Odhlásiť sa</Button>
-
 </ButtonsContainer>
 

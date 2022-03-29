@@ -12,6 +12,10 @@ import src.database as db
 def get_office_id():
     return requests.get('http://web/statevector/office_id').text
 
+def check_election_state_running() -> bool:
+    r = requests.get('http://web/statevector/state_election').text
+
+    return r == '1'
 
 async def get_terminals() -> list[dict[str, str]]:
     return await db.keys_collection.find().to_list(None)

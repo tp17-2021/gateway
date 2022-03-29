@@ -97,14 +97,14 @@ def fill_table_members(members):
 
 async def get_party_votes(parties, polling_place):
     pipeline = [
-        {"$group" : {"_id":"$party_id", "count":{"$sum":1}}},
+        {"$group" : {"_id":"$vote.party_id", "count":{"$sum":1}}},
         {"$sort":{"_id":1}}
     ]
 
     voted_parties = {}
     results = [result async for result in db.keys_client['gateway-db']['votes'].aggregate(pipeline)]
     for result in results:
-        voted_parties[result["_id"]] = result["count"]
+        voted_parties[int(result["_id"])] = result["count"]
 
     parties_tmp = parties.copy()
     for party_id in parties_tmp:
@@ -146,14 +146,14 @@ async def fill_table_parties(parties, polling_place):
 
 async def get_candidate_votes(parties, candidates, polling_place):
     pipeline = [
-        {"$unwind": "$candidate_ids"},
-        {"$group" : {"_id":"$candidate_ids", "count":{"$sum":1}}}
+        {"$unwind": "$vote.candidate_ids"},
+        {"$group" : {"_id":"$vote.candidate_ids", "count":{"$sum":1}}}
     ]
 
     voted_candidates = {}
     results = [result async for result in db.keys_client['gateway-db']['votes'].aggregate(pipeline)]
     for result in results:
-        voted_candidates[result["_id"]] = result["count"]
+        voted_candidates[int(result["_id"])] = result["count"]
 
     party_names = {}
     for candidate_id in candidates:

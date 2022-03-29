@@ -349,7 +349,10 @@ async def get_commission_paper():
     query = db.keys_client['gateway-db']['commission_papers'].find({}, {"_id": 0}).limit(1)
     commission_paper = [i async for i in query][0]
     data = commission_paper["data"]
-    return data
+    return {
+        'status': 'success',
+        'data': data
+    }
 
 
 @app.post('/commission-paper/send')

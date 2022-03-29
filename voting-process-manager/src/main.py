@@ -18,6 +18,8 @@ import asyncio
 import datetime
 import base64
 
+from electiersa import electiersa
+
 from src import schemas
 import src.database as db
 import src.helper
@@ -276,10 +278,10 @@ async def get_last_end (current_user: User = Depends(get_current_active_user)) -
 
 
 ### Election report
-@app.post('/commission-paper')
+@app.post('/commission-paper/generate')
 async def generate_commission_paper(request: schemas.CommissionPaper):
     """
-    Generate commission paper in pdf format encoded in base64 
+    Generate commission paper in pdf format encoded in base64 and store it into database
     """
     
     parties, candidates, polling_place = src.helper.get_config()
@@ -322,6 +324,64 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
     subprocess.run(command, shell=True, check=True)
 
     with open("src/output.pdf", "rb") as pdf_file:
-        encoded_string = base64.b64encode(pdf_file.read())
-        return encoded_string
+        data = base64.b64encode(pdf_file.read())
+        # return data
 
+        db.keys_client['gateway-db']['commission_papers'].drop({})
+        db.keys_client['gateway-db']['commission_papers'].insert_one({
+            "polling_place_id": int(src.helper.get_office_id()),
+            "data": data
+        })
+
+        return {
+            'status': 'success',
+            'message': 'Commission paper was successfully generated.'
+        }
+
+@app.get('/commission-paper')
+async def get_commission_paper():
+    """
+    Get commission paper from database encoded in base64
+    """
+
+    query = db.keys_client['gateway-db']['commission_papers'].find({}, {"_id": 0}).limit(1)
+    commission_paper = [i async for i in query][0]
+    data = commission_paper["data"]
+    return data
+
+
+@app.post('/commission-paper/send')
+async def send_commission_paper():
+    """
+    Send commission paper to server
+    """
+
+    query = db.keys_client['gateway-db']['commission_papers'].find({}, {"_id": 0}).limit(1)
+    commission_paper = [i async for i in query][0]
+    commission_paper["data"] = commission_paper["data"].decode("utf-8")
+
+    # todo
+    # commission_paper["polling_place_id"] = 0
+    # ---
+
+    server_key = requests.get('http://web/statevector/server_key').text.replace('"', '').replace('\\n', '\n')
+    # my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text[:-1]
+    my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
+
+    encrypted_commission_paper = electiersa.encrypt_vote(commission_paper, my_private_key, server_key)
+    # return encrypted_commission_paper
+
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "encrypted_vote": encrypted_commission_paper.__dict__,
+        "private_key_pem": my_private_key,
+        "g_public_key_pem": server_key
+    }
+
+    response = requests.post("http://localhost:8222/database/commission-paper", headers=headers, json=payload)
+    print(response)
+    print(response.text)

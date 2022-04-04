@@ -74,6 +74,15 @@ export async function stopElection() {
     return axios.post(url("/../voting-process-manager-api/end"))
 }
 
+export async function startRegistration() {
+    return await axios.post(url("/../statevector/state_register_terminals"), "1")
+}
+
+
+export async function stopRegistration() {
+    return axios.post(url("/../statevector/state_register_terminals"), "0")
+}
+
 /**
  * NFC Writer
  */

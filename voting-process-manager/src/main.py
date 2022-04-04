@@ -218,6 +218,11 @@ async def register_vt (
 ):
     """Register a voting terminal"""
 
+    if(src.helper.check_terminals_regitration_running()):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Registration is disabled",
+        )
     ip = request.client.host
     office_id = src.helper.get_office_id()
 

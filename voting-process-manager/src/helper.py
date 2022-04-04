@@ -17,6 +17,12 @@ def check_election_state_running() -> bool:
 
     return r == '1'
 
+
+def check_terminals_regitration_running() -> bool:
+    r = requests.get('http://web/statevector/state_register_terminals').text
+
+    return r == '1'
+
 async def get_terminals() -> list[dict[str, str]]:
     return await db.keys_collection.find().to_list(None)
 

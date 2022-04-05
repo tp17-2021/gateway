@@ -70,7 +70,7 @@ def get_config():
         for candidate in party["candidates"]:
             candidates[candidate["_id"]] = candidate
 
-    polling_place = data["polling_places"][polling_place_id]
+    polling_place = data["polling_place"]
     return parties, candidates, polling_place
 
 

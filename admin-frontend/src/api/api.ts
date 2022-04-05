@@ -124,6 +124,10 @@ export async function generateReportPdf() {
     }
 }
 
+export async function sendReport() {
+    return await axios.post(url("/../voting-process-manager-api/commission-paper/send"))
+}
+
 /**
  * Synchronization
  */

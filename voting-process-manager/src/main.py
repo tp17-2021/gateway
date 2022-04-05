@@ -302,7 +302,9 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
     table_members = src.helper.fill_table_members(request.participated_members)
     table_events = await src.helper.fill_table_events()
 
-    date_and_time = time.strftime("%d.%m.%Y %H:%M:%S")
+    # date_and_time = time.strftime("%d.%m.%Y %H:%M:%S")
+    date_and_time = str(datetime.now())
+    
     date = time.strftime("%d.%m.%Y")
 
     with open("src/template.md", "r", encoding="utf-8") as file:
@@ -323,7 +325,7 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
     with open("src/output.md", "w", encoding="utf-8") as file:
         file.write(text)
 
-    command = "pandoc -t html --pdf-engine=weasyprint --css src/output.css src/output.md -o src/output.pdf"
+    command = "pandoc -t html --pdf-engine-opt=--enable-local-file-access --css src/output.css src/output.md -o src/output.pdf"
     subprocess.run(command, shell=True, check=True)
 
     with open("src/output.pdf", "rb") as pdf_file:

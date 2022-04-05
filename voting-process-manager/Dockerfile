@@ -6,7 +6,10 @@ RUN apt update
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Bratislava
-RUN apt install -yq g++ gcc bash libffi-dev pip pandoc weasyprint netcat
+
+# RUN apt install -yq g++ gcc bash libffi-dev pip pandoc weasyprint netcat
+RUN apt-get update && apt-get install -yq g++ gcc bash libffi-dev pip netcat wget xfonts-75dpi
+RUN apt-get update && apt-get install -y coreutils apt-utils pandoc texlive-latex-base build-essential xorg libssl-dev libxrender-dev wget gdebi xvfb libfontconfig wkhtmltopdf
 
 COPY ./requirements.txt ./code/requirements.txt
 

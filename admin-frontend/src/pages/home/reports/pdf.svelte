@@ -2,7 +2,7 @@
     import ButtonsContainer from "../../../lib/components/buttons/ButtonsContainer.svelte";
     import Button from "../../../lib/components/buttons/Button.svelte";
     import {goto} from "@roxi/routify";
-    import {generateReportPdf} from "../../../api/api";
+    import {generateReportPdf, sendReport} from "../../../api/api";
     import {onMount} from "svelte";
     import Warning from "../../../lib/components/Warning.svelte";
 
@@ -10,9 +10,15 @@
         $goto("/home/reports/summary");
     }
 
-    function next() {
-        alert("TODO: implement send to server");
-        $goto("/home/reports/pdf");
+    async function next() {
+        try {
+            await sendReport();
+            alert("Report sent OK");
+            $goto("/home");
+        } catch (error) {
+            console.error(error);
+            alert("Error sending report");
+        }
     }
 
     let error = false

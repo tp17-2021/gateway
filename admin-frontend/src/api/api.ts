@@ -74,6 +74,15 @@ export async function stopElection() {
     return axios.post(url("/../voting-process-manager-api/end"))
 }
 
+export async function startRegistration() {
+    return await axios.post(url("/../statevector/state_register_terminals"), "1")
+}
+
+
+export async function stopRegistration() {
+    return axios.post(url("/../statevector/state_register_terminals"), "0")
+}
+
 /**
  * NFC Writer
  */
@@ -95,7 +104,7 @@ export async function generateReportPdf() {
     // TEST raise error
     // throw new Error("test error");
 
-    let data = await axios.post(url("/../voting-process-manager-api/commission-paper"), {
+    let data = await axios.post(url("/../voting-process-manager-api/commission-paper/generate"), {
         ...get(report)
     })
 
@@ -113,6 +122,10 @@ export async function generateReportPdf() {
         }
         return new Blob([arr], {type: type});
     }
+}
+
+export async function sendReport() {
+    return await axios.post(url("/../voting-process-manager-api/commission-paper/send"))
 }
 
 /**
@@ -166,10 +179,12 @@ export async function authJWTToken(password: string): Promise<boolean> {
         }
     } catch (e) {
         // if 401, then token is invalid (unauthorized)
-        if (e.response.status === 401) {
+        console.log("authJWTToken catch", e);
+
+        if (e.response?.status === 401) {
             jwt.set(null);
         } else {
-            alert("failed with error status " + e.status);
+            console.error("failed with error status " + e.status);
             console.log(e);
         }
         return false;

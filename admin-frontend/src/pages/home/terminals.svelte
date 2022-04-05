@@ -1,7 +1,9 @@
 <script lang="ts">
     import {onDestroy, onMount} from "svelte";
-    import {getVTStatuses} from "../../api/api";
+    import {getVTStatuses, startRegistration, stopRegistration} from "../../api/api";
     import Panel from "../../lib/components/Panel.svelte";
+    import ButtonsContainer from "../../lib/components/buttons/ButtonsContainer.svelte";
+    import Button from "../../lib/components/buttons/Button.svelte";
     import dayjs from 'dayjs';
     import 'dayjs/locale/sk';
     dayjs.locale('sk')
@@ -12,9 +14,12 @@
 
     let terminalsStatuses = [];
     let interval = null;
+    let terminalsRegistrationStatus = undefined;
+
     function terminalsStatusLoop(){
         getVTStatuses().then(function(response) {
             terminalsStatuses = response.data.terminals;
+            terminalsRegistrationStatus = response.data.registration_status;
         });
     }
 
@@ -26,6 +31,18 @@
     onDestroy(() => {
         clearInterval(interval);
     });
+
+    function startRegistrationButton() {
+        startRegistration().finally(function (){
+            terminalsStatusLoop();
+        });
+    }
+
+    function stopRegistrationButton() {
+        stopRegistration().finally(function (){
+            terminalsStatusLoop();
+        });
+    }
 
     function getTerminalStatusClass(status) {
         if(status === null || status === 'disconnected') {
@@ -72,9 +89,27 @@
     }
 </style>
 
-<h1>Stav volebných terminálov</h1>
+<h1>Volebné terminály</h1>
 
 <div>
+    {#if terminalsRegistrationStatus === true }
+        <Panel anchor="registration-state" type="success">Registrácia spustená.</Panel>
+    {:else}
+        <Panel anchor="registration-state" type="danger">Registrácia vypnutá.</Panel>
+    {/if}
+</div>
+
+
+<ButtonsContainer>
+    {#if terminalsRegistrationStatus === true }
+        <Button on:click={stopRegistrationButton}>Ukončiť registráciu</Button>
+    {:else}
+        <Button on:click={startRegistrationButton}>Spustiť registráciu</Button>
+    {/if}
+</ButtonsContainer>
+
+<div>
+    <h2>Stav terminálov</h2>
     {#if terminalsStatuses.length}
         <table class="govuk-table">
             <thead class="govuk-table__head">

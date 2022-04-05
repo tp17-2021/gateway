@@ -38,6 +38,8 @@
     let redPin = false
 
     async function addToPin(value: string) {
+        console.log("typedPin", typedPin);
+        
         if (typedPin.length < pinMaxLength) {
             typedPin += value
         }

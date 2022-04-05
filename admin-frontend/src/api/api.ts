@@ -104,7 +104,7 @@ export async function generateReportPdf() {
     // TEST raise error
     // throw new Error("test error");
 
-    let data = await axios.post(url("/../voting-process-manager-api/commission-paper"), {
+    let data = await axios.post(url("/../voting-process-manager-api/commission-paper/generate"), {
         ...get(report)
     })
 
@@ -175,10 +175,12 @@ export async function authJWTToken(password: string): Promise<boolean> {
         }
     } catch (e) {
         // if 401, then token is invalid (unauthorized)
-        if (e.response.status === 401) {
+        console.log("authJWTToken catch", e);
+
+        if (e.response?.status === 401) {
             jwt.set(null);
         } else {
-            alert("failed with error status " + e.status);
+            console.error("failed with error status " + e.status);
             console.log(e);
         }
         return false;

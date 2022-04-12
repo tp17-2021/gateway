@@ -58,7 +58,7 @@
     }
 </style>
 
-<h1>Odsúhlasenie zápisnice</h1>
+<h1>Odsúhlasenie zápisnice {index+1}/{objects.length}</h1>
 
 {#if currentObject}
 

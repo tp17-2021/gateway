@@ -343,6 +343,9 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
             "data": data
         })
 
+        # sleep 1 sec to fix race condition
+        await asyncio.sleep(1)
+
         return {
             'status': 'success',
             'message': 'Commission paper was successfully generated.'

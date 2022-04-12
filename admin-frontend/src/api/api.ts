@@ -104,12 +104,15 @@ export async function generateReportPdf() {
     // TEST raise error
     // throw new Error("test error");
 
-    let data = await axios.post(url("/../voting-process-manager-api/commission-paper/generate"), {
+    await axios.post(url("/../voting-process-manager-api/commission-paper/generate"), {
         ...get(report)
     })
 
+    let data = await axios.get(url("/../voting-process-manager-api/commission-paper"))
+
     // modified https://stackoverflow.com/questions/40674532/how-to-display-base64-encoded-pdf
-    let base64 = (data.data)
+    let base64 = (data.data.data)
+
     const blob = base64ToBlob(base64, 'application/pdf');
     return URL.createObjectURL(blob)
 

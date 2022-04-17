@@ -4,47 +4,47 @@ services:
   voting-service:
     image: team17-21.studenti.fiit.stuba.sk/electie-g-voting-service-arm64
     build:
-      context: ./voting-service
+      context: ../voting-service
       dockerfile: ./Dockerfile
 
   synchronization-service:
     image: team17-21.studenti.fiit.stuba.sk/electie-g-synchronization-service-arm64
     build:
-      context: ./synchronization-service
+      context: ../synchronization-service
       dockerfile: ./Dockerfile
 
   voting-process-manager:
     image: team17-21.studenti.fiit.stuba.sk/electie-g-voting-process-manager-arm64
     build:
-      context: ./voting-process-manager
+      context: ../voting-process-manager
       dockerfile: ./Dockerfile
 
   token-manager:
     image: team17-21.studenti.fiit.stuba.sk/electie-g-token-manager-arm64
     build:
-      context: ./token-manager
+      context: ../token-manager
       dockerfile: ./Dockerfile
 
   token-writer:
     image: team17-21.studenti.fiit.stuba.sk/electie-g-token-writer-arm64
     build:
-      context: ./token-writer
+      context: ../token-writer
       dockerfile: ./Dockerfile
 
   statevector:
     image: team17-21.studenti.fiit.stuba.sk/electie-g-statevector-arm64
     build:
-      context: ./statevector
+      context: ../statevector
       dockerfile: ./Dockerfile
 
   web:
     image: team17-21.studenti.fiit.stuba.sk/electie-g-web-arm64
     build:
-      context: ./
+      context: ../
       dockerfile: ./web/Dockerfile
 
   admin-frontend:
     image: team17-21.studenti.fiit.stuba.sk/electie-g-admin-frontend-arm64
     build:
-      context: ./admin-frontend
+      context: ../admin-frontend
       dockerfile: ./Dockerfile

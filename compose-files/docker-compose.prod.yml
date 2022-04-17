@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   voting-service:
-    image: team17-21.studenti.fiit.stuba.sk/voting-service
+    image: team17-21.studenti.fiit.stuba.sk/electie-g-voting-service
     restart: unless-stopped
     depends_on:
       - gateway-db
@@ -19,7 +19,7 @@ services:
       - KEYS_DB_COLLECTION=keys
 
   synchronization-service:
-    image: team17-21.studenti.fiit.stuba.sk/synchronization-service
+    image: team17-21.studenti.fiit.stuba.sk/electie-g-synchronization-service
     restart: unless-stopped
     depends_on:
       - gateway-db
@@ -31,7 +31,7 @@ services:
       - ROOT_PATH=/synchronization-service-api
 
   voting-process-manager:
-    image: team17-21.studenti.fiit.stuba.sk/voting-process-manager
+    image: team17-21.studenti.fiit.stuba.sk/electie-g-voting-process-manager
     restart: unless-stopped
     depends_on:
       - statevector
@@ -47,7 +47,7 @@ services:
       - TEST_INSERT_VT_IP=host.docker.internal:81
 
   token-manager:
-    image: team17-21.studenti.fiit.stuba.sk/token-manager
+    image: team17-21.studenti.fiit.stuba.sk/electie-g-token-manager
     restart: unless-stopped
     depends_on:
       - gateway-db
@@ -60,7 +60,7 @@ services:
       - ACCEPT_VALID_TOKEN=1
 
   token-writer:
-    image: team17-21.studenti.fiit.stuba.sk/token-writer
+    image: team17-21.studenti.fiit.stuba.sk/electie-g-token-writer
     restart: unless-stopped
     depends_on:
       - token-manager
@@ -73,13 +73,13 @@ services:
       - STATEVECTOR_PATH=web/statevector
 
   statevector:
-    image: team17-21.studenti.fiit.stuba.sk/statevector
+    image: team17-21.studenti.fiit.stuba.sk/electie-g-statevector
     restart: unless-stopped
     environment:
       - ROOT_PATH=/statevector
 
   web:
-    image: team17-21.studenti.fiit.stuba.sk/web
+    image: team17-21.studenti.fiit.stuba.sk/electie-g-web
     restart: unless-stopped
     depends_on:
       - voting-process-manager
@@ -102,5 +102,5 @@ services:
       - ../gateway-db-data:/data/db
 
   admin-frontend:
-    image: team17-21.studenti.fiit.stuba.sk/admin-frontend
+    image: team17-21.studenti.fiit.stuba.sk/electie-g-admin-frontend
     restart: unless-stopped

@@ -1,0 +1,56 @@
+name: Gateway Build and Push
+
+on:
+  pull_request:
+    branches: [ main, development ]
+    types: [ closed ]
+
+  workflow_dispatch:
+
+jobs:
+  build-arm64:
+    name: Build and push arm64 Images
+    runs-on: [self-hosted, ARM64]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Build images
+        run : docker-compose -f compose-files/build-push.arm64.yml build --parallel
+
+      - name: Push images to team's self-hosted registry
+        run: docker-compose -f compose-files/build-push.arm64.yml push
+
+  build-x64:
+    name: Build and push x64 Images
+    runs-on: [self-hosted, X64]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Build images
+        run : docker-compose -f compose-files/build-push.x64.yml build --parallel
+
+      - name: Push images to team's self-hosted registry
+        run: docker-compose -f compose-files/build-push.x64.yml push
+
+  docker-manifest:
+    needs:
+      - build-arm64
+      - build-x64
+
+    name: Join x64 and arm64 to a single multiarch image
+    runs-on: [self-hosted, X64]
+
+    strategy:
+      matrix:
+        micro-service: [voting-service, synchronization-service, voting-process-manager, token-manager, token-writer, statevector, web, admin-frontend]
+
+    steps:
+      - name: Join manifests
+        run: docker manifest create localhost:5000/electie-g-${{ matrix.micro-service }} --amend localhost:5000/electie-g-${{ matrix.micro-service }}-x64 --amend localhost:5000/electie-g-${{ matrix.micro-service }}-arm64
+
+      - name: Push manifest
+        run: docker manifest push localhost:5000/electie-g-${{ matrix.micro-service }}

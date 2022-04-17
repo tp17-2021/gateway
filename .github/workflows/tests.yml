@@ -117,11 +117,10 @@ jobs:
     env:
       MICRO_SERVICE: [voting-service, synchronization-service, voting-process-manager, token-manager, token-writer, statevector, web, admin-frontend]
 
-    step:
+    steps:
       - name: Join manifests
       - run: docker manifest create localhost:5000/elecite-g-${{ env.MICRO_SERVICE }} --amend localhost:5000/elecite-g-${{ env.MICRO_SERVICE }}-x64 --amend localhost:5000/elecite-g-${{ env.MICRO_SERVICE }}-arm64
 
-    step:
       - name: Push manifest
       - run: docker manifest push localhost:5000/elecite-g-${{ env.MICRO_SERVICE }}
 

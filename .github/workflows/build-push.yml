@@ -1,8 +1,6 @@
 name: Gateway Build and Push
 
 on:
-  push: # TODO delete
-
   workflow_dispatch:
 
   pull_request:

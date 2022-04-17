@@ -120,10 +120,10 @@ jobs:
 
     steps:
       - name: Join manifests
-      - run: docker manifest create localhost:5000/elecite-g-${{ matrix.micro-service }} --amend localhost:5000/elecite-g-${{ matrix.micro-service }}-x64 --amend localhost:5000/elecite-g-${{ matrix.micro-service }}-arm64
+        run: docker manifest create localhost:5000/elecite-g-${{ matrix.micro-service }} --amend localhost:5000/elecite-g-${{ matrix.micro-service }}-x64 --amend localhost:5000/elecite-g-${{ matrix.micro-service }}-arm64
 
       - name: Push manifest
-      - run: docker manifest push localhost:5000/elecite-g-${{ matrix.micro-service }}
+        run: docker manifest push localhost:5000/elecite-g-${{ matrix.micro-service }}
 
   stage:
     needs:

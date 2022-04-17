@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  voting-service:
+    image: localhost:5000/electie-g-voting-service-x64
+    build:
+      context: ../voting-service
+      dockerfile: ./Dockerfile
+
+  synchronization-service:
+    image: localhost:5000/electie-g-synchronization-service-x64
+    build:
+      context: ../synchronization-service
+      dockerfile: ./Dockerfile
+
+  voting-process-manager:
+    image: localhost:5000/electie-g-voting-process-manager-x64
+    build:
+      context: ../voting-process-manager
+      dockerfile: ./Dockerfile
+
+  token-manager:
+    image: localhost:5000/electie-g-token-manager-x64
+    build:
+      context: ../token-manager
+      dockerfile: ./Dockerfile
+
+  token-writer:
+    image: localhost:5000/electie-g-token-writer-x64
+    build:
+      context: ../token-writer
+      dockerfile: ./Dockerfile
+
+  statevector:
+    image: localhost:5000/electie-g-statevector-x64
+    build:
+      context: ../statevector
+      dockerfile: ./Dockerfile
+
+  web:
+    image: localhost:5000/electie-g-web-x64
+    build:
+      context: ../
+      dockerfile: ./web/Dockerfile
+
+  admin-frontend:
+    image: localhost:5000/electie-g-admin-frontend-x64
+    build:
+      context: ../admin-frontend
+      dockerfile: ./Dockerfile

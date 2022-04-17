@@ -3,7 +3,7 @@ name: Gateway Tests
 on:
   pull_request:
     branches: [ main, development ]
-    types: [ open ]
+    types: [ opened ]
 
   push:
 
@@ -12,59 +12,96 @@ on:
 jobs:
   test-synchronization-service:
     name: Test Synchronization Service
-    runs-on: self-hosted
+    runs-on: [self-hosted, X64]
     
     steps:
       - name: Check out code
         uses: actions/checkout@v2
 
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v2.1
+        with:
+          files: |
+            synchronization-service
+
       - name: Tests Docker-Compose
+        if: steps.changed_files.outputs.files_changed == 'true'
         run: docker-compose --env-file synchronization-service/test.env up --build --exit-code-from synchronization-service --renew-anon-volumes --remove-orphans
 
       - name: Clean up containers
+        if: steps.changed_files.outputs.files_changed == 'true'
         run: docker-compose --env-file synchronization-service/test.env down
   
   test-token-manager:
     name: Test Token Manager
-    runs-on: self-hosted
+    runs-on: [self-hosted, X64]
     
     steps:
       - name: Check out code
         uses: actions/checkout@v2
 
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v2.1
+        with:
+          files: |
+            token-manager
+
       - name: Tests Docker-Compose
+        if: steps.changed_files.outputs.files_changed == 'true'
         run: docker-compose --env-file token-manager/test.env up --build --exit-code-from token-manager --renew-anon-volumes --remove-orphans
 
       - name: Clean up containers
+        if: steps.changed_files.outputs.files_changed == 'true'
         run: docker-compose --env-file token-manager/test.env down
 
   test-voting-process-manager:
     name: Test Voting Process Manager
-    runs-on: self-hosted
+    runs-on: [self-hosted, X64]
     
     steps:
       - name: Check out code
         uses: actions/checkout@v2
 
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v2.1
+        with:
+          files: |
+            voting-process-manager
+
       - name: Tests Docker-Compose
+        if: steps.changed_files.outputs.files_changed == 'true'
         run: docker-compose --env-file voting-process-manager/test.env up --build --exit-code-from voting-process-manager --renew-anon-volumes --remove-orphans
 
       - name: Clean up containers
+        if: steps.changed_files.outputs.files_changed == 'true'
         run: docker-compose --env-file voting-process-manager/test.env down
 
   test-voting-service:
     name: Test Voting Service
-    runs-on: self-hosted
+    runs-on: [self-hosted, X64]
     
     steps:
       - name: Check out code
         uses: actions/checkout@v2
 
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v2.1
+        with:
+          files: |
+            voting-service
+
       - name: Tests Docker-Compose
+        if: steps.changed_files.outputs.files_changed == 'true'
         run: docker-compose --env-file voting-service/test.env up --build --exit-code-from voting-service --renew-anon-volumes --remove-orphans
 
       - name: Clean up containers
+        if: steps.changed_files.outputs.files_changed == 'true'
         run: docker-compose --env-file voting-service/test.env down
+
 
   stage:
     needs:
@@ -74,7 +111,7 @@ jobs:
       - test-voting-process-manager
 
     name: Stage on team server  
-    runs-on: self-hosted
+    runs-on: [self-hosted, X64]
     
     steps:
       - name: Check out code

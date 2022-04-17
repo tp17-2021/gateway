@@ -114,15 +114,16 @@ jobs:
     name: Join x64 and arm64 to a single multiarch image
     runs-on: [self-hosted, X64]
 
-    env:
-      MICRO_SERVICE: [voting-service, synchronization-service, voting-process-manager, token-manager, token-writer, statevector, web, admin-frontend]
+    strategy:
+      matrix:
+        micro-service: [voting-service, synchronization-service, voting-process-manager, token-manager, token-writer, statevector, web, admin-frontend]
 
     steps:
       - name: Join manifests
-      - run: docker manifest create localhost:5000/elecite-g-${{ env.MICRO_SERVICE }} --amend localhost:5000/elecite-g-${{ env.MICRO_SERVICE }}-x64 --amend localhost:5000/elecite-g-${{ env.MICRO_SERVICE }}-arm64
+      - run: docker manifest create localhost:5000/elecite-g-${{ matrix.micro-service }} --amend localhost:5000/elecite-g-${{ matrix.micro-service }}-x64 --amend localhost:5000/elecite-g-${{ matrix.micro-service }}-arm64
 
       - name: Push manifest
-      - run: docker manifest push localhost:5000/elecite-g-${{ env.MICRO_SERVICE }}
+      - run: docker manifest push localhost:5000/elecite-g-${{ matrix.micro-service }}
 
   stage:
     needs:

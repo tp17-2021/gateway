@@ -58,7 +58,7 @@ jobs:
         run: docker pull localhost:5000/electie-g-${{ matrix.micro-service }}-arm64
 
       - name: Join manifests
-        run: docker manifest create localhost:5000/electie-g-${{ matrix.micro-service }} --amend localhost:5000/electie-g-${{ matrix.micro-service }}-x64 --amend localhost:5000/electie-g-${{ matrix.micro-service }}-arm64
+        run: docker manifest create --insecure localhost:5000/electie-g-${{ matrix.micro-service }} --amend localhost:5000/electie-g-${{ matrix.micro-service }}-x64 --amend localhost:5000/electie-g-${{ matrix.micro-service }}-arm64
 
       - name: Push manifest
-        run: docker manifest push localhost:5000/electie-g-${{ matrix.micro-service }}
+        run: docker manifest push --insecure localhost:5000/electie-g-${{ matrix.micro-service }}

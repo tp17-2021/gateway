@@ -10,7 +10,8 @@ COPY ./src /code/src
 
 
 FROM base as test
-CMD [ "pytest", "-srP", "--verbose", "--asyncio-mode=strict", "--disable-pytest-warnings" ]
+COPY ./tests /code/tests
+CMD [ "pytest", "-srP", "--verbose", "--disable-pytest-warnings" ]
 
 
 FROM base as build

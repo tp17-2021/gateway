@@ -1,24 +1,34 @@
 import requests
 from fastapi.testclient import TestClient
-from src.main import app
 import src.database as db
 import datetime
 import time
+import pytest
+from unittest import mock
+import os
 
-client = TestClient(app)
+with mock.patch.dict(os.environ, os.environ):
+    from src.main import app
 
 
-def test_it_should_work_base_url():
+@pytest.fixture
+def client ():
+    with TestClient(app) as c:
+        yield c
+
+
+def test_it_should_work_base_url (client):
     response = client.get("/")
     assert response.status_code == 200
 
 
-def test_it_should_provide_statistics():
+# TODO toto by nemal byt post
+def test_it_should_provide_statistics (client):
     response = client.post("/statistics")
     assert response.status_code == 200
 
 
-def test_it_should_synchronize_with_server(mocker):
+def test_it_should_synchronize_with_server (client, mocker):
     # insert dummy vote
     db.collection.insert_many([{
         'vote': {},
@@ -55,15 +65,3 @@ def test_it_should_synchronize_with_server(mocker):
     response = client.post("/statistics")
     assert response.status_code == 200
     assert response.json()['statistics']['unsyncronized_count'] == 0
-
-
-def test_it_should_get_server_key_from_web ():
-    server_key = requests.get('http://web/statevector/server_key').text
-
-    assert "-----BEGIN PUBLIC KEY-----" in server_key
-
-
-def test_it_should_get_private_key_from_web ():
-    my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
-
-    assert "-----BEGIN RSA PRIVATE KEY-----" in my_private_key

@@ -26,8 +26,8 @@ jobs:
             statevector
 
       - name: Tests Docker-Compose
-        if: steps.changed_files.outputs.files_changed == 'true'
-        run: docker-compose --env-file statevector/test.env up --build --exit-code-from statevector --renew-anon-volumes --remove-orphans
+        if: steps.changed_files.outputs.files_changed == 'true' || true
+        run: docker-compose --env-file statevector/test.env up --build --exit-code-from statevector --renew-anon-volumes --force-recreate --remove-orphans
 
       - name: Clean up containers
         if: steps.changed_files.outputs.files_changed == 'true'
@@ -50,7 +50,7 @@ jobs:
 
       - name: Tests Docker-Compose
         if: steps.changed_files.outputs.files_changed == 'true'
-        run: docker-compose --env-file synchronization-service/test.env up --build --exit-code-from synchronization-service --renew-anon-volumes --remove-orphans
+        run: docker-compose --env-file synchronization-service/test.env up --build --exit-code-from synchronization-service --renew-anon-volumes --force-recreate --remove-orphans
 
       - name: Clean up containers
         if: steps.changed_files.outputs.files_changed == 'true'
@@ -73,7 +73,7 @@ jobs:
 
       - name: Tests Docker-Compose
         if: steps.changed_files.outputs.files_changed == 'true'
-        run: docker-compose --env-file token-manager/test.env up --build --exit-code-from token-manager --renew-anon-volumes --remove-orphans
+        run: docker-compose --env-file token-manager/test.env up --build --exit-code-from token-manager --renew-anon-volumes --force-recreate --remove-orphans
 
       - name: Clean up containers
         if: steps.changed_files.outputs.files_changed == 'true'
@@ -96,7 +96,7 @@ jobs:
 
       - name: Tests Docker-Compose
         if: steps.changed_files.outputs.files_changed == 'true'
-        run: docker-compose --env-file voting-process-manager/test.env up --build --exit-code-from voting-process-manager --renew-anon-volumes --remove-orphans
+        run: docker-compose --env-file voting-process-manager/test.env up --build --exit-code-from voting-process-manager --renew-anon-volumes --force-recreate --remove-orphans
 
       - name: Clean up containers
         if: steps.changed_files.outputs.files_changed == 'true'
@@ -119,7 +119,7 @@ jobs:
 
       - name: Tests Docker-Compose
         if: steps.changed_files.outputs.files_changed == 'true'
-        run: docker-compose --env-file voting-service/test.env up --build --exit-code-from voting-service --renew-anon-volumes --remove-orphans
+        run: docker-compose --env-file voting-service/test.env up --build --exit-code-from voting-service --renew-anon-volumes --force-recreate --remove-orphans
 
       - name: Clean up containers
         if: steps.changed_files.outputs.files_changed == 'true'

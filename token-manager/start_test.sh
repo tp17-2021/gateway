@@ -5,4 +5,9 @@ while ! nc -z web 80; do
     sleep 3;
 done;
 
-pytest test.py -rP --verbose
+while ! nc -z statevector 80; do
+    echo "Waiting for the statevector to start...";
+    sleep 3;
+done;
+
+pytest -rP --verbose --disable-pytest-warnings

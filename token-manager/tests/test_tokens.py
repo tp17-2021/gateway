@@ -1,21 +1,25 @@
 from fastapi.testclient import TestClient
-from src.main import app
 from unittest import mock
 import os
+import pytest
 
 with mock.patch.dict(os.environ, os.environ):
-    client = TestClient(app)
+    from src.main import app
 
 
-# pytest testing.py --verbose
+@pytest.fixture
+def client ():
+    with TestClient(app) as c:
+        with mock.patch.dict(os.environ, os.environ):
+            yield c
 
 
-def test_it_should_work_base_url():
+def test_it_should_work_base_url (client):
     response = client.get("/")
     assert response.status_code == 200
 
 
-def test_it_should_generate_valid_token():
+def test_it_should_generate_valid_token (client):
     #generate token
     response = client.post("/tokens/create")
     token = response.json()['token']
@@ -25,7 +29,7 @@ def test_it_should_generate_valid_token():
     assert response.status_code == 200
 
 
-def test_it_should_deactive_token():
+def test_it_should_deactive_token (client):
     #generate token
     response = client.post("/tokens/create")
     token = response.json()['token']

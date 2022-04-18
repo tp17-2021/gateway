@@ -8,9 +8,6 @@ import time
 client = TestClient(app)
 
 
-# pytest testing.py --verbose
-
-
 def test_it_should_work_base_url():
     response = client.get("/")
     assert response.status_code == 200
@@ -22,7 +19,6 @@ def test_it_should_provide_statistics():
 
 
 def test_it_should_synchronize_with_server(mocker):
-
     # insert dummy vote
     db.collection.insert_many([{
         'vote': {},
@@ -35,6 +31,8 @@ def test_it_should_synchronize_with_server(mocker):
     assert response.status_code == 200
     assert response.json()['statistics']['unsyncronized_count'] == 100
 
+    # TODO rozmysliet, ci mockovat celu funkciu, alebo ci vieme mockovat iba request
+    # tym padom by bol tento test silnejsi
     res = requests.Response()
     res.status_code = 200
     mocker.patch('src.main.send_unsychronized_votes', return_value=res)
@@ -59,20 +57,13 @@ def test_it_should_synchronize_with_server(mocker):
     assert response.json()['statistics']['unsyncronized_count'] == 0
 
 
-def test_it_should_get_server_key():
+def test_it_should_get_server_key_from_web ():
     server_key = requests.get('http://web/statevector/server_key').text
 
     assert "-----BEGIN PUBLIC KEY-----" in server_key
 
 
-def test_it_should_get_private_key():
+def test_it_should_get_private_key_from_web ():
     my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
 
     assert "-----BEGIN RSA PRIVATE KEY-----" in my_private_key
-
-
-
-def test_it_should_get_office_id():
-    office_id = int(requests.get('http://web/statevector/office_id').text)
-
-    assert office_id == 0

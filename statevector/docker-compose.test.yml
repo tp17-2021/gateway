@@ -3,6 +3,12 @@ version: "3.8"
 services:
   voting-service:
     build:
+      context: ./dummy
+      dockerfile: ./Dockerfile
+    restart: "no"
+
+  statevector:
+    build:
       target: test
     restart: "no"
 

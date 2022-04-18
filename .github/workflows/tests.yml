@@ -10,6 +10,29 @@ on:
   workflow_dispatch:
 
 jobs:
+  test-statevector:
+    name: Test Statevector
+    runs-on: [self-hosted, X64]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v2.1
+        with:
+          files: |
+            statevector
+
+      - name: Tests Docker-Compose
+        if: steps.changed_files.outputs.files_changed == 'true'
+        run: docker-compose --env-file statevector/test.env up --build --exit-code-from statevector --renew-anon-volumes --remove-orphans
+
+      - name: Clean up containers
+        if: steps.changed_files.outputs.files_changed == 'true'
+        run: docker-compose --env-file statevector/test.env down
+
   test-synchronization-service:
     name: Test Synchronization Service
     runs-on: [self-hosted, X64]
@@ -32,7 +55,7 @@ jobs:
       - name: Clean up containers
         if: steps.changed_files.outputs.files_changed == 'true'
         run: docker-compose --env-file synchronization-service/test.env down
-  
+
   test-token-manager:
     name: Test Token Manager
     runs-on: [self-hosted, X64]
@@ -105,6 +128,7 @@ jobs:
 
   stage:
     needs:
+      - test-statevector
       - test-synchronization-service
       - test-token-manager
       - test-voting-service

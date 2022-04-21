@@ -87,5 +87,5 @@ function synchronizeButton() {
 </div>
 
 <ButtonsContainer>
-    <Button on:click={synchronizeButton}>Synchronizovať</Button>
+    <Button type="primary" on:click={synchronizeButton}>Synchronizovať</Button>
 </ButtonsContainer>

@@ -102,9 +102,9 @@
 
 <ButtonsContainer>
     {#if terminalsRegistrationStatus === true }
-        <Button on:click={stopRegistrationButton}>Ukončiť registráciu</Button>
+        <Button type="error" on:click={stopRegistrationButton}>Ukončiť registráciu</Button>
     {:else}
-        <Button on:click={startRegistrationButton}>Spustiť registráciu</Button>
+        <Button type="primary" on:click={startRegistrationButton}>Spustiť registráciu</Button>
     {/if}
 </ButtonsContainer>
 

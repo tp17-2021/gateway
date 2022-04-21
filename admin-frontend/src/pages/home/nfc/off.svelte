@@ -41,5 +41,5 @@
 </div>
 
 <ButtonsContainer>
-    <Button on:click={startWriterButton}>Zapnúť zapisovačku</Button>
+    <Button type="primary" on:click={startWriterButton}>Zapnúť zapisovačku</Button>
 </ButtonsContainer>

@@ -44,6 +44,8 @@
     padding: 15px 10px;
 
     //margin-bottom: 0;
+
+
   }
 
   .small {
@@ -62,13 +64,27 @@
     background-color: var(--green);
     color: white;
     box-shadow: 0 2px 0 #002d18;
+    &:active {
+      background-color: var(--green);
+    }
+
+    &:hover, &:focus {
+      background-color: #204e2e;
+    }
   }
 
 
   .error {
     background-color: var(--red);
     color: white;
-    box-shadow: 0 2px 0 #929191;
+    box-shadow: 0 2px 0 #530a06;
+    &:active {
+      background-color: var(--red);
+    }
+
+    &:hover, &:focus {
+      background-color: #9e1912;
+    }
   }
 
   a {

@@ -186,9 +186,9 @@
     <Button on:click={() => addToPin("7")}>7</Button>
     <Button on:click={() => addToPin("8")}>8</Button>
     <Button on:click={() => addToPin("9")}>9</Button>
-    <Button on:click={() => clearPin()}>C</Button>
+    <Button type="error" on:click={() => clearPin()}>Zmazať</Button>
     <Button on:click={() => addToPin("0")}>0</Button>
-    <Button on:click={() => removeFromPin()}>&lt;</Button>
+    <Button  type="error" on:click={() => removeFromPin()}>&lt;</Button>
 </div>
 
 {#if redPin}

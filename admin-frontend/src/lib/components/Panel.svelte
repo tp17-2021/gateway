@@ -17,8 +17,7 @@
     }
 
     .govuk-panel--warning {
-        color: govuk-colour("white");
-        background: govuk-colour("orange");
+        background: govuk-colour("yellow");
     }
 
 </style>

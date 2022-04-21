@@ -103,9 +103,9 @@ function stopElectionButton() {
 
 <ButtonsContainer>
     {#if electionStatus === 1}
-        <Button on:click={stopElectionButton}>Ukončiť voľby</Button>
+        <Button type="error" on:click={stopElectionButton}>Ukončiť voľby</Button>
     {:else}
-        <Button on:click={startElectionButton}>Spustiť voľby</Button>
+        <Button type="primary" on:click={startElectionButton}>Spustiť voľby</Button>
     {/if}
 </ButtonsContainer>
 

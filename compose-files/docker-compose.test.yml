@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  voting-service:
+    restart: "no"
+    environment:
+      - VOTE_DB_PORT=27017
+      - VOTE_DB_HOST=gateway-db
+      - VOTE_DB_NAME=gateway-db
+      - VOTE_DB_COLLECTION=votes
+      - TOKEN_MANAGER_URL=http://token-manager
+      - ROOT_PATH=/voting-service-api
+      - KEYS_DB_HOST=gateway-db
+      - KEYS_DB_PORT=27017
+      - KEYS_DB_NAME=gateway-db
+      - KEYS_DB_COLLECTION=keys
+
+  synchronization-service:
+    restart: "no"
+    environment:
+      - VOTE_DB_PORT=27017
+      - VOTE_DB_HOST=gateway-db
+      - VOTE_DB_NAME=gateway-db
+      - VOTE_DB_COLLECTION=votes
+      - ROOT_PATH=/synchronization-service-api
+
+  voting-process-manager:
+    restart: "no"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - ROOT_PATH=/voting-process-manager-api
+      - KEYS_DB_HOST=gateway-db
+      - KEYS_DB_PORT=27017
+      - KEYS_DB_NAME=gateway-db
+      - KEYS_DB_COLLECTION=keys
+      - EVENTS_DB_NAME=gateway-db
+      - EVENTS_DB_COLLECTION=events
+
+  token-manager:
+    restart: "no"
+    environment:
+      - TOKEN_DB_PORT=27017
+      - TOKEN_DB_HOST=gateway-db
+      - TOKEN_DB_NAME=gateway-db
+      - TOKEN_DB_COLLECTION=token
+      - ROOT_PATH=/token-manager-api
+      - ACCEPT_VALID_TOKEN=1
+
+  statevector:
+    environment:
+      - ROOT_PATH=/statevector
+
+
+  token-writer:
+    build:
+      context: ./dummy
+      dockerfile: ./Dockerfile
+    restart: "no"
+
+  admin-frontend:
+    restart: "no"

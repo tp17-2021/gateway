@@ -1,0 +1,35 @@
+{
+    "status": "success",
+    "terminals": [
+        {
+            "id": "TEST_VT_ID",
+            "ip_address": "host.docker.internal:81",
+            "updated_at": null,
+            "status": null
+        },
+        {
+            "id": "0:316396",
+            "ip_address": "172.19.0.9",
+            "updated_at": "2022-03-22T08:13:29.348000",
+            "status": "disconnected"
+        },
+        {
+            "id": "0:821506",
+            "ip_address": "172.19.0.9",
+            "updated_at": "2022-03-22T08:31:36.122000",
+            "status": "disconnected"
+        },
+        {
+            "id": "0:052451",
+            "ip_address": "172.19.0.9",
+            "updated_at": "2022-03-22T08:31:32.370000",
+            "status": "waiting_for_scan"
+        },
+        {
+            "id": "0:518742",
+            "ip_address": "172.19.0.9",
+            "updated_at": "2022-03-22T09:05:05.751000",
+            "status": "elections_not_started"
+        }
+    ]
+}

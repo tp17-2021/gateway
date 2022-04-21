@@ -175,19 +175,33 @@ async def statistics () -> dict:
 @app.post('/seed')
 async def seed() -> dict:
     """ Insert 10 unsynced dummy votes into VOTE_DB """
-    
-    db.collection.insert_many([{
-        'vote': Vote(**{
-            'token': f'abcd_{datetime.datetime.now().timestamp()}_{random.randint(0, 100)}',
-            'election_id': 'election_id',
-            'party_id' : 0, 
-            'candidate_ids' : [
-                1, 2, 3
-            ]
-        }).__dict__,
-        'time_registered': datetime.datetime.now(),
-        'synchronized': False,
-    } for _ in range(10)])
+
+    for _ in range(10):
+
+        # generate token
+        response = requests.post('http://token-manager/tokens/create').json()
+        token = response['token']
+
+        # set token to written
+        resp = requests.post('http://token-manager/tokens/writter/update', {'token': token})
+
+        #insert vote
+        db.collection.insert_one({
+            'vote': Vote(**{
+                'token': token,
+                'election_id': 'election_id',
+                'party_id' : 0,
+                'candidate_ids' : [
+                    1, 2, 3
+                ]
+            }).__dict__,
+            'time_registered': datetime.datetime.now(),
+            'synchronized': False,
+        })
+
+        # deactivate token after insert vote
+        resp = requests.post('http://token-manager/tokens/deactivate', json={'token': token})
+        print(resp.text)
 
     return {
         'status': 'success',

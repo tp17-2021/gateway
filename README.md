@@ -3,6 +3,9 @@
 Whole Gateway can be started from this single repository with docker-compose.
 
 
+> ## NOTE!
+> Mongo DB volume name has been changed. Please, change the volume folder name from `vote-db-data` to `gateway-db-data`.
+
 ## Services and routing
 
 | Service | Path |
@@ -15,7 +18,7 @@ Whole Gateway can be started from this single repository with docker-compose.
 | _config.json_ | `/statevector/config/config.json` |
 | _datamodels.yaml_ | `/statevector/config/datamodels.yaml` |
 
-In default development environment Gateway exposes main `nginx proxy` on port `8080` and `vote-db` on port `8223`.
+In default development environment Gateway exposes main `nginx proxy` on port `8080` and `gateway-db` on port `8223`.
 
 
 ### Staging environment

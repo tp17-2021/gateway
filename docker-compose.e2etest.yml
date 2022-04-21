@@ -7,32 +7,32 @@ services:
       dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
-      - vote-db
+      - gateway-db
     environment:
       - VOTE_DB_PORT=27017
-      - VOTE_DB_HOST=vote-db
-      - VOTE_DB_DB_NAME=vote-db
+      - VOTE_DB_HOST=gateway-db
+      - VOTE_DB_NAME=gateway-db
       - VOTE_DB_COLLECTION=votes
       - ROOT_PATH=/voting-service-api
       - TOKEN_MANAGER_URL=http://token-manager
-      - KEYS_DB_HOST=vote-db
+      - KEYS_DB_HOST=gateway-db
       - KEYS_DB_PORT=27017
       - KEYS_DB_NAME=keys-db
       - KEYS_DB_COLLECTION=keys
-  
+
   synchronization-service:
     build:
       context: ./synchronization-service
       dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
-      - vote-db
+      - gateway-db
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
       - VOTE_DB_PORT=27017
-      - VOTE_DB_HOST=vote-db
-      - VOTE_DB_DB_NAME=vote-db
+      - VOTE_DB_HOST=gateway-db
+      - VOTE_DB_NAME=gateway-db
       - VOTE_DB_COLLECTION=votes
       - ROOT_PATH=/synchronization-service-api
 
@@ -43,7 +43,7 @@ services:
     restart: unless-stopped
     environment:
       - ROOT_PATH=/voting-process-manager-api
-      - KEYS_DB_HOST=vote-db
+      - KEYS_DB_HOST=gateway-db
       - KEYS_DB_PORT=27017
       - KEYS_DB_NAME=keys-db
       - KEYS_DB_COLLECTION=keys
@@ -54,26 +54,29 @@ services:
       dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
-      - vote-db
+      - gateway-db
     environment:
       - TOKEN_DB_PORT=27017
-      - TOKEN_DB_HOST=vote-db
-      - TOKEN_DB_DB_NAME=vote-db
+      - TOKEN_DB_HOST=gateway-db
+      - TOKEN_DB_NAME=gateway-db
       - TOKEN_DB_COLLECTION=tokens
       - ROOT_PATH=/token-manager-api
       - ACCEPT_VALID_TOKEN=0
 
 # useless for this purpose
-  # token-writer:
-  #   build:
-  #     context: ./token-writer
-  #     dockerfile: ./Dockerfile
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - token-manager
-  #   devices:
-  #   - /dev/usb/bus:/dev/usb/bus
-  #   privileged: true
+#   token-writer:
+#     build:
+#       context: ./token-writer
+#       dockerfile: ./Dockerfile
+#     restart: unless-stopped
+#     depends_on:
+#       - token-manager
+#     devices:
+#     - /dev/usb/bus:/dev/usb/bus
+#     privileged: true
+#     environment:
+#       - TOKEN_MANAGER_PATH=token-manager
+#       - STATEVECTOR_PATH=web/statevector
 
   statevector:
     build:
@@ -93,13 +96,13 @@ services:
       - voting-service
       - synchronization-service
       - token-manager
-      - vote-db
+      - gateway-db
       - admin-frontend
       - statevector
     ports:
       - "8080:80"
-    
-  vote-db:
+
+  gateway-db:
     image: mongo:4.4.13-rc0-focal
     restart: unless-stopped
     environment:

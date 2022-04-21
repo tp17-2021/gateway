@@ -11,6 +11,9 @@ state_election: int = 0
 state_write_lock = asyncio.Lock()
 state_write: int = 0
 
+state_register_terminals_lock = asyncio.Lock()
+state_register_terminals: int = 0
+
 office_id: int = 0
 pin: str = 'not set'
 server_key: str = 'not set'
@@ -20,7 +23,7 @@ server_address: str = 'not set'
 @app.on_event('startup')
 async def startup():
     global office_id, pin, server_key, server_address
-    
+
     # TODO - read from somwhere
     office_id = 0
     pin = '0000'
@@ -55,7 +58,7 @@ async def hello ():
 @app.get('/state_election')
 async def get_state_election ():
     """ Get election state string 0 or 1 """
-    
+
     global state_election, state_election_lock
 
     await state_election_lock.acquire()
@@ -119,6 +122,39 @@ async def set_state_write (
     state_write_lock.release()
 
     return {'message': 'Write state set to ' + state}
+
+@app.get('/state_register_terminals')
+async def state_register_terminals ():
+    """ Get terminals registration state string 0 or 1 """
+    global state_register_terminals, state_register_terminals_lock
+
+    await state_register_terminals_lock.acquire()
+    current_state = state_register_terminals
+    state_register_terminals_lock.release()
+
+    return current_state
+
+
+# TODO - restrict access
+@app.post('/state_register_terminals')
+async def set_state_register_terminals (
+    state: str = Body(
+        ...,
+        title='State',
+        description='State of register terminals. Value muste be one of 0 and 1.',
+        regex='^[01]$',
+        example='1',
+    )
+):
+    """ Set register terminals state string 0 or 1 """
+
+    global state_register_terminals, state_register_terminals_lock
+
+    await state_register_terminals_lock.acquire()
+    state_register_terminals = int(state)
+    state_register_terminals_lock.release()
+
+    return {'message': 'Register terminals state set to ' + state}
 
 
 @app.get('/office_id')

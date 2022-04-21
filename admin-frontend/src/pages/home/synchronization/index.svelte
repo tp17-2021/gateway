@@ -3,9 +3,7 @@ import {onDestroy, onMount} from 'svelte';
 import ButtonsContainer from "../../../lib/components/buttons/ButtonsContainer.svelte";
 import Button from "../../../lib/components/buttons/Button.svelte";
 import {synchronize, getSynchronizationStatus} from "../../../api/api";
-import * as dayjs from 'dayjs';
-import 'dayjs/locale/sk';
-dayjs.locale('sk')
+import dayjs from 'dayjs';
 
 let synchronizationStatus = {
     'statistics' : {}
@@ -89,5 +87,5 @@ function synchronizeButton() {
 </div>
 
 <ButtonsContainer>
-    <Button on:click={synchronizeButton}>Synchronizovať</Button>
+    <Button type="primary" on:click={synchronizeButton}>Synchronizovať</Button>
 </ButtonsContainer>

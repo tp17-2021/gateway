@@ -1,11 +1,12 @@
 import nest_asyncio
+import requests
 nest_asyncio.apply()
 __import__('IPython').embed()
 
 from fastapi.testclient import TestClient
 import pytest
 import motor
-from unittest import mock 
+from unittest import mock
 import os
 
 with mock.patch.dict(os.environ, os.environ):
@@ -32,6 +33,10 @@ def test_it_should_work_base_url():
 
 @pytest.mark.asyncio
 async def test_it_should_accept_new_vt():
+
+    # turn on registration
+    r = requests.post('http://web/statevector/state_register_terminals', '1')
+
     response = client.post("/register-vt", json={
         'public_key': 'PUBLIC_KEY'
     })
@@ -46,5 +51,17 @@ async def test_it_should_accept_new_vt():
         'public_key': 'PUBLIC_KEY',
     })
 
+    # turn off registration
+    r = requests.post('http://web/statevector/state_register_terminals', '0')
+
     assert count == 1, "VT not found in database"
+
+@pytest.mark.asyncio
+async def test_it_should_not_accept_new_vt():
+
+    response = client.post("/register-vt", json={
+        'public_key': 'PUBLIC_KEY'
+    })
+
+    assert response.status_code == 400, f'New vt vote should not be accepted: {response.text}'
 

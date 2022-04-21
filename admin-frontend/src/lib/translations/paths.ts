@@ -5,9 +5,12 @@ export const enToSkPaths = {
     "elections": "Voľby",
     "synchronization": "Synchronizácia",
     "nfc": "Obsluha NFC Tagov",
-    "status": "Stav volebných terminálov",
+    "terminals": "Volebné terminály",
     "reports": "Zápisnica",
     "contact": "Kontakt",
     "success": "Úspech",
     "error": "Chyba",
+    "consent": "Odsúhlasenie zápisnice",
+    "summary": "Finalizácia zápisnice",
+    "pdf": "Potvrdenie zápisnice",
 };

@@ -5,7 +5,7 @@ import random
 def main():
     # connect to mongoDB
     client = pymongo.MongoClient('127.0.0.1:8223')
-    db = client['vote-db']
+    db = client['gateway-db']
     collection = db['votes']
 
     collection.remove({})
@@ -20,7 +20,7 @@ def main():
                     },
                     {
                         "candidate_id" : str(random.randint(0, 10))
-                    }    
+                    }
                 ],
                 "party_id": str(random.randint(0, 10)),
                 "office_id": "1",

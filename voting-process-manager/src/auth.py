@@ -16,13 +16,15 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 10
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+password = '0000'
+password = requests.get('http://web/statevector/pin').text.replace('"', '')
+
 
 users_dictionary = {
     "admin": {
         "username": "admin",
         "full_name": "admin",
-        "hashed_password": pwd_context.hash('0000'),
-        #"hashed_password": pwd_context.hash(requests.get('http://web/statevector/pin')),
+        "hashed_password": pwd_context.hash(password),
     }
 }
 

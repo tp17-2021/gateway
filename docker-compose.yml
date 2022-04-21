@@ -7,21 +7,23 @@ services:
       dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
-      - vote-db
-  
+      - gateway-db
+
   synchronization-service:
     build:
       context: ./synchronization-service
       dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
-      - vote-db
+      - gateway-db
 
   voting-process-manager:
     build:
       context: ./voting-process-manager
       dockerfile: ./Dockerfile
     restart: unless-stopped
+    depends_on:
+      - statevector
 
   token-manager:
     build:
@@ -29,7 +31,7 @@ services:
       dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
-      - vote-db
+      - gateway-db
 
   token-writer:
     build:
@@ -38,8 +40,9 @@ services:
     restart: unless-stopped
     depends_on:
       - token-manager
+      - web
     devices:
-    - /dev/usb/bus:/dev/usb/bus
+    - /dev/bus/usb:/dev/bus/usb
     privileged: true
 
   statevector:
@@ -52,16 +55,17 @@ services:
     build:
       context: ./
       dockerfile: ./web/Dockerfile
+    restart: unless-stopped
     depends_on:
       - voting-process-manager
       - voting-service
       - synchronization-service
       - token-manager
-      - vote-db
+      - gateway-db
       - admin-frontend
       - statevector
-    
-  vote-db:
+
+  gateway-db:
     image: mongo:4.4.13-rc0-focal
     restart: unless-stopped
     environment:
@@ -69,6 +73,7 @@ services:
       - PGID=1000
 
   admin-frontend:
-      build:
-        context: ./admin-frontend
-        dockerfile: ./Dockerfile
+    build:
+      context: ./admin-frontend
+      dockerfile: ./Dockerfile
+    restart: unless-stopped

@@ -64,3 +64,21 @@ button:not(:disabled):active {
 button:focus {
 	border-color: #666;
 }
+
+:root {
+	--blue: #0065b3;
+	--yellow: #FFCE00;
+	--darkyellow: #f8a100;
+	--lightgray: #F3F2F1;
+	--green: #00703c;
+	--red: #D0190F;
+}
+
+hr {
+	border: 0;
+	clear:both;
+	display:block;
+	width: 100%;
+	background-color: #ccc;
+	height: 1px;
+}

@@ -7,5 +7,5 @@ client = pymongo.MongoClient(
 )
 
 collection = client\
-    [os.environ['VOTE_DB_DB_NAME']]\
+    [os.environ['VOTE_DB_NAME']]\
     [os.environ['VOTE_DB_COLLECTION']]

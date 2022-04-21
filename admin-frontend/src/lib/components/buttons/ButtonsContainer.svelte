@@ -5,7 +5,7 @@
 <style lang="scss">
   .buttons {
     display: flex;
-    gap: 10px;
+    gap: 0px;
     flex-direction: column;
     width: 100%;
   }

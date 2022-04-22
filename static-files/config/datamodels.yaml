@@ -15,6 +15,7 @@ components:
           type: array
           items:
             type: integer
+          maxItems: 5
     Vote:
       allOf:
         - $ref: '#/components/schemas/VotePartial'

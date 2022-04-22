@@ -126,7 +126,14 @@ async def delete_unwritten (
 async def update_written (token) -> dict:
     """Update NFC token state from unwritten to written"""
 
-    db.collection.update_one({'token': token} , { '$set' : { 'written' : True } })
+    db.collection.update_one({
+        'token': token
+    }, {
+        '$set' : {
+            'active': True,
+            'written' : True
+        }
+    })
 
     await app.sio.emit(
         'writer_status', {
@@ -160,7 +167,7 @@ async def create_token () -> dict:
     print(token)
     db.collection.insert_one({
         'token': token,
-        'active': True,
+        'active': False,
         'written': False,
         'created_at': datetime.datetime.now(),
     })

@@ -35,6 +35,7 @@ socket_manager = SocketManager(app=app)
 @app.sio.on('connect')
 async def ws_handle_join(sid, *args, **kwargs):
     print("WS VT connected", sid)
+    await send_state_to_terminals()
 
 @app.sio.on('disconnect')
 async def ws_handle_leave(sid, *args, **kwargs):
@@ -154,6 +155,11 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 async def current_user(current_user: User = Depends(get_current_active_user)):
     return current_user
 
+async def send_state_to_terminals():
+    if(src.helper.check_election_state_running()):
+        return await notify_voting_terminals('start')
+    else :
+        return await notify_voting_terminals('stop')
 
 @app.post('/start')
 async def start_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
@@ -167,7 +173,7 @@ async def start_voting_process (current_user: User = Depends(get_current_active_
 
     requests.post('http://statevector/state_election', json='1')
 
-    notify_status = await notify_voting_terminals('start')
+    notify_status = await send_state_to_terminals()
 
     # insert election started event
     await db.events_collection.insert_one({
@@ -202,7 +208,7 @@ async def end_voting_process (current_user: User = Depends(get_current_active_us
         'created_at': datetime.now()
     })
 
-    notify_status = await notify_voting_terminals('end')
+    notify_status = await send_state_to_terminals()
     return {
         'status': 'success',
         'success_terminals' : notify_status['success'],

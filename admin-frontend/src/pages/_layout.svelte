@@ -6,6 +6,7 @@ import {gatewayConfigLoaded, jwt} from "../lib/stores";
 import axios from "axios";
 import {goto, url} from "@roxi/routify";
 import {currentUrl} from "../lib/currentUrlStore";
+import KeyboardFiller from "../lib/components/KeyboardFiller.svelte";
 
 // Add a 401 response interceptor
 axios.interceptors.response.use((response) => response, (error) => {

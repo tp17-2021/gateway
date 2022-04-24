@@ -1,5 +1,6 @@
 <script lang="ts">
     export let value: any;
+    export let id: string;
 </script>
 
 <style>
@@ -10,4 +11,6 @@
 
 </style>
 
-<input bind:value on:keydown>
+<input bind:value on:keydown {id}>
+
+<!--{JSON.stringify(value, null, 2)}-->

@@ -82,3 +82,9 @@ hr {
 	background-color: #ccc;
 	height: 1px;
 }
+
+.kioskboard-row-dynamic .kioskboard-key {
+	max-width: 7.25% !important;
+
+}
+

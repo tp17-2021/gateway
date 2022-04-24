@@ -15,3 +15,4 @@ export const report = writable({
     },
     participated_members: [],
 })
+

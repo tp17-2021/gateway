@@ -47,9 +47,9 @@ async def send_unsychronized_votes(items) -> requests.Response:
         encrypted_votes.append(encrypted_vote.__dict__)
 
     server_address = requests.get('http://web/statevector/server_address').text.replace('"', '')
-    
+
     server_synch_endpoint = server_address + '/elections/vote'
-    
+
     print('Sending data to', server_synch_endpoint)
     response = requests.post(server_synch_endpoint, json={
         'polling_place_id': int(
@@ -57,12 +57,12 @@ async def send_unsychronized_votes(items) -> requests.Response:
         ),
         'votes': encrypted_votes,
     })
-    
+
     return response
 
 
 def update_unsychronized_votes(votes) -> int:
-    
+
     ids = [vote['_id'] for vote in votes]
 
     result = db.collection.update_many(
@@ -80,7 +80,7 @@ async def synchronize_votes() -> None:
         erorrs_count = 0
         # get unsynchronized votes
         items = get_unsychronized_votes()
-        
+
         while items and erorrs_count < 2:
             # send unsynchronized votes to server
             try:
@@ -88,18 +88,16 @@ async def synchronize_votes() -> None:
                 last_synchronization = datetime.datetime.now()
                 print(server_response.text)
                 server_response.raise_for_status()
-            
-            
+
                 # update synchronized votes on gateway
                 updated_count = update_unsychronized_votes(items)
                 print('Updated', updated_count)
                 last_success_synchronization = datetime.datetime.now()
                 erorrs_count = 0
-        
+
             except requests.exceptions.HTTPError as err:
                 print('Error 2', str(err))
                 erorrs_count += 1
-                # todo log the error
 
             # repeat until no unsynchronized votes
             print('Gettings remaining votes', datetime.datetime.now())
@@ -107,7 +105,6 @@ async def synchronize_votes() -> None:
 
     except Exception as err:
         print('Error 1', str(err))
-        # todo log the error
     finally:
         lock.release()
 
@@ -120,7 +117,7 @@ async def start_synchronization() -> None:
         await synchronize_votes()
 
 
-def get_statistics() -> dict: 
+def get_statistics() -> dict:
     return {
         'all_count' : db.collection.count_documents( {} ),
         'syncronized_count' : db.collection.count_documents( { 'synchronized' : True } ),
@@ -140,7 +137,7 @@ async def root () -> dict:
 
 @app.post('/synchronize')
 async def synchronize () -> dict:
-    """Synchronize local votes with server"""
+    """Starts synchronization of local votes with server in background"""
 
     if not lock.locked():
         await synchronize_votes()
@@ -148,7 +145,7 @@ async def synchronize () -> dict:
             'status': 'success',
             'message': 'Synchronization started'
         }
-    
+
     return {
         'status': 'success',
         'message': 'Synchronization already started'
@@ -158,23 +155,24 @@ async def synchronize () -> dict:
 @app.post('/statistics')
 async def statistics () -> dict:
     """Get current statistics of sychnonization of local votes"""
-    
+
     global last_synchronization, last_success_synchronization
 
     return {
         'status': 'success',
         'last_synchronization': last_synchronization,
         'last_success_synchronization': last_success_synchronization,
-        'statistics': get_statistics() 
+        'statistics': get_statistics()
     }
 
 
-
-# Some testing endpoints follow
+#
+# Some testing endpoints
+#
 
 @app.post('/seed')
 async def seed() -> dict:
-    """ Insert 10 unsynced dummy votes into VOTE_DB """
+    """ Insert 10 unsynced dummy votes into gataway local gatabase """
 
     for _ in range(10):
 
@@ -211,12 +209,12 @@ async def seed() -> dict:
 @app.get('/test-encrypt')
 async def test_encrypt() -> dict:
     """ Get a batch of encrypted votes """
-    
+
     items = get_unsychronized_votes()
-    
+
     server_key = requests.get('http://web/statevector/server_key').text.replace('"', '').replace('\\n', '\n')
     my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
-    
+
     print('Server key', server_key)
     print('My private key', my_private_key)
 

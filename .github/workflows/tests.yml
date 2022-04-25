@@ -118,4 +118,4 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Docker-Compose
-        run: docker-compose --env-file stage.env up -d --build
+        run: docker-compose --env-file stage.env up -d --build --force-recreate --renew-anon-volumes

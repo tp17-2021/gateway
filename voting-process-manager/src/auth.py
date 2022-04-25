@@ -38,6 +38,7 @@ class TokenData(BaseModel):
 class User(BaseModel):
     username: str
     disabled: Optional[bool] = None
+
 class UserInDB(User):
     hashed_password: str
 

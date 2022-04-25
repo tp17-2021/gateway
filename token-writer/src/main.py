@@ -9,7 +9,7 @@ async def delete_unwritten_tokens():
     while True:
         try:
             requests.post(
-                f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/writter/delete',
+                f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/writer/delete',
                 json={'event': 'restart'}
             )
             break
@@ -79,11 +79,11 @@ async def main():
             last_write_time = time.time()
             params = {'token': token}
             asyncio.ensure_future(w.blink_led(10))
-            requests.post(f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/writter/update', params=params)
+            requests.post(f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/writer/update', json=params)
 
         else:
             requests.post(
-                f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/writter/delete',
+                f'http://{os.environ["TOKEN_MANAGER_PATH"]}/tokens/writer/delete',
                 json={'event': 'write_error'}
             )
             continue

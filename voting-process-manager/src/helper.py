@@ -12,16 +12,17 @@ import src.database as db
 def get_office_id():
     return requests.get('http://web/statevector/office_id').text
 
+
 def check_election_state_running() -> bool:
     r = requests.get('http://web/statevector/state_election').text
 
     return r == '1'
 
-
 def check_terminals_regitration_running() -> bool:
     r = requests.get('http://web/statevector/state_register_terminals').text
 
     return r == '1'
+
 
 async def get_terminals() -> list[dict[str, str]]:
     return await db.keys_collection.find().to_list(None)
@@ -130,6 +131,7 @@ async def get_party_votes(parties, polling_place):
         parties_tmp[party_id] += f"\t{votes_percentage}"
 
     return parties_tmp
+
 
 async def fill_table_parties(parties, polling_place):
     data = []

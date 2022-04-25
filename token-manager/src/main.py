@@ -51,10 +51,10 @@ async def root () -> dict:
     }
 
 
-@app.post('/tokens/writter/activate')
+@app.post('/tokens/writer/activate')
 async def activate_state () -> dict:
     """
-    Activate NFC writter machine. After turning on, machine's led will turn on
+    Activate NFC writer machine. After turning on, machine's led will turn on
     and be able to write data to NFC tokens.
     """
     requests.post('http://statevector/state_write', json='1')
@@ -67,14 +67,14 @@ async def activate_state () -> dict:
 
     return {
         'status': 'success',
-        'message': 'NFC writter machine was activated.'
+        'message': 'NFC writer machine was activated.'
     }
 
 
-@app.post('/tokens/writter/deactivate')
+@app.post('/tokens/writer/deactivate')
 async def deactivate_state () -> dict:
     """
-    Deactivate NFC writter machine. 1 NFC token lefts to be activated, after
+    Deactivate NFC writer machine. 1 NFC token lefts to be activated, after
     that NFC wrtter machine will turn off and not be able to write any kind
     of data to NFC token.
     """
@@ -89,18 +89,18 @@ async def deactivate_state () -> dict:
 
     return {
         'status': 'success',
-        'message': 'NFC writter machine was deactivated.'
+        'message': 'NFC writer machine was deactivated.'
     }
 
 
-@app.post('/tokens/writter/delete')
+@app.post('/tokens/writer/delete')
 async def delete_unwritten (
     event: str=Body(..., example='restart', embed=True)
 ) -> dict:
     """Delete unwritten NFC tokens from database"""
-        
+
     db.collection.delete_many({'written': False})
-        
+
     if event == 'write_error':
         await app.sio.emit(
             'writer_status', {
@@ -122,8 +122,8 @@ async def delete_unwritten (
     }
 
 
-@app.post('/tokens/writter/update')
-async def update_written (token) -> dict:
+@app.post('/tokens/writer/update')
+async def update_written (token: str = Body(..., embed=True)) -> dict:
     """Update NFC token state from unwritten to written"""
 
     db.collection.update_one({

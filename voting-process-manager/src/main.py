@@ -32,15 +32,21 @@ app = FastAPI(root_path=os.environ['ROOT_PATH'])
 keys_db_lock = asyncio.Lock()
 socket_manager = SocketManager(app=app)
 
+#
+# Websockets functions and events
+#
+
 @app.sio.on('connect')
 async def ws_handle_join(sid, *args, **kwargs):
     print("WS VT connected", sid)
     await send_state_to_terminals()
 
+
 @app.sio.on('disconnect')
 async def ws_handle_leave(sid, *args, **kwargs):
     print("WS VT disconnected", sid)
     update_terminal_status(sid, 'disconnected')
+
 
 @app.sio.on('vt_stauts')
 async def ws_handle_vt_stauts(sid, *args, **kwargs):
@@ -52,12 +58,17 @@ async def ws_handle_vt_stauts(sid, *args, **kwargs):
     update_terminal_status(sid, terminal_status)
     print('WS vt_status', sid)
 
+#
+# Websockets functions and events END
+#
 
 def update_terminal_status(terminal_sid, terminal_status):
     db.keys_collection.update_one({'terminal_sid': terminal_sid} , { '$set' : { 'status' : terminal_status, 'updated_at' : datetime.now() } })
 
+
 def set_terminal_sid(terminal_id, terminal_sid):
     db.keys_collection.update_one({'_id': terminal_id} , { '$set' : { 'terminal_sid' : terminal_sid } })
+
 
 async def notify_voting_terminals(status) -> dict[str, list[str]]:
     success_arr = []
@@ -135,8 +146,11 @@ async def terminals_status (current_user: User = Depends(get_current_active_user
         'terminals': terminals_transformed
     }
 
+
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    """ Log in user using username and password """
+
     user = authenticate_user(users_dictionary, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -155,11 +169,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 async def current_user(current_user: User = Depends(get_current_active_user)):
     return current_user
 
+
 async def send_state_to_terminals():
     if(src.helper.check_election_state_running()):
         return await notify_voting_terminals('start')
     else :
         return await notify_voting_terminals('stop')
+
 
 @app.post('/start')
 async def start_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
@@ -253,6 +269,7 @@ async def register_vt (
         'gateway_public_key': my_public_key,
     }
 
+
 @app.get('/gateway-elections-events')
 async def gateway_events (current_user: User = Depends(get_current_active_user)) -> dict:
     """Get gateway events"""
@@ -264,6 +281,7 @@ async def gateway_events (current_user: User = Depends(get_current_active_user))
         'status': 'success',
         'events' : events,
     }
+
 
 @app.get('/gateway-elections-events/first-start')
 async def get_first_start (current_user: User = Depends(get_current_active_user)) -> dict:
@@ -277,6 +295,7 @@ async def get_first_start (current_user: User = Depends(get_current_active_user)
         'status': 'success',
         'first_start' : start,
     }
+
 
 @app.get('/gateway-elections-events/last-end')
 async def get_last_end (current_user: User = Depends(get_current_active_user)) -> dict:
@@ -298,7 +317,7 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
     """
     Generate commission paper in pdf format encoded in base64 and store it into database
     """
-    
+
     parties, candidates, polling_place = src.helper.get_config()
 
     registered_voters_count = str(polling_place["registered_voters_count"])
@@ -316,7 +335,7 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
 
     # date_and_time = time.strftime("%d.%m.%Y %H:%M:%S")
     date_and_time = str(datetime.now())
-    
+
     date = time.strftime("%d.%m.%Y")
 
     with open("src/template.md", "r", encoding="utf-8") as file:
@@ -356,6 +375,7 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
             'status': 'success',
             'message': 'Commission paper was successfully generated.'
         }
+
 
 @app.get('/commission-paper')
 async def get_commission_paper():
@@ -404,10 +424,10 @@ async def send_commission_paper():
 
     # fiit server
     response = requests.post("https://team17-21.studenti.fiit.stuba.sk/server/database/commission-paper", headers=headers, json=payload)
-    
+
     # local server
     # response = requests.post("http://host.docker.internal:8222/database/commission-paper", headers=headers, json=payload)
-    
+
     if response.status_code == 200:
         return {
             'status': 'success',

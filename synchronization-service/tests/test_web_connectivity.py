@@ -1,28 +1,34 @@
 import requests
 from fastapi.testclient import TestClient
-from src.main import app
 import src.database as db
 import datetime
 import time
+import pytest
+from unittest import mock
+import os
 
-client = TestClient(app)
+with mock.patch.dict(os.environ, os.environ):
+    from src.main import app
 
 
-# pytest testing.py --verbose
+@pytest.fixture
+def client ():
+    with TestClient(app) as c:
+        yield c
 
 
-def test_it_should_work_base_url():
+def test_it_should_work_base_url (client):
     response = client.get("/")
     assert response.status_code == 200
 
 
-def test_it_should_provide_statistics():
+# TODO toto by nemal byt post
+def test_it_should_provide_statistics (client):
     response = client.post("/statistics")
     assert response.status_code == 200
 
 
-def test_it_should_synchronize_with_server(mocker):
-
+def test_it_should_synchronize_with_server (client, mocker):
     # insert dummy vote
     db.collection.insert_many([{
         'vote': {},
@@ -35,6 +41,8 @@ def test_it_should_synchronize_with_server(mocker):
     assert response.status_code == 200
     assert response.json()['statistics']['unsyncronized_count'] == 100
 
+    # TODO rozmysliet, ci mockovat celu funkciu, alebo ci vieme mockovat iba request
+    # tym padom by bol tento test silnejsi
     res = requests.Response()
     res.status_code = 200
     mocker.patch('src.main.send_unsychronized_votes', return_value=res)
@@ -57,22 +65,3 @@ def test_it_should_synchronize_with_server(mocker):
     response = client.post("/statistics")
     assert response.status_code == 200
     assert response.json()['statistics']['unsyncronized_count'] == 0
-
-
-def test_it_should_get_server_key():
-    server_key = requests.get('http://web/statevector/server_key').text
-
-    assert "-----BEGIN PUBLIC KEY-----" in server_key
-
-
-def test_it_should_get_private_key():
-    my_private_key = requests.get('http://web/temporary_key_location/private_key.txt').text
-
-    assert "-----BEGIN RSA PRIVATE KEY-----" in my_private_key
-
-
-
-def test_it_should_get_office_id():
-    office_id = int(requests.get('http://web/statevector/office_id').text)
-
-    assert office_id == 0

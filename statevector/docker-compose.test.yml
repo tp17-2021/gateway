@@ -1,37 +1,15 @@
 version: "3.8"
 
 services:
-  voting-service:
+  statevector:
     build:
+      context: .
+      dockerfile: ./Dockerfile
       target: test
     restart: "no"
-
-  synchronization-service:
-    build:
-      context: ./dummy
-      dockerfile: ./Dockerfile
-    restart: "no"
-
-  voting-process-manager:
-    build:
-      context: ./dummy
-      dockerfile: ./Dockerfile
-    restart: "no"
-
-  admin-frontend:
-    build:
-      context: ./dummy
-      dockerfile: ./Dockerfile
-    restart: "no"
-
-  token-manager:
-    build:
-      context: ./dummy
-      dockerfile: ./Dockerfile
-    restart: "no"
-
-  token-writer:
-    build:
-      context: ./dummy
-      dockerfile: ./Dockerfile
-    restart: "no"
+    environment:
+      - ROOT_PATH=
+      - SET_OFFICE_ID=42
+      - SET_PIN=4242
+      - SET_SERVER_ADDRESS=https://test.com
+      - SET_SERVER_KEY=-----BEGIN PUBLIC KEY-----\ntest\n-----END PUBLIC KEY-----

@@ -58,7 +58,9 @@ def get_public_key():
     return key
 
 
-def get_config():
+def get_config() -> tuple:
+    """ Get config and return parties, candidates, polling_place """
+
     polling_place_id = int(get_office_id())
 
     response = requests.get("http://web/statevector/config/config.json")
@@ -75,8 +77,10 @@ def get_config():
     return parties, candidates, polling_place
 
 
-def fill_table_polling_place(polling_place):
-    with open("src/table_polling_place.html", "r", encoding="utf-8") as file:
+def fill_table_polling_place(polling_place: dict) -> str:
+    """ Fill and return table polling place with provided data """
+
+    with open("src/tables/table_polling_place.html", "r", encoding="utf-8") as file:
         table = file.read()
         table = re.sub(r"region_code", str(polling_place["region_code"]), table)
         table = re.sub(r"county_code", str(polling_place["county_code"]), table)
@@ -85,28 +89,35 @@ def fill_table_polling_place(polling_place):
         return table
 
 
-def fill_table_president(president):
+def fill_table_president(president) -> str:
+    print(type(president))
+    """ Fill and return table president with provided data """
+
     table_row = f'<tr><td style="text-align:left">{president.name}</td><td>{"áno" if president.agree else "nie"}</td></tr>'
 
-    with open("src/table_president.html", "r", encoding="utf-8") as file:
+    with open("src/tables/table_president.html", "r", encoding="utf-8") as file:
         table = file.read()
         table = re.sub(r"table_row", table_row, table)
         return table
 
 
-def fill_table_members(members):
+def fill_table_members(members) -> str:
+    """ Fill and return table members with provided data """
+
     table_rows = []
     for member in members:
         tr = f'<tr><td style="text-align:left">{member.name}</td><td>{"áno" if member.agree else "nie"}</td></tr>'
         table_rows.append(tr)
 
-    with open("src/table_members.html", "r", encoding="utf-8") as file:
+    with open("src/tables/table_members.html", "r", encoding="utf-8") as file:
         table = file.read()
         table = re.sub(r"table_rows", "".join(table_rows), table)
         return table
 
 
-async def get_party_votes(parties, polling_place):
+async def get_party_votes(parties: dict, polling_place: dict) -> dict:
+    """ Return all parties with their vote count """
+
     pipeline = [
         {"$group" : {"_id":"$vote.party_id", "count":{"$sum":1}}},
         {"$sort":{"_id":1}}
@@ -133,7 +144,9 @@ async def get_party_votes(parties, polling_place):
     return parties_tmp
 
 
-async def fill_table_parties(parties, polling_place):
+async def fill_table_parties(parties: dict, polling_place: dict) -> str:
+    """ Fill and return table parties with provided data """
+
     data = []
     result = await get_party_votes(parties, polling_place)
     for party_id in result:
@@ -150,13 +163,15 @@ async def fill_table_parties(parties, polling_place):
         tr = f'<tr><td><div style="width: 80px">{party["order"]}</div></td><td style="text-align:left"><div style="width: 420px">{party["name"]}</div></td><td><div style="width: 75px">{party["votes_count"]}</div></td><td><div style="width: 90px">{format(float(party["votes_percentage"]), ".2f")}</div></td></tr>'
         table_rows.append(tr)
 
-    with open("src/table_parties.html", "r", encoding="utf-8") as file:
+    with open("src/tables/table_parties.html", "r", encoding="utf-8") as file:
         text = file.read()
         text = re.sub(r"table_rows", "".join(table_rows), text)
         return text
 
 
-async def get_candidate_votes(parties, candidates, polling_place):
+async def get_candidate_votes(parties: dict, candidates: dict, polling_place: dict) -> dict:
+    """ Return all candidates with their vote count """
+
     pipeline = [
         {"$unwind": "$vote.candidate_ids"},
         {"$group" : {"_id":"$vote.candidate_ids", "count":{"$sum":1}}}
@@ -189,19 +204,23 @@ async def get_candidate_votes(parties, candidates, polling_place):
     return party_names
 
 
-def replace_header_candidates(candidates):
+def replace_header_candidates(candidates: dict) -> str:
+    """ Replace header in table candidates and then return modified table """
+    
     table_rows = []
     for candidate in candidates:
         tr = f'<tr><td><div style="width: 80px">{candidate["order"]}</div></td><td style="text-align:left"><div style="width: 420px">{candidate["name"]}</div></td><td><div style="width: 75px">{candidate["votes_count"]}</div></td><td><div style="width: 90px">{format(candidate["votes_percentage"], ".2f")}</div></td></tr>'
         table_rows.append(tr)
 
-    with open("src/table_candidates.html", "r", encoding="utf-8") as file:
+    with open("src/tables/table_candidates.html", "r", encoding="utf-8") as file:
         text = file.read()
         text = re.sub(r"table_rows", "".join(table_rows), text)
         return text
 
 
-async def fill_table_candidates(parties, candidates, polling_place):
+async def fill_table_candidates(parties: dict, candidates: dict, polling_place: dict) -> str:
+    """ Fill and return table candidates with provided data """
+
     table_candidates = ""
     result = await get_candidate_votes(parties, candidates, polling_place)
     for party_name in result:
@@ -223,18 +242,21 @@ async def fill_table_candidates(parties, candidates, polling_place):
 
         c = replace_header_candidates(data)
         table_candidates += f"{c}\n"
-        # return table_candidates # delete this line when done
 
     return table_candidates
 
 
-async def get_events():
+async def get_events() -> list:
+    """ Get all events """
+
     query = db.events_collection.find({'action': {'$in': ['elections_started', 'elections_stopped']}}, {'_id': 0}).sort('created_at', -1)
     events = [i async for i in query]
     return events
 
 
 async def fill_table_events():
+    """ Fiil and return table events """
+    
     events = await get_events()
 
     table_rows = []
@@ -242,7 +264,7 @@ async def fill_table_events():
         tr = f'<tr><td>{"spustenie volieb" if event["action"] == "elections_started" else "ukončenie volieb"}</td><td>{event["created_at"]}</td></tr>'
         table_rows.append(tr)
 
-    with open("src/table_events.html", "r", encoding="utf-8") as file:
+    with open("src/tables/table_events.html", "r", encoding="utf-8") as file:
         table = file.read()
         table = re.sub(r"table_rows", "".join(table_rows), table)
         return table

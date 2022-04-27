@@ -88,13 +88,13 @@ export async function stopRegistration() {
  */
 
 export async function startWriter() {
-    console.log(url("/../token-manager-api/tokens/writter/activate"))
-    return await axios.post(url("/../token-manager-api/tokens/writter/activate"))
+    console.log(url("/../token-manager-api/tokens/writer/activate"))
+    return await axios.post(url("/../token-manager-api/tokens/writer/activate"))
 }
 
 
 export async function stopWriter() {
-    return axios.post(url("/../token-manager-api/tokens/writter/deactivate"))
+    return axios.post(url("/../token-manager-api/tokens/writer/deactivate"))
 }
 
 /**

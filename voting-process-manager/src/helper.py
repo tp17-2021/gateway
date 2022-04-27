@@ -126,7 +126,8 @@ async def get_party_votes(parties: dict, polling_place: dict) -> dict:
     voted_parties = {}
     results = [result async for result in db.keys_client['gateway-db']['votes'].aggregate(pipeline)]
     for result in results:
-        voted_parties[int(result["_id"])] = result["count"]
+        if result["_id"]:
+           voted_parties[int(result["_id"])] = result["count"]
 
     parties_tmp = parties.copy()
     for party_id in parties_tmp:
@@ -144,18 +145,27 @@ async def get_party_votes(parties: dict, polling_place: dict) -> dict:
     return parties_tmp
 
 
-async def fill_table_parties(parties: dict, polling_place: dict) -> str:
+async def fill_table_parties(parties: dict, polling_place: dict, all_votes_for_parties_count: int) -> str:
     """ Fill and return table parties with provided data """
 
     data = []
     result = await get_party_votes(parties, polling_place)
     for party_id in result:
-        name, votes_count, votes_percentage = result[party_id].split("\t")
+        name, votes_count, _ = result[party_id].split("\t")
+        print(all_votes_for_parties_count)
+        print("="*80)
+        if all_votes_for_parties_count:
+            votes_percentage = int(votes_count) / all_votes_for_parties_count
+        else:
+            votes_percentage = 0
+
+        votes_percentage = str(round(votes_percentage * 100, 2))
+
         data.append({
             "order": party_id+1,
             "name": name,
             "votes_count": votes_count,
-            "votes_percentage": votes_percentage
+            "votes_percentage": votes_percentage,
         })
 
     table_rows = []

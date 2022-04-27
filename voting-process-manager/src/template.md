@@ -33,13 +33,13 @@ Počet a podiel získaných hlasov pre každú politickú stranu, politické hnu
 
 TABLE_PARTIES
 
-## IV.
+<!-- ## IV.
 
 Počet a podiel získaných hlasov pre každého kandidáta:
 
-TABLE_CANDIDATES
+TABLE_CANDIDATES -->
 
-## V.
+## IV.
 
 V miestnej volebnej komisie bolo prítomných PARTICIPATED_MEMBERS_COUNT členov.
 
@@ -53,13 +53,13 @@ TABLE_PRESIDENT
 
 TABLE_MEMBERS
 
-## VI.
+## V.
 
 Zoznam akcií týkajúcich sa spustenia alebo ukočenia volieb v miestnej volebnej miestnosti:
 
 TABLE_EVENTS
 
-## VII.
+## VI.
 
 <table class="borderless">
   <tr>

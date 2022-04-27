@@ -325,8 +325,9 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
     participated_voters_percentage = format(round(int(participated_voters_count) / int(registered_voters_count), 2), ".2f")
 
     table_polling_place = src.helper.fill_table_polling_place(polling_place)
-    table_parties = await src.helper.fill_table_parties(parties, polling_place)
-    table_candidates = await src.helper.fill_table_candidates(parties, candidates, polling_place)
+    all_votes_for_parties_count = await db.keys_client['gateway-db']['votes'].count_documents({'vote.party_id':{'$ne': None}})
+    table_parties = await src.helper.fill_table_parties(parties, polling_place, all_votes_for_parties_count)
+    # table_candidates = await src.helper.fill_table_candidates(parties, candidates, polling_place)
 
     participated_members = str(len(request.participated_members)+1)
     table_president = src.helper.fill_table_president(request.president)
@@ -345,7 +346,7 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
         text = re.sub(r"PARTICIPATED_VOTERS_PERCENTAGE", participated_voters_percentage, text)
         text = re.sub(r"TABLE_POLLING_PLACE", table_polling_place, text)
         text = re.sub(r"TABLE_PARTIES", table_parties, text)
-        text = re.sub(r"TABLE_CANDIDATES", table_candidates, text)
+        # text = re.sub(r"TABLE_CANDIDATES", table_candidates, text)
         text = re.sub(r"PARTICIPATED_MEMBERS_COUNT", participated_members, text)
         text = re.sub(r"TABLE_PRESIDENT", table_president, text)
         text = re.sub(r"TABLE_MEMBERS", table_members, text)

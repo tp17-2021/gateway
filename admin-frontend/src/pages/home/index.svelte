@@ -21,13 +21,18 @@
 
 <h1>Domov</h1>
 
+<div style="margin-bottom: 4rem;">
+    <ButtonsContainer gapSize="large">
+        <Button size="medium" href={$url('/home/elections')}>Voľby</Button>
+        <Button size="medium" href={$url('/home/nfc')}>Obsluha NFC tagov</Button>
+        <Button size="medium" href={$url('/home/synchronization')}>Synchronizácia</Button>
+        <Button size="medium" href={$url('/home/terminals')}>Volebné terminaly</Button>
+        <Button size="medium" href={$url('/home/reports')}>Zápisnica</Button>
+        <Button size="medium" href={$url('/home/contact')}>Kontakt</Button>
+    </ButtonsContainer>
+</div>
+
 <ButtonsContainer>
-    <Button href={$url('/home/elections')}>Voľby</Button>
-    <Button href={$url('/home/nfc')}>Obsluha NFC tagov</Button>
-    <Button href={$url('/home/synchronization')}>Synchronizácia</Button>
-    <Button href={$url('/home/terminals')}>Volebné terminaly</Button>
-    <Button href={$url('/home/reports')}>Zápisnica</Button>
-    <Button href={$url('/home/contact')}>Kontakt</Button>
-    <Button type="error" on:click={()=>logout()}>Odhlásiť sa</Button>
+    <Button size="medium" type="error" on:click={()=>logout()}>Odhlásiť sa</Button>
 </ButtonsContainer>
 

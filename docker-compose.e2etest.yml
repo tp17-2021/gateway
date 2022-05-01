@@ -43,6 +43,8 @@ services:
     restart: unless-stopped
     environment:
       - ROOT_PATH=/voting-process-manager-api
+      - EVENTS_DB_NAME=gateway-db
+      - EVENTS_DB_COLLECTION=events
       - KEYS_DB_HOST=gateway-db
       - KEYS_DB_PORT=27017
       - KEYS_DB_NAME=keys-db

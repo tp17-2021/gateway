@@ -70,3 +70,35 @@ DELETE /tokens/delete
 ```
 #### Response
 If token is invalid returns empty response with status `403` else status `200`.
+
+### Activate NFC writer
+Activate NFC writer machine. After turning on, machine's led will turn on and be able to write data to NFC tokens.
+
+```http
+POST /tokens/writer/activate
+```
+
+### Dectivate NFC writer
+Deactivate NFC writer machine. Led on machine will turn off.
+
+```http
+POST /tokens/writer/deactivate
+```
+
+### Delete unwritten tokens
+Delete unwritten NFC tokens from database.
+
+```http
+POST /tokens/writer/delete
+```
+
+### Update written token
+Update NFC token state from unwritten to written
+
+```http
+POST /tokens/writer/update
+```
+```json
+{
+    "token": "token"
+}

@@ -2,7 +2,7 @@
 
 Service resposible for generating and validating tokens.
 
-Token structure is `{polling_place_id}_{uuid}` for example `1_858c0eb7-98a8-475d-bcf6-7e29ddb4966e`.
+Token structure is `{uuid}` wihout `-` character for example `858c0eb798a8475dbcf67e29ddb4966e`.
 
 ## API description
 

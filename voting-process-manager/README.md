@@ -5,8 +5,6 @@ Deployed as one of the microservices on Gateway. Service notifies voting termina
 
 ## How to run it
 
-_Note: If you want to build and run the whole Gateway, reffer to [gateway repo](https://github.com/tp17-2021/gateway) and use docker-compose._
-
 Clone the repo and navigate inside it. Build the image:
 
 ```bash
@@ -20,8 +18,6 @@ docker run -d --name voting-process-manager -p 8225:80 voting-process-manager-im
 ```
 
 Navigate to ```localhost:8225/docs``` and you should see FastAPI docs for the service.
-
----
 
 ## API descriptions
 

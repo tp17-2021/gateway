@@ -4,8 +4,10 @@ Service resposible for generating and validating tokens.
 
 Token structure is `{uuid}` wihout `-` character for example `858c0eb798a8475dbcf67e29ddb4966e`.
 
-## API description
+## Communication with the frontend
+The token manager communicates with the frontend application using websockets. Frontend informs the user about the status of the writer, about the successful or unsuccessful writing of the token, or about writing next token on tag. Websocket sends a `writer_status` event, which takes the values `off`, `idle`, ` success`, `error`.
 
+## API description
 
 ### Generate token
 Generates new token and returns it.

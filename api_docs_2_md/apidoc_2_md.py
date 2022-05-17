@@ -3,17 +3,18 @@ import os
 
 
 services = [
-    'synchronization-service',
-    'token-manager',
-    'voting-process-manager',
-    'voting-service'
+    'synchronization-service-api',
+    'token-manager-api',
+    'voting-process-manager-api',
+    'voting-service-api',
+    'statevector'
 ]
 
 for service in services:
 
     print("processing service: {}".format(service))
 
-    openapi_endpoint = f"https://team17-21.studenti.fiit.stuba.sk/gateway/{service}-api/openapi.json"
+    openapi_endpoint = f"https://team17-21.studenti.fiit.stuba.sk/gateway/{service}/openapi.json"
     generation_command = "widdershins openapi.json -e settings.json -o api_docs.md"
 
     res = requests.get(openapi_endpoint)

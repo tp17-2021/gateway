@@ -15,20 +15,20 @@ class CommissionPaper(BaseModel):
                 "polling_place_id": 0,
                 "participated_members": [
                     {
-                        "name": "Bc. Libor Duda",
+                        "name": "Jožko Mrkvička",
                         "agree": True
                     },
                     {
-                        "name": "Bc. Timotej Králik",
+                        "name": "Ferko Mrkvička",
                         "agree": False
                     },
                     {
-                        "name": "Bc. Lucia Janíková",
+                        "name": "Ján Mrkvička",
                         "agree": True
                     }
                 ],
                 "president": {
-                    "name": "Boris Osuský",
+                    "name": "Jožko Hlavný",
                     "agree": True
                 }
             }

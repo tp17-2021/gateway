@@ -43,7 +43,7 @@ async def handle_join(sid, *args, **kwargs):
 
 @app.get('/')
 async def root () -> dict:
-    """Simple hello message"""
+    """ Simple hello message. """
 
     return {
         'status': 'success',
@@ -54,8 +54,8 @@ async def root () -> dict:
 @app.post('/tokens/writer/activate')
 async def activate_state () -> dict:
     """
-    Activate NFC writer machine. After turning on, machine's led will turn on
-    and be able to write data to NFC tokens.
+        Activate NFC writer machine. After turning on,
+        machine's LED will turn on and be able to write data to NFC tokens.
     """
     requests.post('http://statevector/state_write', json='1')
 
@@ -74,9 +74,7 @@ async def activate_state () -> dict:
 @app.post('/tokens/writer/deactivate')
 async def deactivate_state () -> dict:
     """
-    Deactivate NFC writer machine. 1 NFC token lefts to be activated, after
-    that NFC wrtter machine will turn off and not be able to write any kind
-    of data to NFC token.
+    Deactivate NFC writer machine. Led on machine will turn off.
     """
 
     requests.post('http://statevector/state_write', json='0')
@@ -97,7 +95,7 @@ async def deactivate_state () -> dict:
 async def delete_unwritten (
     event: str=Body(..., example='restart', embed=True)
 ) -> dict:
-    """Delete unwritten NFC tokens from database"""
+    """ Delete unwritten NFC tokens from database. """
 
     db.collection.delete_many({'written': False})
 
@@ -124,7 +122,7 @@ async def delete_unwritten (
 
 @app.post('/tokens/writer/update')
 async def update_written (token: str = Body(..., embed=True)) -> dict:
-    """Update NFC token state from unwritten to written"""
+    """ Update NFC token state from unwritten to written."""
 
     db.collection.update_one({
         'token': token
@@ -157,7 +155,7 @@ async def update_written (token: str = Body(..., embed=True)) -> dict:
 
 @app.post('/tokens/create')
 async def create_token () -> dict:
-    """Create and return token"""
+    """ Generates new token and returns it. """
 
     token = generate_token()
 
@@ -179,7 +177,10 @@ async def create_token () -> dict:
 
 @app.post('/tokens/validate')
 async def validate_token (token: str = Body(..., embed=True)) -> None:
-    """Validate token"""
+    """
+        Validate if provided token is valid.
+        If token is invalid returns empty response with status 403 else status 200.
+    """
 
     if not token_exists(token, active=True):
         raise HTTPException(
@@ -190,7 +191,10 @@ async def validate_token (token: str = Body(..., embed=True)) -> None:
 
 @app.post('/tokens/deactivate')
 async def deactivate_token (token: str = Body(..., embed=True)) -> None:
-    """Deactive token -> change active status to false"""
+    """
+        Deactivate provided token. Change active status to false.
+        If token is invalid returns empty response with status 403 else status 200.
+    """
 
     if not token_exists(token, active=True):
         raise HTTPException(
@@ -204,7 +208,10 @@ async def deactivate_token (token: str = Body(..., embed=True)) -> None:
 
 @app.delete('/tokens/delete')
 async def delete_token (token: str = Body(..., embed=True)) -> None:
-    """Delete token"""
+    """
+        Delete provided token.
+        If token is invalid returns empty response with status 403 else status 200.
+    """
 
     if not token_exists(token):
         raise HTTPException(

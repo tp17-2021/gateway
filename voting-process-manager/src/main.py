@@ -101,7 +101,7 @@ async def startup():
 
 @app.get('/')
 async def root () -> dict:
-    """Simple hello message"""
+    """ Simple hello message. """
 
     return {
         'status': 'success',
@@ -111,7 +111,7 @@ async def root () -> dict:
 
 @app.get('/election-config')
 async def election_config () -> dict:
-    """Returns necessary config fields for gateway from config"""
+    """ Returns necessary config fields for gateway from config. """
 
     response = requests.get(
         "http://web/statevector/config/config.json",
@@ -127,7 +127,9 @@ async def election_config () -> dict:
 
 @app.get('/terminals-status')
 async def terminals_status (current_user: User = Depends(get_current_active_user)) -> dict:
-    """Returns necessary staus information of connected voting terminals"""
+    """
+        Returns necessary staus information of connected voting terminals.
+    """
 
     terminals = await src.helper.get_terminals()
 
@@ -149,7 +151,7 @@ async def terminals_status (current_user: User = Depends(get_current_active_user
 
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    """ Log in user using username and password """
+    """ Log in user using username and password. """
 
     user = authenticate_user(users_dictionary, form_data.username, form_data.password)
     if not user:
@@ -179,7 +181,9 @@ async def send_state_to_terminals():
 
 @app.post('/start')
 async def start_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
-    """Start voting from gateway and notify terminals"""
+    """
+        Starts elections and notify all voting terminals.
+    """
 
     if(src.helper.check_election_state_running()):
         raise HTTPException(
@@ -208,7 +212,9 @@ async def start_voting_process (current_user: User = Depends(get_current_active_
 
 @app.post('/end')
 async def end_voting_process (current_user: User = Depends(get_current_active_user)) -> dict:
-    """End voting from gateway and notify terminals"""
+    """
+        Stops elections and notify all voting terminals.
+    """
 
     if(not src.helper.check_election_state_running()):
         raise HTTPException(
@@ -239,7 +245,10 @@ async def register_vt (
     request: Request,
     public_key: str = Body(..., embed=True),
 ):
-    """Register a voting terminal"""
+    """
+        Register a voting terminal.
+        Returns status 400 if registration is disabled else return status 200 with id and public key.
+    """
 
     if(not src.helper.check_terminals_regitration_running()):
         raise HTTPException(
@@ -272,7 +281,9 @@ async def register_vt (
 
 @app.get('/gateway-elections-events')
 async def gateway_events (current_user: User = Depends(get_current_active_user)) -> dict:
-    """Get gateway events"""
+    """
+        Get all elections events of start and end of elections.
+    """
 
     query = db.events_collection.find({'action': {'$in': ['elections_started', 'elections_stopped']}}, {'_id': 0}).sort('created_at', -1)
     events = [i async for i in query]
@@ -285,7 +296,9 @@ async def gateway_events (current_user: User = Depends(get_current_active_user))
 
 @app.get('/gateway-elections-events/first-start')
 async def get_first_start (current_user: User = Depends(get_current_active_user)) -> dict:
-    """Get first start"""
+    """
+        Get first start of elections.
+    """
 
     query = db.events_collection.find({'action': 'elections_started'}, {'_id': 0}).sort('created_at', 1).limit(1)
     start = [i async for i in query]
@@ -299,7 +312,9 @@ async def get_first_start (current_user: User = Depends(get_current_active_user)
 
 @app.get('/gateway-elections-events/last-end')
 async def get_last_end (current_user: User = Depends(get_current_active_user)) -> dict:
-    """Get last end"""
+    """
+        Get last end of elections.
+    """
 
     query = db.events_collection.find({'action': 'elections_stopped'}, {'_id': 0}).sort('created_at', 1).limit(1)
     end = [i async for i in query]
@@ -315,7 +330,7 @@ async def get_last_end (current_user: User = Depends(get_current_active_user)) -
 @app.post('/commission-paper/generate')
 async def generate_commission_paper(request: schemas.CommissionPaper):
     """
-    Generate commission paper in pdf format encoded in base64 and store it into database
+        Generate commission paper in pdf format encoded in base64 and store it into database.
     """
 
     parties, candidates, polling_place = src.helper.get_config()
@@ -381,7 +396,7 @@ async def generate_commission_paper(request: schemas.CommissionPaper):
 @app.get('/commission-paper')
 async def get_commission_paper():
     """
-    Get commission paper from database encoded in base64
+        Get commission paper from database encoded in base64.
     """
 
     query = db.keys_client['gateway-db']['commission_papers'].find({}, {"_id": 0}).limit(1)
@@ -396,7 +411,7 @@ async def get_commission_paper():
 @app.post('/commission-paper/send')
 async def send_commission_paper():
     """
-    Send commission paper to server
+        Send commission paper to server.
     """
 
     query = db.keys_client['gateway-db']['commission_papers'].find({}, {"_id": 0, "data": 1}).limit(1)

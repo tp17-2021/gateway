@@ -127,7 +127,7 @@ def get_statistics() -> dict:
 
 @app.get('/')
 async def root () -> dict:
-    """Simple hello message"""
+    """ Simple hello message. """
 
     return {
         'status': 'success',
@@ -137,7 +137,10 @@ async def root () -> dict:
 
 @app.post('/synchronize')
 async def synchronize () -> dict:
-    """Starts synchronization of local votes with server in background"""
+    """
+        Try to send local votes to server and updates local status.
+        If server response is different than 200, response has status 500 with error from server.
+    """
 
     if not lock.locked():
         await synchronize_votes()
@@ -154,7 +157,9 @@ async def synchronize () -> dict:
 
 @app.post('/statistics')
 async def statistics () -> dict:
-    """Get current statistics of sychnonization of local votes"""
+    """
+        Provide statistics of votes in gateway database. Count of synchronized and unsynchronized votes.
+    """
 
     global last_synchronization, last_success_synchronization
 
@@ -172,7 +177,7 @@ async def statistics () -> dict:
 
 @app.post('/seed')
 async def seed() -> dict:
-    """ Insert 10 unsynced dummy votes into gataway local gatabase """
+    """ Insert 10 unsynced dummy votes into gataway local gatabase. """
 
     for _ in range(10):
 
@@ -208,7 +213,7 @@ async def seed() -> dict:
 
 @app.get('/test-encrypt')
 async def test_encrypt() -> dict:
-    """ Get a batch of encrypted votes """
+    """ Get a batch of encrypted votes. """
 
     items = get_unsychronized_votes()
 
